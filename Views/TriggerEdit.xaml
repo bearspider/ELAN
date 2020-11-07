@@ -1,0 +1,424 @@
+﻿<syncfusion:ChromelessWindow x:Class="EQAudioTriggers.Views.TriggerEdit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:skin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+        xmlns:local="clr-namespace:EQAudioTriggers.Views"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        mc:Ignorable="d"
+        CornerRadius="8"
+        ResizeMode="NoResize"
+        skin:SfSkinManager.VisualStyle="Office2019Black"
+        Icon="/Images/Oxygen-Icons.org-Oxygen-Actions-document-edit.ico"
+        Title="Trigger Editor" Height="750" Width="700" Name="triggereditor">
+    <Window.Resources>
+        <local:AudioPlayConverter x:Key="AudioPlayConverter"/>
+    </Window.Resources>
+    <StackPanel>
+        <Grid>
+            <GroupBox Name="groupboxGeneral" Header="General Settings" Margin="10,10,10,10">
+                <StackPanel>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="5"/>
+                            <RowDefinition />
+                            <RowDefinition Height="5"/>
+                            <RowDefinition />
+                            <RowDefinition Height="5"/>
+                            <RowDefinition />
+                            <RowDefinition Height="5"/>
+                            <RowDefinition />
+                            <RowDefinition Height="5"/>
+                            <RowDefinition />
+                            <RowDefinition Height="5"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Name="labelName" Content="Trigger Name" HorizontalAlignment="Left"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Name="textboxName" HorizontalAlignment="Center" MinWidth="280" Text="{Binding Name}"/>
+                        <Label Grid.Row="2" Grid.Column="0" Name="labelSearch" Content="Search Text" HorizontalAlignment="Left"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Name="textboxSearch" HorizontalAlignment="Center" MinWidth="280" Text="{Binding SearchText}"/>
+                        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1">
+                            <CheckBox Grid.Row="4" Grid.Column="0" Name="checkboxRegex" Content="Use Regular Expressions" IsChecked="{Binding UseRegex}"/>
+                            <CheckBox Margin="10,0,0,0" Grid.Row="6" Name="checkboxFast" Content="Use Fast Check" IsEnabled="{Binding UseRegex}" IsChecked="{Binding FastCheck}"/>
+                        </StackPanel>
+                        <Label Grid.Row="8" Grid.Column="0" Name="labelCategory" Content="Category" HorizontalAlignment="Left"/>
+                        <ComboBox Grid.Row="8" Grid.Column="1" Name="comboCategory" SelectedValue="{Binding Category}"/>
+                        <Label Grid.Row="10" Grid.Column="0" Name="labelComments" Content="Comments" HorizontalAlignment="Left"/>
+                        <TextBox Grid.Row="10" Grid.Column="1" Name="textboxComments" TextWrapping="Wrap" Height="110" Text="{Binding Comments}"/>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+        <Grid Margin="10,0,10,10">
+            <TabControl Name="tabcontrolBasic" BorderThickness="2">
+                <TabItem Name="tabBasic" Header="Basic">
+                    <StackPanel>
+                        <GroupBox Name="groupTextSetting" Header="Text Settings">
+                            <StackPanel>
+                                <Grid Margin="5">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition Height="5"/>
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Row="0" Grid.Column="0" Name="checkboxBasicDisplay"  Content="Display Text" IsChecked="{Binding UseBasicText}" HorizontalAlignment="Left"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Name="textboxBasicDisplay" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding UseBasicText}" Text="{Binding BasicText}"/>
+                                    <CheckBox Grid.Row="2" Grid.Column="0" Name="checkboxBasicClipboard" Content="Clipboard Text" IsChecked="{Binding UseClipboardText}" HorizontalAlignment="Left"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Name="textboxBasicClipboard" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding UseClipboardText}" Text="{Binding ClipboardText}"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Name="groupAudioSettings" Header="Audio Settings">
+                            <StackPanel>
+                                <Grid Margin="0,10,0,0">
+                                    <RadioButton Name="radioBasicNoSound" Content="No Sound" IsChecked="{Binding RadioBasicNoSound}" GroupName="BasicAudio"/>
+                                </Grid>
+                                <StackPanel>
+                                    <RadioButton Margin="0,10,0,0" Name="radioBasicTTS" Content="Use Text To Speech" IsChecked="{Binding RadioBasicTTS}" GroupName="BasicAudio"/>
+                                        <StackPanel Margin="5">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                                <RowDefinition Height="5"/>
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Grid.Row="0" Grid.Column="0" Margin="40,0,0,0" Name="labelBasicTTS" Content="Text to Say" HorizontalAlignment="Left" IsEnabled="{Binding RadioBasicTTS}"/>
+                                            <TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,0" Name="textboxBasicTTS" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding RadioBasicTTS}" Text="{Binding BasicTTS}"/>
+                                            <CheckBox Grid.Row="2" Grid.Column="1" Name="checkboxBasicInterrupt" IsChecked="{Binding UseBasicInterrupt}" Content="Interrupt Speech" IsEnabled="{Binding RadioBasicTTS}" Grid.ColumnSpan="2"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel>
+                                    <RadioButton Margin="0,5,0,0" Name="radioBasicPlay" IsChecked="{Binding RadioBasicPlay}" Content="Play Sound File" GroupName="BasicAudio" />
+                                    <StackPanel Margin="5">
+                                    <Grid Margin="0">
+                                        <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                            </Grid.ColumnDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Margin="40,0,0,0" Name="labelBasicSoundFile" Content="Sound File" HorizontalAlignment="Left" IsEnabled="{Binding RadioBasicPlay}"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1" Name="textboxBasicSoundFile" HorizontalAlignment="Center" Width="400" Text="{Binding BasicPlayFile}" IsEnabled="{Binding RadioBasicPlay}"/>
+                                        <Button Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" Name="buttonBasicSoundFile" Width="30" Content=". . ." IsEnabled="{Binding RadioBasicPlay}" Click="buttonBasicSoundFile_Click"/>
+                                    </Grid>
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Grid Margin="74,0,0,0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Name="labelBasicTest" Content="Test" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioBasicNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"/>
+                                        <ComboBox Grid.Row="0" Grid.Column="1" Name="comboBasicTest" Width="120" HorizontalAlignment="Center" 
+                                                  IsEnabled="{Binding ElementName=radioBasicNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"
+                                                  DisplayMemberPath="Name" SelectedIndex="0"/>
+                                        <Button Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" Name="buttonBasicTest" Content="Play" Width="60" HorizontalAlignment="Right" Click="buttonBasicTest_Click" IsEnabled="{Binding ElementName=radioBasicNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Name="tabTimer" Header="Timer">
+                    <StackPanel>
+                        <StackPanel Margin="5">
+                            <Grid Margin="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Row="0" Grid.Column="0" Name="labelTimerType" Content="Timer Type:" HorizontalAlignment="Left"/>
+                                <ComboBox Grid.Row="0" Grid.Column="1" Name="comboTimerType" Width="160" HorizontalAlignment="Left" SelectedItem="{Binding TimerType}" SelectionChanged="comboTimerType_SelectionChanged" >
+                                <ComboBoxItem Name="NoTimer" Content="No Timer" IsSelected="True"/>
+                                <ComboBoxItem Name="Timer" Content="Timer(Count Down)"/>
+                                <ComboBoxItem Name="Stopwatch" Content="Stopwatch(Count Up)"/>
+                                <ComboBoxItem Name="RepeatingTimer" Content="Repeating Timer"/>
+                            </ComboBox>
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel>
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                            <Label Grid.Row="0" Grid.Column="0" Name="labelTimerName" Content="Timer Name:" HorizontalAlignment="Left" IsEnabled="False"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Name="textboxTimerName" Text="{Binding TimerName}" HorizontalAlignment="Center" Width="290" IsEnabled="False"/>
+                        </Grid>
+                        </StackPanel>
+                        <Grid Margin="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Row="0" Grid.Column="0" Name="labelTimerDuration" Content="Timer Duration:" HorizontalAlignment="Left" IsEnabled="False"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Name="textboxTimerHours" VerticalAlignment="Center" Text="{Binding TimerHours}" Width="30" IsEnabled="False"/>
+                            <Label Grid.Row="0" Grid.Column="2" Name="labelTimerHours" Content="Hours" IsEnabled="False"/>
+                            <TextBox Grid.Row="0" Grid.Column="3" Name="textboxTimerMinutes" VerticalAlignment="Center" Text="{Binding TimerMinutes}" Width="30" IsEnabled="False"/>
+                            <Label Grid.Row="0" Grid.Column="4" Name="labelTimerMinutes" Content="Minutes" IsEnabled="False"/>
+                            <TextBox Grid.Row="0" Grid.Column="5" Name="textboxTimerSeconds" VerticalAlignment="Center" Text="{Binding TimerSeconds}" Width="30" IsEnabled="False"/>
+                            <Label Grid.Row="0" Grid.Column="6" Name="labelTimerSeconds" Content="Seconds" IsEnabled="False"/>
+                        </Grid>
+                        <Grid Margin="0,30,0,0">
+                            <Label Grid.Row="0" Grid.Column="0" Name="labelTimerTriggered" Content="If timer is already running when triggered again:" IsEnabled="False"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" Name="comboTriggered" Width="120" SelectedItem="{Binding TimerTriggered}">
+                                <ComboBoxItem Name="newtimer" Content="Start a new timer"/>
+                                <ComboBoxItem Name="nothing" Content="Do nothing" IsSelected="True"/>
+                            </ComboBox>
+                        </Grid>
+                        <Grid Margin="0,10,0,0">
+                            <Label Name="labelEarlyText" Content="End early text (for multiple possible values, add a row for each):" IsEnabled="False"/>
+                        </Grid>
+                        <Grid>
+                            <DataGrid Name="datagridEarly" ItemsSource="{Binding EndEarlyTriggers}" Height="200" IsEnabled="False"/>
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Name="tabEnding" Header="Timer Ending" IsEnabled="false">
+                    <StackPanel Margin="5">
+                        <StackPanel>
+                            <Grid Margin="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox Grid.Row="0" Grid.Column="0" Name="checkboxEndingNotify" Content="Notify when timer is down to:" IsChecked="{Binding EndingNotify}" VerticalAlignment="Center" Unchecked="checkboxEndingNotify_Unchecked"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Name="textboxEndingHours" VerticalAlignment="Center" Text="{Binding EndingHours}" Width="40" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
+                                <Label Grid.Row="0" Grid.Column="2" Name="labelEndingHours" Content="Hours" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
+                                <TextBox Grid.Row="0" Grid.Column="3" Name="textboxEndingMinutes" Text="{Binding EndingMinutes}" VerticalAlignment="Center" Width="40" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
+                                <Label Grid.Row="0" Grid.Column="4" Name="labelEndingMinutes" Content="Minutes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
+                                <TextBox Grid.Row="0" Grid.Column="5" Name="textboxEndingSeconds" Text="{Binding EndingSeconds}" VerticalAlignment="Center" Width="40" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
+                                <Label Grid.Row="0" Grid.Column="6" Name="labelEndingSeconds" Content="Seconds" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
+                            </Grid>
+                        </StackPanel>
+                        <GroupBox Name="groupEndingTextSetting" Header="Text Settings">
+                            <StackPanel Margin="5">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition Height="5"/>
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Row="0" Grid.Column="0" Name="checkboxEndingDisplay" Content="Display Text" IsChecked="{Binding UseEndingText}" HorizontalAlignment="Left"  IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
+                                    <TextBox Margin="5,0,0,0" Grid.Row="0" Grid.Column="1" Name="textboxEndingDisplay" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding ElementName=checkboxEndingDisplay,Path=IsChecked}" Text="{Binding EndingText}"/>
+                                    <CheckBox Grid.Row="2" Grid.Column="0" Name="checkboxEndingClipboard" Content="Clipboard Text" IsChecked="{Binding UseEndingClipboard}" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
+                                    <TextBox Margin="5,0,0,0" Grid.Row="2" Grid.Column="1" Name="textboxEndingClipboard" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding ElementName=checkboxEndingClipboard,Path=IsChecked}"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Name="groupEndingAudioSettings" Header="Audio Settings" Margin="0,5,0,0">
+                            <StackPanel Margin="5">
+                                <RadioButton Name="radioEndingNoSound" Content="No Sound" IsChecked="{Binding RadioEndingNoSound}" GroupName="EndingAudio" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
+                            <StackPanel>
+                                    <RadioButton Margin="0,5,0,0" Name="radioEndingTTS" Content="Use Text To Speech" IsChecked="{Binding RadioEndingTTS}" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}" GroupName="EndingAudio"/>
+                                <Grid Margin="20,5,0,0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                            <RowDefinition Height="5"/>
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                            <ColumnDefinition Width="auto" />
+                                            <ColumnDefinition Width="auto" />
+                                        </Grid.ColumnDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Name="labelEndingTTS" Content="Text to Say" HorizontalAlignment="Left" IsEnabled="{Binding RadioEndingTTS}"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Name="textboxEndingTTS" HorizontalAlignment="Center" Width="400" Text="{Binding EndingTTS}" IsEnabled="{Binding RadioEndingTTS}" />
+                                    <CheckBox Grid.Row="2" Grid.Column="1" Name="checkboxEndingInterrupt" IsChecked="{Binding EndingInterrupt}" Content="Interrupt Speech" IsEnabled="{Binding RadioEndingTTS}"/>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel>
+                                    <RadioButton Margin="0,5,0,0" Name="radioEndingPlay" IsChecked="{Binding RadioEndingSound}" Content="Play Sound File" GroupName="EndingAudio" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
+                                <Grid Margin="20,5,0,0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Name="labelEndingSoundFile" Content="Sound File" HorizontalAlignment="Left" IsEnabled="{Binding RadioEndingSound}"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Name="textboxEndingSoundFile" HorizontalAlignment="Center" Width="350" Text="{Binding EndingSoundFile}" IsEnabled="{Binding RadioEndingSound}"/>
+                                    <Button Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" Name="buttonEndingSoundFile" Width="30" Content=". . ." IsEnabled="{Binding RadioEndingSound}" Click="buttonEndingSoundFile_Click"/>
+                                </Grid>
+                            </StackPanel>
+                                <Grid Margin="0,15,0,0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Name="labelEndingTest" Content="Test:" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioEndingNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"/>
+                                    <ComboBox Grid.Row="0" Grid.Column="1" Name="comboEndingTest" Width="130" HorizontalAlignment="Center" 
+                                              IsEnabled="{Binding ElementName=radioEndingNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"
+                                              DisplayMemberPath="Name" SelectedIndex="0"/>
+                                    <Button Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" Name="buttonEndingTest" Content="Play" Width="60" HorizontalAlignment="Right" IsEnabled="{Binding ElementName=radioEndingNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}" Click="buttonEndingTest_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Name="tabEnded" Header="Timer Ended" IsEnabled="false">
+                    <StackPanel Margin="5">
+                        <CheckBox Name="checkboxEndedNotify" Margin="0,5,0,0" Content="Notify when timer ends" IsChecked="{Binding EndedNotify}" VerticalAlignment="Center" Unchecked="checkboxEndedNotify_Unchecked"/>
+                            <GroupBox Margin="0,5,0,0" Name="groupEndedTextSetting" Header="Text Settings">
+                            <StackPanel Margin="5">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="5"/>
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Row="0" Grid.Column="0" Name="checkboxEndedDisplay" Content="Display Text" IsChecked="{Binding UseEndedText}" HorizontalAlignment="Left" IsEnabled="{Binding EndedNotify}"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Margin="5,0,0,0" Name="textboxEndedDisplay" HorizontalAlignment="Left" Width="400" Text="{Binding EndedDisplayText}" IsEnabled="{Binding UseEndedText}"/>
+                                    <CheckBox Grid.Row="2" Grid.Column="0" Name="checkboxEndedClipboard" Content="Clipboard Text" IsChecked="{Binding UseEndedClipboard}" HorizontalAlignment="Left" IsEnabled="{Binding EndedNotify}"/>
+                                    <TextBox Grid.Row="2"  Grid.Column="1" Margin="5,0,0,0" Name="textboxEndedClipboard" HorizontalAlignment="Left" Width="400" Text="{Binding EndedClipboard}" IsEnabled="{Binding UseEndedClipboard}"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Name="groupEndedAudioSettings" Header="Audio Settings" Margin="0,5,0,0">
+                            <StackPanel Margin="5">
+                                <RadioButton Name="radioEndedNoSound" Content="No Sound" IsChecked="True" IsEnabled="{Binding EndedNotify}" GroupName="EndedAudio"/>
+                                <StackPanel>
+                                    <RadioButton Margin="0,5,0,0" Name="radioEndedTTS" Content="Use Text To Speech" IsChecked="False" IsEnabled="{Binding ElementName=checkboxEndedNotify, Path=IsChecked}" GroupName="EndedAudio"/>
+                                    <Grid Margin="20,5,0,0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition Height="5"/>
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Name="labelEndedTTS" Content="Text to Say" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioEndedTTS,Path=IsChecked}"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1" Name="textboxEndedTTS" HorizontalAlignment="Center" Width="400" Text="{Binding EndedTTS}" IsEnabled="{Binding ElementName=radioEndedTTS,Path=IsChecked}"/>
+                                        <CheckBox Grid.Row="2" Grid.Column="1" Name="checkboxEndedInterrupt" IsChecked="{Binding EndedInterrupt}" Content="Interrupt Speech" IsEnabled="{Binding ElementName=radioEndedTTS,Path=IsChecked}"/>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel>
+                                    <RadioButton Margin="0,5,0,0" Name="radioEndedPlay" IsChecked="False" Content="Play Sound File" IsEnabled="{Binding ElementName=checkboxEndedNotify, Path=IsChecked}" GroupName="EndedAudio"/>
+                                    <Grid Margin="20,5,0,0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Name="labelEndedSoundFile" Content="Sound File" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioEndedPlay, Path=IsChecked}"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1" Name="textboxEndedSoundFile" HorizontalAlignment="Center" Width="350" Text="{Binding EndedSoundFile}" IsEnabled="{Binding ElementName=radioEndedPlay,Path=IsChecked}"/>
+                                        <Button Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" Name="buttonEndedSoundFile" Width="30" Content=". . ." IsEnabled="{Binding ElementName=radioEndedPlay,Path=IsChecked}" Click="buttonEndedSoundFile_Click"/>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel>
+                                    <Grid Margin="0,20,0,0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Name="labelEndedTest" Content="Test:" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioEndedNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"/>
+                                        <ComboBox Grid.Row="0" Grid.Column="1" Name="comboEndedTest" Width="130" HorizontalAlignment="Center" 
+                                                  IsEnabled="{Binding ElementName=radioEndedNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"
+                                                  DisplayMemberPath="Name" SelectedIndex="0"/>
+                                        <Button Margin="5,0,0,0" Grid.Row="0" Grid.Column="2" Name="buttonEndedTest" Content="Play" Width="60" HorizontalAlignment="Right" IsEnabled="{Binding ElementName=radioEndedNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}" Click="buttonEndedTest_Click"/>
+                                </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Name="tabCounter" Header="Counter">
+                    <StackPanel Margin="5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Row="0" Grid.Column="0" Name="checkboxCounterNotify" Content="Reset counter if unmatched for:" IsChecked="{Binding CounterReset}" VerticalAlignment="Center" Unchecked="checkboxCounterNotify_Unchecked"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Margin="5,0,0,0" Name="textboxCounterHours" Text="{Binding ResetHours}" VerticalAlignment="Center" Width="40" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=checkboxCounterNotify, Path=IsChecked}"/>
+                            <Label Grid.Row="0" Grid.Column="2" Name="labelCounterHours" Content="Hours" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="0" Grid.Column="3" Name="textboxCounterMinutes" Text="{Binding ResetMinutes}" VerticalAlignment="Center" Width="40" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=checkboxCounterNotify, Path=IsChecked}"/>
+                            <Label Grid.Row="0" Grid.Column="4" Name="labelCounterMinutes" Content="Minutes" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="0" Grid.Column="5" Name="textboxCounterSeconds" Text="{Binding ResetSeconds}" VerticalAlignment="Center" Width="40" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=checkboxCounterNotify, Path=IsChecked}"/>
+                            <Label Grid.Row="0" Grid.Column="6" Name="labelCounterSeconds" Content="Seconds"  HorizontalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+        </Grid>
+        <Grid Margin="0,10,0,0" VerticalAlignment="Bottom">
+            <Button Name="buttonTimerSave" Content="Save" HorizontalAlignment="Right" Margin="0,0,85,0" Width="60" Click="buttonTimerSave_Click"/>
+            <Button Name="buttonTimerCancel" Content="Cancel" HorizontalAlignment="Right" Width="60" Margin="0,0,10,0" IsCancel="True" Click="buttonTimerCancel_Click" />
+        </Grid>
+    </StackPanel>
+</syncfusion:ChromelessWindow>

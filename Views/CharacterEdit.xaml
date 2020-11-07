@@ -1,0 +1,137 @@
+﻿<syncfusion:ChromelessWindow x:Class="EQAudioTriggers.Views.CharacterEdit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:local="clr-namespace:EQAudioTriggers.Views"
+        xmlns:skin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+        mc:Ignorable="d"
+        Icon="\Images\Oxygen-Icons.org-Oxygen-Actions-user-properties.ico"
+        CornerRadius="8"
+        ResizeMode="NoResize"
+        skin:SfSkinManager.VisualStyle="Office2019Black"
+        Title="Character Editor" Height="570" Width="750">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="150" />
+            <RowDefinition Height="125" />
+            <RowDefinition Height="220" />
+            <RowDefinition Height="35" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <GroupBox Grid.Row="0" x:Name="groupGeneral" Header="General Settings" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="5"/>
+                    <RowDefinition />
+                    <RowDefinition Height="5"/>
+                    <RowDefinition />
+                    <RowDefinition Height="5"/>
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" x:Name="labelLogFile" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Log File" />
+                <TextBox Grid.Row="0" Grid.Column="1" Name="textboxLogFile" HorizontalAlignment="Center" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" MinWidth="280" Text="{Binding LogFile}"/>
+                <Button Grid.Row="0" Grid.Column="2"  Name="buttonLogFile" Content=". . ." HorizontalAlignment="Left" Width="30" Margin="5,0,0,0" Height="24" VerticalAlignment="Top" FontWeight="Bold" Click="buttonLogFile_Click"/>
+                <Label Grid.Row="2" Grid.Column="0" x:Name="labelProfileName" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Profile Name" />
+                <TextBox Grid.Row="2" Grid.Column="1" Name="textBoxProfileName" HorizontalAlignment="Center" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" MinWidth="280" Text="{Binding Profile}"/>
+                <Label Grid.Row="4" Grid.Column="0" x:Name="labelCharacter" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Character Name" />
+                <TextBox Grid.Row="4" Grid.Column="1" Name="textboxCharacter" HorizontalAlignment="Center" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" MinWidth="280" Text="{Binding Name}"/>
+                <CheckBox Grid.Row="6" Grid.Column="1" Name="checkboxMonitor" Content="Monitor on Startup" IsChecked="{Binding Monitor}"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" x:Name="groupColors" Margin="5" Header="Colors" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Name="labelTextColor" Content="Text Font Color"/>
+                <syncfusion:ColorPicker Grid.Row="0" Grid.Column="1"
+                x:Name="TextFontPicker"
+                Width="300"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Brush="{Binding SelectedBrush, Mode=TwoWay}"
+                EnableToolTip="False"
+                GradientBrushDisplayMode="Extended"
+                Color="{Binding TextFontColor}" />
+                <Label Grid.Row="2" Grid.Column="0" Name="labelTimerFont" HorizontalAlignment="Left" Content="Timer Font Color" Margin="0,0,0,0"/>
+                <syncfusion:ColorPicker Grid.Row="2" Grid.Column="1"
+                x:Name="TimerFontPicker"
+                Width="300"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Brush="{Binding SelectedBrush, Mode=TwoWay}"
+                EnableToolTip="False"
+                GradientBrushDisplayMode="Extended"
+                Color="{Binding TimerFontColor}" />
+                <Label Grid.Row="4" Grid.Column="0" Name="labelBarColor" HorizontalAlignment="Left" Content="Timer Bar Color" Margin="0,0,0,0"/>
+                <syncfusion:ColorPicker Grid.Row="4" Grid.Column="1"
+                x:Name="TimerBarPicker"
+                Width="300"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Brush="{Binding SelectedBrush, Mode=TwoWay}"
+                EnableToolTip="False"
+                GradientBrushDisplayMode="Extended"
+                Color="{Binding TimerBarColor}" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="2" x:Name="groupAudio" Header="Audio Settings" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Name="labelVolume" Content="Volume" HorizontalAlignment="Left" Margin="0"/>
+                <Slider Grid.Row="0" Grid.Column="1" Name="sliderVolume" MinWidth="280" Minimum="0" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding AudioVolume}" VerticalAlignment="Center" HorizontalAlignment="Left" ValueChanged="sliderVolume_ValueChanged"/>
+                <TextBox Grid.Row="0" Grid.Column="2" x:Name="textboxVolume" HorizontalAlignment="Left" Text="{Binding ElementName=sliderVolume, Path=Value, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="5"/>
+                <Label Grid.Row="2" Grid.Column="0" Name="labelVoice" Content="Voice" HorizontalAlignment="Left" Margin="0" />
+                <ComboBox Grid.Row="2" Grid.Column="1" Name="comboVoice" HorizontalAlignment="Left" SelectionChanged="comboVoice_SelectionChanged" SelectedValue="{Binding AudioVoice}"/>
+                <Label Grid.Row="4" Grid.Column="0" Name="labelVoiceRate" Content="Voice Speed" HorizontalAlignment="Left" Margin="0" Grid.ColumnSpan="2" />
+                <Slider Grid.Row="4" Grid.Column="1" Name="sliderRate" MinWidth="280" Minimum="-10" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0" ValueChanged="sliderRate_ValueChanged" Value="{Binding VoiceSpeed}"/>
+                <TextBox Grid.Row="4" Grid.Column="2" x:Name="textboxRate" HorizontalAlignment="Left" Text="{Binding ElementName=sliderRate, Path=Value, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="5"/>
+                <Label Grid.Row="6" Grid.Column="0" Name="labelPhonetic" Content="Phonetic Name" HorizontalAlignment="Left" Margin="0" />
+                <TextBox Grid.Row="6" Grid.Column="1" Name="textboxPhonetic" HorizontalAlignment="Left" Width="200" Margin="0" Text="{Binding PhoenticName}"/>
+                <Button Grid.Row="6" Grid.Column="2"  Name="buttonPlayPhonetic" HorizontalAlignment="Left" Content="Play"  Width="60" Click="buttonPlayPhonetic_Click" Margin="0"/>
+                <Label Grid.Row="8" Grid.Column="0" Name="labelSample" Content="Sample" HorizontalAlignment="Left" Margin="0" />
+                <TextBox Grid.Row="8" Grid.Column="1" Name="textboxSample" HorizontalAlignment="Left" Width="200" Grid.ColumnSpan="2" Margin="0" />
+                <Button Grid.Row="8" Grid.Column="2" Name="buttonPlaySample" HorizontalAlignment="Left"  Content="Play" Click="buttonPlaySample_Click" Width="60" Margin="0" />
+            </Grid>
+        </GroupBox>        
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Name="buttonSave" Content="Save" HorizontalAlignment="Left" Height="23" Margin="5" VerticalAlignment="Top" Width="100" Click="buttonSave_Click"/>
+            <Button Name="buttonCancel" Content="Cancel" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Height="23" Width="100" IsCancel="True" Click="buttonCancel_Click"/>
+        </StackPanel>
+    </Grid>
+</syncfusion:ChromelessWindow>

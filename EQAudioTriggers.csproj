@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5314A89E-352D-4678-817D-48096EFC2420}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>EQAudioTriggers</RootNamespace>
+    <AssemblyName>EQAudioTriggers</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;WPF</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;WPF</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Data.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Data.WPF.18.3.0.44\lib\net46\Syncfusion.Data.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Licensing, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=632609b4d040f6b4, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Licensing.18.3.0.47\lib\net46\Syncfusion.Licensing.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.SfBusyIndicator.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfBusyIndicator.WPF.18.3.0.44\lib\net46\Syncfusion.SfBusyIndicator.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.SfChart.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfChart.WPF.18.3.0.44\lib\net46\Syncfusion.SfChart.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.SfDiagram.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfDiagram.WPF.18.3.0.44\lib\net46\Syncfusion.SfDiagram.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.SfGrid.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfGrid.WPF.18.3.0.44\lib\net46\Syncfusion.SfGrid.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.SfGridCommon.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfGridCommon.WPF.18.3.0.44\lib\net46\Syncfusion.SfGridCommon.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.SfShared.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfShared.WPF.18.3.0.44\lib\net46\Syncfusion.SfShared.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.SfSkinManager.WPF, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfSkinManager.WPF.18.3.0.47\lib\net46\Syncfusion.SfSkinManager.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.SfTreeView.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfTreeView.WPF.18.3.0.44\lib\net46\Syncfusion.SfTreeView.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Shared.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Shared.WPF.18.3.0.44\lib\net46\Syncfusion.Shared.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Blend.WPF, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.Blend.WPF.18.3.0.47\lib\net46\Syncfusion.Themes.Blend.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.MaterialDark.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.MaterialDark.WPF.18.3.0.44\lib\net46\Syncfusion.Themes.MaterialDark.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.MaterialLight.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.MaterialLight.WPF.18.3.0.44\lib\net46\Syncfusion.Themes.MaterialLight.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Metro.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.Metro.WPF.18.3.0.44\lib\net46\Syncfusion.Themes.Metro.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Office2013DarkGray.WPF, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.Office2013DarkGray.WPF.18.3.0.47\lib\net46\Syncfusion.Themes.Office2013DarkGray.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Office2019Black.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.Office2019Black.WPF.18.3.0.44\lib\net46\Syncfusion.Themes.Office2019Black.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Office365.WPF, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.Office365.WPF.18.3.0.47\lib\net46\Syncfusion.Themes.Office365.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.VisualStudio2015.WPF, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.VisualStudio2015.WPF.18.3.0.47\lib\net46\Syncfusion.Themes.VisualStudio2015.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Tools.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Tools.WPF.18.3.0.44\lib\net46\Syncfusion.Tools.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Speech" />
+    <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="UIAutomationTypes" />
+    <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Xceed.Wpf.AvalonDock, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>packages\Extended.Wpf.Toolkit.4.0.1\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Aero, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>packages\Extended.Wpf.Toolkit.4.0.1\lib\net40\Xceed.Wpf.AvalonDock.Themes.Aero.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Metro, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>packages\Extended.Wpf.Toolkit.4.0.1\lib\net40\Xceed.Wpf.AvalonDock.Themes.Metro.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.VS2010, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>packages\Extended.Wpf.Toolkit.4.0.1\lib\net40\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Wpf.Toolkit, Version=4.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>packages\Extended.Wpf.Toolkit.4.0.1\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Command\OnDemandCommand.cs" />
+    <Compile Include="EATStyleWindow.xaml.cs">
+      <DependentUpon>EATStyleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ActivatedTrigger.cs" />
+    <Compile Include="Models\ActivatedTriggerCollection.cs" />
+    <Compile Include="Models\ActiveTriggerCollection.cs" />
+    <Compile Include="Models\Character.cs" />
+    <Compile Include="Models\CharacterCollection.cs" />
+    <Compile Include="Models\EndEarlyTrigger.cs" />
+    <Compile Include="Models\EQTrigger.cs" />
+    <Compile Include="Models\TriggerGroupProperty.cs" />
+    <Compile Include="Models\TriggerManager.cs" />
+    <Compile Include="Views\CharacterEdit.xaml.cs">
+      <DependentUpon>CharacterEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TriggerEdit.xaml.cs">
+      <DependentUpon>TriggerEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TriggerGroupEdit.xaml.cs">
+      <DependentUpon>TriggerGroupEdit.xaml</DependentUpon>
+    </Compile>
+    <Page Include="EATStyleWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CharacterEdit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TriggerEdit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TriggerGroupEdit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="App.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\bard_lute.jpg" />
+    <Resource Include="Images\Gakuseisean-Aire-Download-Folder.ico" />
+    <Resource Include="Images\Gakuseisean-Aire-Upload-Folder.ico" />
+    <Resource Include="Images\Google-Noto-Emoji-Travel-Places-42608-stopwatch.ico" />
+    <Resource Include="Images\Hopstarter-Soft-Scraps-Button-Blank-Green.ico" />
+    <Resource Include="Images\Hopstarter-Soft-Scraps-Button-Blank-Red.ico" />
+    <Resource Include="Images\Icons8-Windows-8-Hands-Clenched-Fist.ico" />
+    <Resource Include="Images\Itzikgur-My-Seven-Books-1.ico" />
+    <Resource Include="Images\Knob-Remove-icon.png" />
+    <Resource Include="Images\Knob-Remove-Red-icon.png" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-arrow-right.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-contact-new.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-dialog-ok-apply.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-document-close.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-document-edit.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-document-export.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-document-new.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-draw-freehand.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-edit-copy.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-edit-cut.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-edit-delete.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-edit-find-user.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-edit-find.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-edit-paste.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-edit-undo.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-im-user.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-list-add-user.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-list-add.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-list-remove-user.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-list-remove.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-media-playback-start.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-media-playback-stop.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-process-stop.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-svn-commit.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-svn-update.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-tab-close-other.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-tab-new-background.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-user-properties.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-window-close.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Apps-konversation.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Apps-preferences-system-network-sharing.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Apps-system-file-manager.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Apps-utilities-terminal.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Status-image-missing.ico" />
+    <Resource Include="Images\Paomedia-Small-N-Flat-Sign-check.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Tonev-Windows-7-Windows-7-headphone.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-irc-voice.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Google-Noto-Emoji-Objects-62963-crossed-swords.ico" />
+    <Resource Include="Images\Icojam-Blue-Bits-Shield.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\elan.ico" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
