@@ -309,7 +309,7 @@ namespace EQAudioTriggers.Models
             
         }
 
-        public void AddTrigger(CharacterCollection Characters)
+        public EQTrigger AddTrigger(CharacterCollection Characters)
         {
             TriggerEdit te = new TriggerEdit(Characters);
             Boolean rval = (bool)te.ShowDialog();
@@ -352,9 +352,86 @@ namespace EQAudioTriggers.Models
                     //serialize object directly into file stream
                     serializer.Serialize(file, tm.Trigger);
                 }
+                return tm.Trigger;
             }
+            return null;
         }
 
+        public void UpdateTriggerLocation(string filename)
+        {
+            string oldfile = this.FullPath;
+            this.FullPath = $"{filename}\\{this.Name}.json";
+            this.Trigger.Path = this.FullPath;            
+            //write new trigger
+            using (StreamWriter file = File.CreateText($"{this.FullPath}"))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                //serialize object directly into file stream
+                serializer.Serialize(file, this.Trigger);
+            }
+            //check if the new file exists before deleting trigger
+            if(File.Exists(this.FullPath))
+            {
+                File.Delete(oldfile);
+            }            
+        }
+
+        public void UpdateTriggerGroupLocation(string filename)
+        {
+            string oldfile = this.FullPath;
+            this.FullPath = $"{filename}\\{this.Name}";
+            this.TriggerGroup.FullPath = this.FullPath;
+            //check if the new destination makes this a root node
+
+            //Walk through the tree, use this function recursively
+
+            //check if a folder with the triggergroupname exists
+            //   no => create new folder
+            if(!Directory.Exists(this.FullPath))
+            {
+                Directory.CreateDirectory(this.FullPath);
+            }
+
+            //create new properties.json
+            using (StreamWriter file = File.CreateText($"{this.FullPath}\\properties.json"))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                //serialize object directly into file stream
+                serializer.Serialize(file, this.TriggerGroup);
+            }
+
+            //check if this has subgroups
+            //   yes => go through each node and call updatetriggerlocation or updatetriggergrouplocation
+            if (this.SubGroups.Count > 0)
+            {
+                foreach(TriggerManager sub in SubGroups)
+                {
+                    if(sub.NodeType == "trigger")
+                    {
+                        sub.UpdateTriggerLocation($"{this.FullPath}");
+                    }
+                    if(sub.NodeType == "group")
+                    {
+                        sub.UpdateTriggerGroupLocation($"{this.FullPath}");
+                    }
+                }
+            }
+            //Check if there are subdirectories, if there are don't do anything.  If only properties.json, then delete folder.
+            if ((Directory.EnumerateDirectories(oldfile).Count() == 0))
+            {
+                //Finally, delete properties.json and old folder if empty
+                try
+                {
+                    File.Delete($"{oldfile}\\properties.json");
+                    Directory.Delete(oldfile);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Directory Not Empty");
+                }
+            }
+            
+        }
         public void RemoveTrigger()
         {
             File.Delete(_fullpath);

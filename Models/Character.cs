@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Speech.Synthesis;
 using System.Text;
@@ -24,6 +25,7 @@ namespace EQAudioTriggers.Models
         private string _phoneticname;
         private SpeechSynthesizer _synth;
         private long _lastlogposition;
+        private Boolean _monitoring;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -45,8 +47,10 @@ namespace EQAudioTriggers.Models
             _synth.Volume = _audiovolume;
             _synth.SelectVoice(_audiovoice);
             _lastlogposition = 0;
+            _monitoring = _monitor;
         }
 
+        public Boolean Monitoring { get { return _monitoring; } set { _monitoring = value; NotifyPropertyChanged("Monitoring"); } }
         public long LastLogPosition { get { return _lastlogposition; } set { _lastlogposition = value; NotifyPropertyChanged("LastLogPostion"); } }
         public string Name { get { return _name; } set { _name = value; NotifyPropertyChanged("Name"); } }
         public string LogFile { get { return _logfile; } set { _logfile = value; NotifyPropertyChanged("LogFile"); } }
@@ -59,6 +63,12 @@ namespace EQAudioTriggers.Models
         public string AudioVoice { get { return _audiovoice; } set { _audiovoice = value; NotifyPropertyChanged("AudioVoice"); } }
         public int VoiceSpeed { get { return _voicespeed; } set { _voicespeed = value; NotifyPropertyChanged("VoiceSpeed"); } }
         public string PhoenticName { get { return _phoneticname; } set { _phoneticname = value; NotifyPropertyChanged("PhoenticName"); } }
+
+        public void Delete()
+        {
+            string filetodelete = $"{EQAudioTriggers.GlobalVariables.workingdirectory}\\Characters\\{this.Profile}.json";
+            File.Delete(filetodelete);
+        }
 
         public void EditCharacter()
         {
