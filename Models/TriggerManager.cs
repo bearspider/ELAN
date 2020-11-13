@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -30,7 +31,7 @@ namespace EQAudioTriggers.Models
         private bool _hasChildNodes;
         private string _nodetype;
         private string _icon;
-        private Boolean _isactive;
+        private bool? _isactive;
         private Boolean _isrootnode;
         private TriggerManager _parentnode;
         private EQTrigger _trigger;
@@ -38,6 +39,7 @@ namespace EQAudioTriggers.Models
 
         DispatcherTimer timer;
         TreeViewNode currentNode;
+        string currentCharacter;
 
         private ObservableCollection<TriggerManager> _subGroups;
         private ObservableCollection<Character> _characters;
@@ -101,7 +103,7 @@ namespace EQAudioTriggers.Models
             }
         }
 
-        public Boolean IsActive
+        public bool? IsActive
         {
             get { return _isactive; }
             set
@@ -208,6 +210,43 @@ namespace EQAudioTriggers.Models
             }
         }
         #endregion
+        public void ClimbTree(Boolean enable)
+        {
+            //get the active count of the sub nodes, this will be used in a couple spots
+            int totalsubs = this.SubGroups.Count;
+            int activecount = 0;
+            Boolean partial = false; 
+            foreach (TriggerManager sub in this.SubGroups)
+            {
+                if (sub.IsActive == true)
+                {
+                    activecount++;
+                }
+                if(sub.IsActive == null)
+                {
+                    partial = true;
+                }
+            }
+            if (partial)
+            {
+                this.IsActive = null;
+            }
+            else
+            {
+                Console.WriteLine($"Node: {Name} | Total Subs[{this.SubGroups.Count}] Active Count[{activecount}]");
+                if (activecount == totalsubs && this.SubGroups.Count > 0)
+                { this.IsActive = true; }
+                else if (activecount > 0 && activecount < totalsubs)
+                { this.IsActive = null; }
+                else if (activecount == 0 && this.SubGroups.Count > 0)
+                { this.IsActive = false; }
+            }
+            if (ParentNode != null)
+            {
+                //Mark nodes first, then climb the tree
+                ParentNode.ClimbTree(enable);
+            }
+        }
 
         public void EditTriggerGroup()
         {
@@ -309,7 +348,7 @@ namespace EQAudioTriggers.Models
             
         }
 
-        public EQTrigger AddTrigger(CharacterCollection Characters)
+        public EQTrigger AddTrigger(ObservableCollection<CharacterCollection> Characters)
         {
             TriggerEdit te = new TriggerEdit(Characters);
             Boolean rval = (bool)te.ShowDialog();
@@ -322,7 +361,7 @@ namespace EQAudioTriggers.Models
                 }
 
                 //build the new trigger manager
-
+                te.ReturnTrigger.Path = $"{this.FullPath}\\{te.ReturnTrigger.Name}.json";
                 TriggerManager tm = new TriggerManager
                 {
                     Name = te.ReturnTrigger.Name,
@@ -330,13 +369,13 @@ namespace EQAudioTriggers.Models
                     Trigger = te.ReturnTrigger,
                     Icon = GlobalVariables.triggericon,
                     NodeType = "trigger",
-                    FullPath = $"{this.FullPath}\\{te.ReturnTrigger.Name}.json",
+                    FullPath = te.ReturnTrigger.Path,
                 };
                 
                 //If the parent group says default enable, enable this trigger
                 if(DefaultEnable)
                 {
-                    foreach(Character character in Characters)
+                    foreach(CharacterCollection character in Characters)
                     {
                         tm.Trigger.ActiveCharacters.Add(character.Name);
                     }
@@ -432,13 +471,14 @@ namespace EQAudioTriggers.Models
             }
             
         }
+
         public void RemoveTrigger()
         {
             File.Delete(_fullpath);
             ParentNode.SubGroups.Remove(this);
         }
 
-        public void EditTrigger(CharacterCollection charcollection)
+        public void EditTrigger(ObservableCollection<CharacterCollection> charcollection)
         {
             TriggerEdit te = new TriggerEdit(this.Trigger, charcollection);
             Boolean rval = (bool)te.ShowDialog();
@@ -473,7 +513,7 @@ namespace EQAudioTriggers.Models
         private void Timer_Tick(object sender, EventArgs e)
         {
             TriggerManager tm = currentNode.Content as TriggerManager;
-            currentNode.IsChecked = tm.IsActive;
+            //currentNode.IsChecked = tm.IsActive;
 
             CollectionViewSource treevs = new CollectionViewSource();
             SortDescription desc = new SortDescription("Name", ListSortDirection.Ascending);
@@ -483,7 +523,7 @@ namespace EQAudioTriggers.Models
             treevs.GroupDescriptions.Add(pgd);
             treevs.Source = tm.SubGroups;
 
-            // Populating child items for the node in on-demand
+            //Populating child items for the node in on-demand
             currentNode.PopulateChildNodes(treevs.View);
             if (tm.SubGroups.Count() > 0)
                 //Expand the node after child items are added.
@@ -491,6 +531,8 @@ namespace EQAudioTriggers.Models
 
             //Stop the animation after load on demand is executed, if animation not stopped, it remains still after execution of load on demand.
             currentNode.ShowExpanderAnimation = false;
+
+            //refactor checkmarks
             timer.Stop();
         }
 

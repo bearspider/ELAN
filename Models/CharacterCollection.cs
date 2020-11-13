@@ -14,16 +14,23 @@ using System.Windows.Media.Imaging;
 
 namespace EQAudioTriggers.Models
 {
-    public class CharacterCollection : ObservableCollection<Character>, INotifyPropertyChanged
+    public class CharacterCollection : ObservableCollection<EQTrigger>, INotifyPropertyChanged, INotifyCollectionChanged
     {
-        private ObservableCollection<Character> _collection;
+        private string _name;
+        private Character _characterprofile;
+        private ObservableCollection<EQTrigger> _activetriggers;
 
         public CharacterCollection()
         {
-            _collection = new ObservableCollection<Character>();
-            CollectionChanged += OnCollectionChanged;
+            _name = "";
+            _characterprofile = new Character();
+            _activetriggers = new ObservableCollection<EQTrigger>();
+            CollectionChanged += OnCollectionChanged;            
+
         }
-        public event PropertyChangedEventHandler PropertyChanged;
+        public string Name { get { return _name; } set { _name = value; } }
+        public Character CharacterProfile { get { return _characterprofile; } set { _characterprofile = value; } }
+        public ObservableCollection<EQTrigger> ActiveTriggers { get { return _activetriggers; } set { _activetriggers = value; } }
         void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if(e.NewItems != null)
@@ -35,28 +42,6 @@ namespace EQAudioTriggers.Models
                 Console.WriteLine("Modifying Old Items");
             }
             Console.Write("Changing Collection");
-        }
-        public ObservableCollection<Character> Collection { get { return _collection; } set { _collection = value; } }
-
-        public Character CreateCharacter()
-        {
-            CharacterEdit chareditor = new CharacterEdit();
-            Boolean rval = (bool)chareditor.ShowDialog();
-            if(chareditor.ReturnChar != null)
-            {
-                return chareditor.ReturnChar;
-            }
-            else
-            {
-                return null;
-            }
-        }
-        public void RaisedOnPropertyChanged(string _PropertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(_PropertyName));
-            }
-        }
+        }       
     }
 }

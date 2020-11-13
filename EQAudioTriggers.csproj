@@ -157,6 +157,7 @@
     <Compile Include="Models\CharacterCollection.cs" />
     <Compile Include="Models\EndEarlyTrigger.cs" />
     <Compile Include="Models\EQTrigger.cs" />
+    <Compile Include="Models\TreeViewModel.cs" />
     <Compile Include="Models\TriggerGroupProperty.cs" />
     <Compile Include="Models\TriggerManager.cs" />
     <Compile Include="Views\CharacterEdit.xaml.cs">

@@ -147,9 +147,19 @@ namespace EQAudioTriggers
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            //var type = (string)value;
-            //Visibility.Hidden;
-            return Visibility.Visible;
+            try
+            {
+                TreeViewNode tvn = (TreeViewNode)value;
+                if (((TriggerManager)tvn.Content).NodeType == "trigger")
+                {
+                    return true;
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Random junk passing in converter");
+            }
+            return false;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -166,39 +176,44 @@ namespace EQAudioTriggers
     {
         #region Properties
 
+        //Look into zone specific triggers
+        //parse out the "You have entered {The Plane of Knowledge}"
+
         private int _totallinecount = 0;
-        private CharacterCollection _characters = new CharacterCollection();
+        private ObservableCollection<CharacterCollection> _characters = new ObservableCollection<CharacterCollection>();
         private ActivatedTriggerCollection _activatedtriggers = new ActivatedTriggerCollection();
-        private ObservableCollection<EQTrigger> _activetriggers = new ObservableCollection<EQTrigger>();
+        private ActiveTriggerCollection _activetriggers = new ActiveTriggerCollection();
         private ObservableCollection<TriggerManager> _triggermanager = new ObservableCollection<TriggerManager>();
         private static StringCollection _log = new StringCollection();
         private readonly SynchronizationContext syncontext;
         private ObservableCollection<EQTrigger> _triggermasterlist = new ObservableCollection<EQTrigger>();
+        private string _selectedcharacter = "";
 
         #endregion
         public EATStyleWindow()
         {
             InitializeComponent();
+            DataContext = this;
             syncontext = SynchronizationContext.Current;
             //po.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
             LoadSettings();
             LoadCharacter();
             LoadTriggers();                        
             ActivateLog();
-            foreach(Character character in _characters)
+            if(_characters.Count > 0)
             {
-                if(character.Monitor)
+                foreach (CharacterCollection profile in _characters)
                 {
-                    StartMonitor(character);
+                    if (profile.CharacterProfile.Monitor)
+                    {
+                        StartMonitor(profile.CharacterProfile);
+                    }
                 }
             }
 
             //set datacontext for status bar
             txtblockStatus.DataContext = _totallinecount;
-        }
-        private void RefactorActiveTriggers()
-        {
-            _activetriggers = new ObservableCollection<EQTrigger>(_activetriggers.Where(i => i.ActiveCharacters.Count > 0));
+            UpdateCheckedItems();
         }
         private void Filewatcher_Error(object sender, ErrorEventArgs e)
         {
@@ -238,7 +253,7 @@ namespace EQAudioTriggers
                                 { }
                                 else
                                 {
-                                    Parallel.ForEach(_activetriggers, (EQTrigger doc, ParallelLoopState state) =>
+                                    Parallel.ForEach(_activetriggers.Collection, (EQTrigger doc, ParallelLoopState state) =>
                                     {
                                         //Do regex match if enabled otherwise string.contains
                                         //capturedline is a whole block of text.  If we match something inside that block, then compare each single line to find it.
@@ -335,7 +350,15 @@ namespace EQAudioTriggers
                     {
                         string json = r.ReadToEnd();
                         Character newchar = JsonConvert.DeserializeObject<Character>(json);
-                        _characters.Add(newchar);
+                        //check to see if some how monitor is enabled but monitoring disabled
+                        if(newchar.Monitor)
+                        {
+                            newchar.Monitoring = true;
+                        }
+                        CharacterCollection newcollection = new CharacterCollection();
+                        newcollection.CharacterProfile = newchar;
+                        newcollection.Name = newchar.Name;
+                        _characters.Add(newcollection);
                     }
                 }
             }
@@ -360,19 +383,24 @@ namespace EQAudioTriggers
         }
         private void LoadTriggers()
         {
-            treeview.QueryNodeSize += SfTreeView_QueryNodeSize;
-            treeview.NodeChecked += SfTreeView_NodeChecked;
-            treeview.CheckBoxMode = CheckBoxMode.Recursive;
-
             //Load Triggers into Collection
             String StartPath = $"{EQAudioTriggers.GlobalVariables.workingdirectory}\\TriggerGroups";
             DirectoryInfo di = new DirectoryInfo(StartPath);
             foreach(DirectoryInfo newdir in di.GetDirectories())
             {
-                TriggerManager newtrigger = new TriggerManager { FullPath = newdir.FullName, Name = newdir.Name, NodeType = "group", Icon = GlobalVariables.foldericon, IsRootNode = true };
+                TriggerManager newtrigger = new TriggerManager { 
+                    FullPath = newdir.FullName, 
+                    Name = newdir.Name, 
+                    NodeType = "group", 
+                    Icon = GlobalVariables.foldericon, 
+                    IsRootNode = true, 
+                    ParentNode = null, 
+                    IsActive = false 
+                };
                 treeview.LoadOnDemandCommand = newtrigger.TreeViewOnDemandCommand;
                 _triggermanager.Add(newtrigger);
                 WalkDirectoryTree(newtrigger);
+                SetCheckedItems(newtrigger);
             }
             //Assign trigger collection to tree view
             treeview.ItemsSource = _triggermanager;
@@ -424,7 +452,6 @@ namespace EQAudioTriggers
                     }
                     else
                     {
-
                         using (StreamReader r = new StreamReader(fi.FullName))
                         {
                             string json = r.ReadToEnd();
@@ -432,10 +459,10 @@ namespace EQAudioTriggers
                             newtrigger.Path = fi.FullName;
                             _triggermasterlist.Add(newtrigger);
                             //Cross check the active character list of the trigger to current characters with monitoring active
-                            var activechars = _characters.Where(i => i.Monitoring == true && newtrigger.ActiveCharacters.Contains(i.Name));
+                            var activechars = _characters.Where(i => i.CharacterProfile.Monitoring == true && newtrigger.ActiveCharacters.Contains(i.CharacterProfile.Name));
                             if(activechars.Count() > 0)
                             {
-                                _activetriggers.Add(newtrigger);
+                                _activetriggers.Collection.Add(newtrigger);
                             }
 
                             // Resursive call for each subdirectory.
@@ -446,7 +473,8 @@ namespace EQAudioTriggers
                                 NodeType = "trigger",
                                 Icon = GlobalVariables.triggericon,
                                 Trigger = newtrigger,
-                                ParentNode = root
+                                ParentNode = root,
+                                IsActive = false
                             };
                             root.SubGroups.Add(newmanager);
                         }
@@ -465,7 +493,8 @@ namespace EQAudioTriggers
                         FullPath = dirInfo.FullName,
                         NodeType = "group",
                         Icon = GlobalVariables.foldericon,
-                        ParentNode = root
+                        ParentNode = root,
+                        IsActive = false
                     };
                     root.SubGroups.Add(newmanager);
                     WalkDirectoryTree(newmanager);
@@ -488,6 +517,19 @@ namespace EQAudioTriggers
                 }
             }
         }
+        private Character CreateCharacter()
+        {
+            CharacterEdit chareditor = new CharacterEdit();
+            Boolean rval = (bool)chareditor.ShowDialog();
+            if (chareditor.ReturnChar != null)
+            {
+                return chareditor.ReturnChar;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         #region Form Functions
         private void UpdateLineCount(int value)
@@ -505,37 +547,26 @@ namespace EQAudioTriggers
         #endregion
 
         #region DockingManager Actions
-
-        private void dockingmanager_LayoutUpdated(object sender, EventArgs e)
-        {
-
-        }
-
         private void dockingmanager_CloseAllTabs(object sender, CloseTabEventArgs e)
         {
 
         }
-
         private void dockingmanager_CloseOtherTabs(object sender, CloseTabEventArgs e)
         {
 
         }
-
         private void dockingmanager_WindowMoving(object sender, WindowMovingEventArgs e)
         {
 
         }
-
         private void dockingmanager_DocumentClosing(object sender, CancelingRoutedEventArgs e)
         {
 
         }
-
         private void dockingmanager_IsSelectedDocument(FrameworkElement sender, IsSelectedChangedEventArgs e)
         {
 
         }
-
         #endregion
 
         #region Ribbon
@@ -549,90 +580,29 @@ namespace EQAudioTriggers
         }
         private void addUser_Click(object sender, RoutedEventArgs e)
         {
-            Character toadd = _characters.CreateCharacter();
+            Character toadd = CreateCharacter();
             if (toadd != null)
             {
-                _characters.Add(toadd);
+                CharacterCollection newcollection = new CharacterCollection();
+                newcollection.Name = toadd.Profile;
+                newcollection.CharacterProfile = toadd;
+                _characters.Add(newcollection);
             }
         }
         private void editUser_Click(object sender, RoutedEventArgs e)
         {
-            ((Character)_listviewCharacters.SelectedValue).EditCharacter();
+            ((CharacterCollection)_listviewCharacters.SelectedItem).CharacterProfile.EditCharacter();
         }
         private void removeUser_Click(object sender, RoutedEventArgs e)
         {
-            string name = ((Character)_listviewCharacters.SelectedValue).Name;
-            ((Character)_listviewCharacters.SelectedValue).Delete();
-            _characters.Remove((Character)_listviewCharacters.SelectedValue);
+            string name = ((CharacterCollection)_listviewCharacters.SelectedValue).Name;
+            ((CharacterCollection)_listviewCharacters.SelectedItem).CharacterProfile.Delete();
+            _characters.Remove((CharacterCollection)_listviewCharacters.SelectedValue);
             PurgeFromTriggers(name);
         }
         #endregion
 
         #region TreeView
-        private void SfTreeView_NodeChecked(object sender, NodeCheckedEventArgs e)
-        {
-            TreeViewNode tvn = e.Node;
-            TriggerManager tm = (TriggerManager)tvn.Content;
-            string character = ((Character)(_listviewCharacters.SelectedItem)).Name;
-            if (tm.NodeType == "trigger")
-            {
-                if ((bool)tvn.IsChecked)
-                {
-                    Console.WriteLine($"Checked Trigger{tm.Name}");
-                    try
-                    {
-                        //check if character is already in the list
-                        string found = tm.Trigger.ActiveCharacters.Single<string>(x => x.Contains(character));
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Character not in list");
-                        //If checked, Add character to trigger
-                        tm.Trigger.AddCharacter(character);
-
-                        //write updates to trigger file
-                        //open file stream
-                        using (StreamWriter file = File.CreateText(tm.Trigger.Path))
-                        {
-                            JsonSerializer serializer = new JsonSerializer();
-                            //serialize object directly into file stream
-                            serializer.Serialize(file, tm.Trigger);
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"Unchecked Trigger{tm.Name}");
-                    try
-                    {
-                        //check if character is already in the list
-                        string found = tm.Trigger.ActiveCharacters.Single<string>(x => x.Contains(character));
-                        if (found == character)
-                        {
-                            tm.Trigger.RemoveCharacter(character);
-
-                            //write updates to trigger file
-                            //open file stream
-                            using (StreamWriter file = File.CreateText(tm.Trigger.Path))
-                            {
-                                JsonSerializer serializer = new JsonSerializer();
-                                //serialize object directly into file stream
-                                serializer.Serialize(file, tm.Trigger);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Character not in list, no need to remove");
-                    }
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Checked Group{tm.Name}");
-            }
-            RefactorActiveTriggers();
-        }
         private void SfTreeView_QueryNodeSize(object sender, QueryNodeSizeEventArgs e)
         {
             if (e.Node.Level == 0)
@@ -701,9 +671,30 @@ namespace EQAudioTriggers
         private void treeview_ItemDropping(object sender, TreeViewItemDroppingEventArgs e)
         {
             //Restrict the dropping on certain nodes
-            TriggerManager node = e.TargetNode.Content as TriggerManager;
-            if (((TriggerManager)((SfTreeView)sender).SelectedItem).NodeType == "trigger" && node.ParentNode == null)
+            if (e.TargetNode != null)
+            {
+                try
+                {
+                    TriggerManager node = e.TargetNode.Content as TriggerManager;
+                    if (((TriggerManager)((SfTreeView)sender).SelectedItem) != null)
+                    {
+                        if (((TriggerManager)((SfTreeView)sender).SelectedItem).NodeType == "trigger" && node.ParentNode == null)
+                            e.Handled = true;
+                    }
+                    else
+                    {
+                        e.Handled = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Item Dropping in TreeView Failure");
+                }
+            }
+            else
+            {
                 e.Handled = true;
+            }
         }
         private void treeview_ItemDragOver(object sender, TreeViewItemDragOverEventArgs e)
         {
@@ -714,6 +705,125 @@ namespace EQAudioTriggers
                 {
                     treeview.ExpandNode(e.TargetNode);
                 }
+            }
+        }
+        private void SetCheckedItems(TriggerManager tm, Boolean enable)
+        {
+            if (tm.NodeType == "trigger")
+            {
+                if(enable){ EnableTrigger(tm); }
+                else { DisableTrigger(tm); }
+                tm.IsActive = enable;
+            }
+            if (tm.NodeType == "group")
+            {
+                tm.IsActive = enable;
+            }
+            if (tm.SubGroups.Count > 0)
+            {
+                foreach (TriggerManager sub in tm.SubGroups)
+                {
+                    SetCheckedItems(sub,enable);
+                }
+            }
+
+        }
+        private bool? SetCheckedItems(TriggerManager tm)
+        {
+            bool? updateparent = false;
+            Boolean partialcheck = false;
+            List<bool?> childrenchecked = new List<bool?>();
+            //Call recursively until we get to the bottom of the tree
+            if (tm.SubGroups.Count > 0)
+            {
+                //go through each sub group, the return value is if the sub group is active or not
+                foreach (TriggerManager sub in tm.SubGroups)
+                {
+                    childrenchecked.Add(SetCheckedItems(sub));
+                }
+            }
+            //if the node is a trigger and has the selected character as active, then mark the node active and return true so the parent knows we have an active trigger
+            if (tm.NodeType == "trigger")
+            {
+                if(tm.Trigger.ActiveCharacters.Contains(_selectedcharacter))
+                {
+                    tm.IsActive = true;
+                    updateparent = true;
+                }
+                else
+                {
+                    tm.IsActive = false;
+                    updateparent = false;
+                }
+            }
+            //if this is a node type "group" and all of the childrenchecked = true, then add this item to the checked list
+            if(tm.NodeType == "group")
+            {
+                if(tm.SubGroups.Count > 1)
+                {
+                    string stop = "";
+                }
+                //count how many branches
+                int totalnodes = tm.SubGroups.Count;
+                //keep track of how many branches are active
+                int checkednodes = 0;
+
+                //If a group doesn't have any children, then mark it inactive, nothing to see here.
+                if (totalnodes == 0)
+                {
+                    updateparent = false;
+                    tm.IsActive = false;
+                }
+                else
+                {
+                    //go through the list of setcheckeditems on the subgroups
+                    //   if the item is true, then add a checkednode to the list
+                    //   if one of the items is null, then we have a partial check and that will float to the top
+                    foreach (bool? children in childrenchecked)
+                    {
+                        if (children == true)
+                        {
+                            checkednodes++;
+                        }
+                        if (children == null)
+                        {
+                            partialcheck = true;
+                        }
+                    }
+                    //if we got a partial check, mark the node null and move on.
+                    if (partialcheck)
+                    {
+                        tm.IsActive = null;
+                        updateparent = null;
+                    }
+                    //All of the sub groups/triggers are active mark the group with a full check
+                    else if (checkednodes == totalnodes && totalnodes > 0)
+                    {
+                        updateparent = true;
+                        tm.IsActive = true;
+                    }
+                    else if (totalnodes > 0 && checkednodes == 0)
+                    {
+                        updateparent = false;
+                        tm.IsActive = false;
+                    }
+                    else if (totalnodes > 0 && checkednodes < totalnodes && checkednodes != 0)
+                    {
+                        updateparent = null;
+                        tm.IsActive = null;
+                    }
+
+                }
+            }
+
+            return updateparent;
+        }
+        private void UpdateCheckedItems()
+        {
+            //Update Checked Items collection for treeview
+            foreach (TriggerManager tm in _triggermanager)
+            {
+                tm.IsActive = SetCheckedItems(tm);
             }
         }
         #endregion
@@ -749,8 +859,7 @@ namespace EQAudioTriggers
             ((TriggerManager)treeview.SelectedItem).AddTriggerGroup();
         }
         private void editTriggerGroup_Click(object sender, RoutedEventArgs e)
-        {
-            
+        {           
             ((TriggerManager)treeview.SelectedItem).EditTriggerGroup();
         }
         private void removeTriggerGroup_Click(object sender, RoutedEventArgs e)
@@ -799,58 +908,158 @@ namespace EQAudioTriggers
             }
             else
             {
-                string name = ((Character)((ListView)e.Source).SelectedItem).Name;
-                txtblockProfile.Text = ((Character)((ListView)e.Source).SelectedItem).Profile;
+                txtblockProfile.Text = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Profile;
+                _selectedcharacter = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Name;
+                Console.WriteLine($"Changed Character: {_selectedcharacter}");
             }
-            //Update treeview checkboxes for new character
+            UpdateCheckedItems();
+        }
+        private void WalkTreeCheckedItems(TreeViewNode tvn)
+        {
+            TriggerManager tm = (TriggerManager)tvn.Content;
+            if (tm.NodeType == "trigger")
+            {
+                if (tm.Trigger.ActiveCharacters.Contains(((CharacterCollection)_listviewCharacters.SelectedItem).Name))
+                {
+                    Console.WriteLine($"{((CharacterCollection)_listviewCharacters.SelectedItem).Name} Adding to checked node {tm.Trigger.Name}");
+                    treeview.CheckedItems.Add(tvn);
+                }
+            }
+            if (tvn.ChildNodes.Count > 0)
+            {
+                foreach (TreeViewNode newtvn in tvn.ChildNodes)
+                {
+                    WalkTreeCheckedItems(newtvn);
+                }
+            }
         }
         private void _listviewCharacters_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            Boolean monitorstatus = ((Character)((ListView)e.Source).SelectedItem).Monitoring;
+            Boolean monitorstatus = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Monitoring;
             if (monitorstatus)
             {
-                ((Character)((ListView)e.Source).SelectedItem).Monitoring = false;
+                ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Monitoring = false;
             }
             else
             {
-                ((Character)((ListView)e.Source).SelectedItem).Monitoring = true;
-                StartMonitor((Character)((ListView)e.Source).SelectedItem);
+                ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Monitoring = true;
+                StartMonitor(((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile);
             }
         }
         private void MenuItemCharEdit_Click(object sender, RoutedEventArgs e)
         {
-            Character selected = (Character)_listviewCharacters.SelectedItem;
+            Character selected = ((CharacterCollection)_listviewCharacters.SelectedItem).CharacterProfile;
             selected.EditCharacter();
         }
         private void MenuItemCharDelete_Click(object sender, RoutedEventArgs e)
         {
-            string name = ((Character)_listviewCharacters.SelectedValue).Name;
-            ((Character)_listviewCharacters.SelectedValue).Delete();
-            _characters.Remove((Character)_listviewCharacters.SelectedValue);
+            string name = ((CharacterCollection)_listviewCharacters.SelectedValue).Name;
+            ((CharacterCollection)_listviewCharacters.SelectedValue).CharacterProfile.Delete();
+            _characters.Remove((CharacterCollection)_listviewCharacters.SelectedValue);
             PurgeFromTriggers(name);
         }
         private void MenuItemStartMonitor_Click(object sender, RoutedEventArgs e)
         {
-            Character selected = (Character)_listviewCharacters.SelectedItem;
+            Character selected = ((CharacterCollection)_listviewCharacters.SelectedItem).CharacterProfile;
             selected.Monitoring = true;
             StartMonitor(selected);
         }
         private void MenuItemStopMonitor_Click(object sender, RoutedEventArgs e)
         {
-            Character selected = (Character)_listviewCharacters.SelectedItem;
+            Character selected = ((CharacterCollection)_listviewCharacters.SelectedItem).CharacterProfile;
             selected.Monitoring = false;
         }
-        private void UpdateCheckboxes()
-        {
-            treeview.CheckedItems.Clear();
-            Character selectedchar = (Character)_listviewCharacters.SelectedItem;
-            foreach (TriggerManager tm in _triggermanager)
+        #endregion
+
+        private void _treeCheckbox_Checked(object sender, RoutedEventArgs e)
+        {            
+            TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
+            //if Trigger, activate it for the selected character
+            if (target.NodeType == "trigger")
             {
-                if(tm.Characters.Contains(selectedchar))
+                EnableTrigger(target);
+            }
+            //if Group, iterate through tree and activate each trigger on the way down for the selected character
+            if (target.NodeType == "group")
+            {
+                SetCheckedItems(target,true);
+            }
+            //walk back up the tree and do parent checks
+            target.ClimbTree(true);
+        }
+        private void _treeCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            
+            TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
+            //if Trigger, deactivate it for the selected character
+            if (target.NodeType == "trigger")
+            {
+                DisableTrigger(target);
+            }
+            //if Group, iterate through tree and deactivate each trigger on the way down for the selected character
+            if(target.NodeType == "group")
+            {
+                SetCheckedItems(target, false);
+            }
+            //walk back up the tree and do parent unchecks
+            target.ClimbTree(false);
+        }
+
+        #region Trigger
+        private void DisableTrigger(TriggerManager tm)
+        {
+            string character = ((CharacterCollection)(_listviewCharacters.SelectedItem)).Name;
+            Console.WriteLine($"Unchecked Trigger{tm.Name}");
+            try
+            {
+                //check if character is already in the list
+                string found = tm.Trigger.ActiveCharacters.Single<string>(x => x.Contains(character));
+                if (found == character)
                 {
-                    treeview.CheckedItems.Add(tm);
+                    tm.Trigger.RemoveCharacter(character);
+
+                    //write updates to trigger file
+                    //open file stream
+                    using (StreamWriter file = File.CreateText(tm.Trigger.Path))
+                    {
+                        JsonSerializer serializer = new JsonSerializer();
+                        //serialize object directly into file stream
+                        serializer.Serialize(file, tm.Trigger);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Character not in list, no need to remove");
+            }
+            _activetriggers.Refactor();
+        }
+        private void EnableTrigger(TriggerManager tm)
+        {
+            Console.WriteLine("Calling Node Checked");
+            string character = ((CharacterCollection)(_listviewCharacters.SelectedItem)).Name;
+            Console.WriteLine($"Checked Trigger{tm.Name}");
+            try
+            {
+                //check if character is already in the list
+                string found = tm.Trigger.ActiveCharacters.Single<string>(x => x.Contains(character));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Character not in list");
+                //If checked, Add character to trigger
+                tm.Trigger.AddCharacter(character);
+
+                //write updates to trigger file
+                //open file stream
+                using (StreamWriter file = File.CreateText(tm.Trigger.Path))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    //serialize object directly into file stream
+                    serializer.Serialize(file, tm.Trigger);
+                }
+            }
+            _activetriggers.Refactor();
         }
         #endregion
     }

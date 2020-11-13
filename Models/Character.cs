@@ -50,6 +50,27 @@ namespace EQAudioTriggers.Models
             _monitoring = _monitor;
         }
 
+        public Character(Character newchar)
+        {
+            _name = newchar.Name;
+            _logfile = newchar.LogFile;
+            _profile = newchar.Profile;
+            _monitor = newchar.Monitor;
+            _textfontcolor = newchar.TextFontColor;
+            _timerfontcolor = newchar.TimerFontColor;
+            _timerbarcolor = newchar.TimerBarColor;
+            _audiovolume = newchar.AudioVolume;
+            _audiovoice = newchar.AudioVoice;
+            _voicespeed = newchar.VoiceSpeed;
+            _phoneticname = newchar.PhoenticName;
+            _synth = new SpeechSynthesizer();
+            _synth.Rate = newchar.VoiceSpeed;
+            _synth.Volume = newchar.AudioVolume;
+            _synth.SelectVoice(newchar.AudioVoice);
+            _lastlogposition = newchar.LastLogPosition;
+            _monitoring = newchar.Monitoring;
+        }
+
         public Boolean Monitoring { get { return _monitoring; } set { _monitoring = value; NotifyPropertyChanged("Monitoring"); } }
         public long LastLogPosition { get { return _lastlogposition; } set { _lastlogposition = value; NotifyPropertyChanged("LastLogPostion"); } }
         public string Name { get { return _name; } set { _name = value; NotifyPropertyChanged("Name"); } }
@@ -72,8 +93,30 @@ namespace EQAudioTriggers.Models
 
         public void EditCharacter()
         {
+            Character newchar = new Character(this);
             CharacterEdit chareditor = new CharacterEdit(this);
-            chareditor.ShowDialog();
+            Boolean rval = (Boolean)chareditor.ShowDialog();
+            //Poor man's cancel edit revert
+            if (!rval)
+            {
+                Name = newchar.Name;
+                LogFile = newchar.LogFile;
+                Profile = newchar.Profile;
+                Monitor = newchar.Monitor;
+                TextFontColor = newchar.TextFontColor;
+                TimerFontColor = newchar.TimerFontColor;
+                TimerBarColor = newchar.TimerBarColor;
+                AudioVolume = newchar.AudioVolume;
+                AudioVoice = newchar.AudioVoice;
+                VoiceSpeed = newchar.VoiceSpeed;
+                PhoenticName = newchar.PhoenticName;
+                _synth = new SpeechSynthesizer();
+                _synth.Rate = VoiceSpeed;
+                _synth.Volume = AudioVolume;
+                _synth.SelectVoice(AudioVoice);
+                LastLogPosition = newchar.LastLogPosition;
+                Monitoring = newchar.Monitoring;
+            }
         }
 
         public async void Speak(string output)
@@ -83,7 +126,6 @@ namespace EQAudioTriggers.Models
                 _synth.Speak(output);
             });
         }
-
         public void NotifyPropertyChanged(string propName)
         {
             Console.WriteLine($"Modified: {propName}");

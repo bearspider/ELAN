@@ -17,6 +17,7 @@ using System.Globalization;
 using Microsoft.Win32;
 using System.IO;
 using System.Media;
+using System.Collections.ObjectModel;
 
 namespace EQAudioTriggers.Views
 {
@@ -24,7 +25,7 @@ namespace EQAudioTriggers.Views
     /// Convert a Boolean value to icon which will display the monitoring status of the character
     /// </summary>
     /// <returns>Returns the image to be used on the form, Monitoring or not monitoring</returns>
-    public class AudioPlayConverter : IValueConverter
+    public class InverterConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -60,7 +61,7 @@ namespace EQAudioTriggers.Views
             triggereditor.DataContext = _eqtrigger;
         }
 
-        public TriggerEdit(CharacterCollection characters)
+        public TriggerEdit(ObservableCollection<CharacterCollection> characters)
         {
             InitializeComponent();
             _eqtrigger = new EQTrigger();
@@ -69,7 +70,7 @@ namespace EQAudioTriggers.Views
             string stop = "";
         }
 
-        public TriggerEdit(EQTrigger oldtrigger, CharacterCollection characters)
+        public TriggerEdit(EQTrigger oldtrigger, ObservableCollection<CharacterCollection> characters)
         {
             InitializeComponent();
             _eqtrigger = oldtrigger;

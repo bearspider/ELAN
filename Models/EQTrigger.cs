@@ -67,6 +67,9 @@ namespace EQAudioTriggers.Models
         private int _resetminutes;
         private int _resetseconds;
         private string _digest;
+        private string _activezone;
+        private Boolean _global;
+        private string _id;
         #endregion
 
         public EQTrigger()
@@ -126,8 +129,38 @@ namespace EQAudioTriggers.Models
             _resethours = 0;
             _resetminutes = 0;
             _resetseconds = 0;
+            _global = true;
+            _activezone = "";
+            _id = Guid.NewGuid().ToString();
         }
         #region Public Access
+        public string Id
+        {
+            get { return _id; }
+            set
+            {
+                _id = value;
+                RaisedOnPropertyChanged("Id");
+            }
+        }
+        public string ActiveZone
+        {
+            get { return _activezone; }
+            set
+            {
+                _activezone = value;
+                RaisedOnPropertyChanged("ActiveZone");
+            }
+        }
+        public Boolean Global
+        {
+            get { return _global; }
+            set
+            {
+                _global = value;
+                RaisedOnPropertyChanged("Global");
+            }
+        }
         public string Digest
         {
             get { return _digest; }

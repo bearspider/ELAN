@@ -1,6 +1,7 @@
 ﻿using Syncfusion.Windows.Shared;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Policy;
@@ -12,6 +13,7 @@ namespace EQAudioTriggers.Models
     public class TriggerGroupProperty : NotificationObject,INotifyPropertyChanged
     {
         private string _name;
+        private string _id;
         private string _comments;
         private Boolean _defaultenabled;
         private string _fullpath;
@@ -22,6 +24,17 @@ namespace EQAudioTriggers.Models
             _comments = "";
             _defaultenabled = false;
             _fullpath = "";
+            _id = Guid.NewGuid().ToString();
+        }
+
+        public string Id
+        {
+            get { return _id; }
+            set
+            {
+                _id = value;
+                RaisedOnPropertyChanged("Id");
+            }
         }
 
         public string FullPath

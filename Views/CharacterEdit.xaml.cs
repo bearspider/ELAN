@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Speech.Synthesis;
@@ -24,7 +25,7 @@ namespace EQAudioTriggers.Views
     /// <summary>
     /// Interaction logic for CharacterEdit.xaml
     /// </summary>
-    public partial class CharacterEdit : ChromelessWindow
+    public partial class CharacterEdit : ChromelessWindow,INotifyPropertyChanged
     {
         SpeechSynthesizer voicesynth = new SpeechSynthesizer();
         private String _origProfileName;
@@ -38,16 +39,23 @@ namespace EQAudioTriggers.Views
             InitializeForm();
             this.DataContext = _character;
         }
-
         public CharacterEdit(Character character)
-        {
+        {           
             InitializeComponent();
             InitializeForm();
-            _character = _backupcharacter = character;
+            _character = character;
             this.DataContext = _character;
-            _origProfileName = character.Profile;
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void RaisedOnPropertyChanged(string _PropertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(_PropertyName));
+            }
         }
 
+        public Character Character { get { return _character; } set { _character = value; RaisedOnPropertyChanged("Character"); } }
         public Character ReturnChar { get; set; }
 
         private void InitializeForm()
@@ -144,7 +152,7 @@ namespace EQAudioTriggers.Views
 
         private void buttonCancel_Click(object sender, RoutedEventArgs e)
         {
-            _character = _backupcharacter;
+            this.DialogResult = false;
             this.Close();
         }
 
@@ -167,5 +175,6 @@ namespace EQAudioTriggers.Views
                 _character.PhoenticName = characterCollection[0].ToString();
             }
         }
+
     }
 }

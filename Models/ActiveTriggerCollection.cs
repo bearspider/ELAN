@@ -45,7 +45,10 @@ namespace EQAudioTriggers.Models
                 PropertyChanged(this, new PropertyChangedEventArgs(_PropertyName));
             }
         }
-
+        public void Refactor()
+        {
+            _collection = new ObservableCollection<EQTrigger>(_collection.Where(i => i.ActiveCharacters.Count > 0));
+        }
         public ObservableCollection<EQTrigger> Collection { get { return _collection; } set { _collection = value; RaisedOnPropertyChanged("Collection Changed"); } }
     }
 }

@@ -166,7 +166,7 @@
         </syncfusion:Ribbon>
         
         <!--Dock Window Area-->
-        <syncfusion:DockingManager Grid.Row="1" Grid.Column="0" x:Name="dockingmanager" PersistState="false" LayoutUpdated="dockingmanager_LayoutUpdated" UseInteropCompatibilityMode="False"
+        <syncfusion:DockingManager Grid.Row="1" Grid.Column="0" x:Name="dockingmanager" PersistState="false" UseInteropCompatibilityMode="False"
                                 UseDocumentContainer="True" CloseAllTabs="dockingmanager_CloseAllTabs" IsVS2010DraggingEnabled="False"
                                 CloseOtherTabs="dockingmanager_CloseOtherTabs" EnableMouseHoverBackground="False"
                                 WindowMoving="dockingmanager_WindowMoving" syncfusion:DocumentContainer.DocumentClosing="dockingmanager_DocumentClosing"
@@ -179,7 +179,7 @@
                                 DockFill="True">
 
             <ListView x:Name="_listviewCharacters" syncfusion:DockingManager.Header="Characters" HorizontalContentAlignment="Left" 
-                      SelectionChanged="_listviewCharacters_SelectionChanged" MouseDoubleClick="_listviewCharacters_MouseDoubleClick">
+                      SelectionChanged="_listviewCharacters_SelectionChanged" MouseDoubleClick="_listviewCharacters_MouseDoubleClick" SelectionMode="Single">
                 <ListView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Edit Character" Click="MenuItemCharEdit_Click">
@@ -217,8 +217,8 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="25"/>
                                 </Grid.ColumnDefinitions>
-                                <Image HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Source="{Binding Monitoring, Converter={StaticResource MonitoringImageConverter}}" />
-                                <TextBlock Margin="5,0,15,0" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" Text="{Binding Profile}" FontSize="16" FontWeight="ExtraBold" Foreground="{Binding Monitoring, Converter={StaticResource MonitoringColorConverter}}"/>
+                                <Image HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Source="{Binding CharacterProfile.Monitoring, Converter={StaticResource MonitoringImageConverter}}" />
+                                <TextBlock Margin="5,0,15,0" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" Text="{Binding CharacterProfile.Profile}" FontSize="16" FontWeight="ExtraBold" Foreground="{Binding CharacterProfile.Monitoring, Converter={StaticResource MonitoringColorConverter}}"/>
                             </Grid>
                         </WrapPanel>
                     </DataTemplate>
@@ -242,20 +242,18 @@
                 <syncfusion:SfTreeView Name="treeview" syncfusion:DockingManager.Header="Triggers" syncfusion:DockingManager.State="Document"
                                            NotificationSubscriptionMode="CollectionChange"
                                            ExpandActionTrigger="Node"
-                                           AutoExpandMode="RootNodes"
+                                           AutoExpandMode="None"
                                            QueryNodeSize="SfTreeView_QueryNodeSize"
                                            ChildPropertyName="SubGroups"
                                            CheckBoxMode="Recursive"
                                            ItemTemplateDataContextType="Node"
                                            SelectionChanged="treeview_SelectionChanged"
-                                           AllowDragging="True"
-                                           ItemDropped="treeview_ItemDropped"
-                                           ItemDropping="treeview_ItemDropping"
-                                           ItemDragOver="treeview_ItemDragOver"
+                                           AllowDragging="False"
+                                           NodePopulationMode="Instant"
                                            >
                     <syncfusion:SfTreeView.ItemContextMenu>
                         <ContextMenu>
-                            <!--<MenuItem Command="{Binding Path=TreeView.DataContext.ExpandCommand}" CommandParameter="{Binding }"  Header="Expand"/>-->
+                            <MenuItem Command="{Binding Path=TreeView.DataContext.ExpandCommand}" CommandParameter="{Binding }"  Header="Expand"/>
                         </ContextMenu>
                     </syncfusion:SfTreeView.ItemContextMenu>
                     <syncfusion:SfTreeView.ItemTemplate>
@@ -271,10 +269,10 @@
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Margin="5,0,0,0" Grid.Row="0" Grid.Column="1" x:Name="_treeCheckbox" FocusVisualStyle="{x:Null}"
                                               Content="{Binding Content.Name}"
-                                              IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                              IsChecked="{Binding Content.IsActive, Mode=TwoWay}"
                                               Visibility="{Binding Converter={StaticResource CheckBoxActiveConverter}}" 
                                               FontWeight="{Binding Content.NodeType, Converter={StaticResource FontAttributeConverter}}"
-                                              FontSize="{Binding Content.NodeType, Converter={StaticResource FontSizeConverter}}"
+                                              FontSize="{Binding Content.NodeType, Converter={StaticResource FontSizeConverter}}" Checked="_treeCheckbox_Checked" Unchecked="_treeCheckbox_Unchecked"
                                               />
                                 <Image Grid.Row="0" Grid.Column="0" Source="{Binding Content.Icon}"
                                                        VerticalAlignment="Center"

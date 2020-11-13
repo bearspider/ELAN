@@ -13,7 +13,7 @@
         Icon="/Images/Oxygen-Icons.org-Oxygen-Actions-document-edit.ico"
         Title="Trigger Editor" Height="750" Width="700" Name="triggereditor">
     <Window.Resources>
-        <local:AudioPlayConverter x:Key="AudioPlayConverter"/>
+        <local:InverterConverter x:Key="InverterConverter"/>
     </Window.Resources>
     <StackPanel>
         <Grid>
@@ -41,6 +41,7 @@
                         </Grid.ColumnDefinitions>
                         <Label Grid.Row="0" Grid.Column="0" Name="labelName" Content="Trigger Name" HorizontalAlignment="Left"/>
                         <TextBox Grid.Row="0" Grid.Column="1" Name="textboxName" HorizontalAlignment="Center" MinWidth="280" Text="{Binding Name}"/>
+                        
                         <Label Grid.Row="2" Grid.Column="0" Name="labelSearch" Content="Search Text" HorizontalAlignment="Left"/>
                         <TextBox Grid.Row="2" Grid.Column="1" Name="textboxSearch" HorizontalAlignment="Center" MinWidth="280" Text="{Binding SearchText}"/>
                         <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1">
@@ -51,6 +52,15 @@
                         <ComboBox Grid.Row="8" Grid.Column="1" Name="comboCategory" SelectedValue="{Binding Category}"/>
                         <Label Grid.Row="10" Grid.Column="0" Name="labelComments" Content="Comments" HorizontalAlignment="Left"/>
                         <TextBox Grid.Row="10" Grid.Column="1" Name="textboxComments" TextWrapping="Wrap" Height="110" Text="{Binding Comments}"/>
+                        <GroupBox Margin="5" Header="Trigger Activation" Grid.RowSpan="10" Grid.Column="2">
+                            <StackPanel Margin="5">
+                                <CheckBox x:Name="checkboxGlobal" Content="Global" IsChecked="{Binding Global}" HorizontalAlignment="Left"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,5,0,0" IsEnabled="{Binding Global, Converter={StaticResource InverterConverter}}">
+                                    <Label Content="Active Zone"/>
+                                    <TextBox x:Name="txtActiveZone" Width="175" Text="{Binding ActiveZone}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
                     </Grid>
                 </StackPanel>
             </GroupBox>
@@ -130,11 +140,11 @@
                                             <ColumnDefinition Width="auto"/>
                                             <ColumnDefinition Width="auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <Label Grid.Row="0" Grid.Column="0" Name="labelBasicTest" Content="Test" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioBasicNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"/>
+                                        <Label Grid.Row="0" Grid.Column="0" Name="labelBasicTest" Content="Test" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioBasicNoSound, Path=IsChecked, Converter={StaticResource InverterConverter}}"/>
                                         <ComboBox Grid.Row="0" Grid.Column="1" Name="comboBasicTest" Width="120" HorizontalAlignment="Center" 
-                                                  IsEnabled="{Binding ElementName=radioBasicNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"
+                                                  IsEnabled="{Binding ElementName=radioBasicNoSound, Path=IsChecked, Converter={StaticResource InverterConverter}}"
                                                   DisplayMemberPath="Name" SelectedIndex="0"/>
-                                        <Button Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" Name="buttonBasicTest" Content="Play" Width="60" HorizontalAlignment="Right" Click="buttonBasicTest_Click" IsEnabled="{Binding ElementName=radioBasicNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"/>
+                                        <Button Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" Name="buttonBasicTest" Content="Play" Width="60" HorizontalAlignment="Right" Click="buttonBasicTest_Click" IsEnabled="{Binding ElementName=radioBasicNoSound, Path=IsChecked, Converter={StaticResource InverterConverter}}"/>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
@@ -300,11 +310,11 @@
                                         <ColumnDefinition Width="auto"/>
                                         <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Grid.Row="0" Grid.Column="0" Name="labelEndingTest" Content="Test:" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioEndingNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"/>
+                                    <Label Grid.Row="0" Grid.Column="0" Name="labelEndingTest" Content="Test:" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioEndingNoSound, Path=IsChecked, Converter={StaticResource InverterConverter}}"/>
                                     <ComboBox Grid.Row="0" Grid.Column="1" Name="comboEndingTest" Width="130" HorizontalAlignment="Center" 
-                                              IsEnabled="{Binding ElementName=radioEndingNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"
+                                              IsEnabled="{Binding ElementName=radioEndingNoSound, Path=IsChecked, Converter={StaticResource InverterConverter}}"
                                               DisplayMemberPath="Name" SelectedIndex="0"/>
-                                    <Button Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" Name="buttonEndingTest" Content="Play" Width="60" HorizontalAlignment="Right" IsEnabled="{Binding ElementName=radioEndingNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}" Click="buttonEndingTest_Click"/>
+                                    <Button Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" Name="buttonEndingTest" Content="Play" Width="60" HorizontalAlignment="Right" IsEnabled="{Binding ElementName=radioEndingNoSound, Path=IsChecked, Converter={StaticResource InverterConverter}}" Click="buttonEndingTest_Click"/>
                                 </Grid>
                             </StackPanel>
                         </GroupBox>
@@ -378,11 +388,11 @@
                                             <ColumnDefinition Width="auto"/>
                                             <ColumnDefinition Width="auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <Label Grid.Row="0" Grid.Column="0" Name="labelEndedTest" Content="Test:" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioEndedNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"/>
+                                        <Label Grid.Row="0" Grid.Column="0" Name="labelEndedTest" Content="Test:" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=radioEndedNoSound, Path=IsChecked, Converter={StaticResource InverterConverter}}"/>
                                         <ComboBox Grid.Row="0" Grid.Column="1" Name="comboEndedTest" Width="130" HorizontalAlignment="Center" 
-                                                  IsEnabled="{Binding ElementName=radioEndedNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}"
+                                                  IsEnabled="{Binding ElementName=radioEndedNoSound, Path=IsChecked, Converter={StaticResource InverterConverter}}"
                                                   DisplayMemberPath="Name" SelectedIndex="0"/>
-                                        <Button Margin="5,0,0,0" Grid.Row="0" Grid.Column="2" Name="buttonEndedTest" Content="Play" Width="60" HorizontalAlignment="Right" IsEnabled="{Binding ElementName=radioEndedNoSound, Path=IsChecked, Converter={StaticResource AudioPlayConverter}}" Click="buttonEndedTest_Click"/>
+                                        <Button Margin="5,0,0,0" Grid.Row="0" Grid.Column="2" Name="buttonEndedTest" Content="Play" Width="60" HorizontalAlignment="Right" IsEnabled="{Binding ElementName=radioEndedNoSound, Path=IsChecked, Converter={StaticResource InverterConverter}}" Click="buttonEndedTest_Click"/>
                                 </Grid>
                                 </StackPanel>
                             </StackPanel>
