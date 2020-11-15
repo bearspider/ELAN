@@ -209,6 +209,7 @@
                             <Label Grid.Row="0" Grid.Column="0" Name="labelTimerTriggered" Content="If timer is already running when triggered again:" IsEnabled="False"/>
                             <ComboBox Grid.Row="0" Grid.Column="1" Name="comboTriggered" Width="120" SelectedItem="{Binding TimerTriggered}">
                                 <ComboBoxItem Name="newtimer" Content="Start a new timer"/>
+                                <ComboBoxItem Name="restarttimer" Content="Restart Current Timer"/>
                                 <ComboBoxItem Name="nothing" Content="Do nothing" IsSelected="True"/>
                             </ComboBox>
                         </Grid>

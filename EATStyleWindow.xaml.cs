@@ -32,6 +32,10 @@ using System.ComponentModel;
 using System.Threading;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Microsoft.Win32;
+using System.IO.Compression;
+using System.Xml;
+using LiteDB;
 
 namespace EQAudioTriggers
 {
@@ -43,6 +47,27 @@ namespace EQAudioTriggers
         public static Regex eqRegex = new Regex(@"\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\](?<stringToMatch>.*)", RegexOptions.Compiled);
         public static Regex shareRegex = new Regex(@".*?\{HEAP:(?<GUID>.*?)\}", RegexOptions.Compiled);
         public static Regex eqspellRegex = new Regex(@"(\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\])\s((?<character>\w+)\sbegin\s(casting|singing)\s(?<spellname>.*)\.)|(\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\])\s(?<character>\w+)\s(begins\sto\s(cast|sing)\s.*\<(?<spellname>.*)\>)", RegexOptions.Compiled);
+        public static ConnectionString defaultDB = new ConnectionString($@"filename=""{workingdirectory}\\eqtriggers.db""; Connection = shared; Upgrade = true");
+        public static string dbpath = $"{workingdirectory}\\eqtriggers.db";
+        public static string backupDB = $"{workingdirectory}\\BackupDB";
+    }
+
+    public static class Utilities
+    {
+        public static string IdGenerator()
+        {
+            StringBuilder builder = new StringBuilder();
+            Enumerable
+               .Range(65, 26)
+                .Select(e => ((char)e).ToString())
+                .Concat(Enumerable.Range(97, 26).Select(e => ((char)e).ToString()))
+                .Concat(Enumerable.Range(0, 10).Select(e => e.ToString()))
+                .OrderBy(e => Guid.NewGuid())
+                .Take(9)
+                .ToList().ForEach(e => builder.Append(e));
+            string id = builder.ToString();
+            return id;
+        }
     }
 
     #region Converters
@@ -65,9 +90,34 @@ namespace EQAudioTriggers
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var monitored = (Boolean)value;
-            if(monitored)
+            if (monitored)
             {
                 return Brushes.LimeGreen;
+            }
+            else
+            {
+                return Brushes.Red;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class CheckboxColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var monitored = (bool?)value;
+            if (monitored == true)
+            {
+                return Brushes.LimeGreen;
+            }
+            else if(monitored == null)
+            {
+                return Brushes.Fuchsia;
             }
             else
             {
@@ -155,7 +205,7 @@ namespace EQAudioTriggers
                     return true;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("Random junk passing in converter");
             }
@@ -184,23 +234,30 @@ namespace EQAudioTriggers
         private ActivatedTriggerCollection _activatedtriggers = new ActivatedTriggerCollection();
         private ActiveTriggerCollection _activetriggers = new ActiveTriggerCollection();
         private ObservableCollection<TriggerManager> _triggermanager = new ObservableCollection<TriggerManager>();
+        private ObservableCollection<TriggerManager> _mergemanager = new ObservableCollection<TriggerManager>();
         private static StringCollection _log = new StringCollection();
         private readonly SynchronizationContext syncontext;
         private ObservableCollection<EQTrigger> _triggermasterlist = new ObservableCollection<EQTrigger>();
         private string _selectedcharacter = "";
+        private ObservableCollection<Setting> programsettings = new ObservableCollection<Setting>();
+
+        //System Tray Icons
+        private System.Windows.Forms.NotifyIcon MyNotifyIcon;
 
         #endregion
         public EATStyleWindow()
         {
             InitializeComponent();
+            InitializeDatabase();
+            LoadBase();
             DataContext = this;
             syncontext = SynchronizationContext.Current;
             //po.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
             LoadSettings();
-            LoadCharacter();
-            LoadTriggers();                        
+            LoadCharacters();
+            LoadTriggers();
             ActivateLog();
-            if(_characters.Count > 0)
+            if (_characters.Count > 0)
             {
                 foreach (CharacterCollection profile in _characters)
                 {
@@ -213,7 +270,68 @@ namespace EQAudioTriggers
 
             //set datacontext for status bar
             txtblockStatus.DataContext = _totallinecount;
-            UpdateCheckedItems();
+
+            //adding this lame code so when the first item auto selects the checkboxes render
+            _listviewCharacters.SelectedItem = null;
+        }
+        private void InitializeDatabase()
+        {
+            //Ensure the collections exist in the database
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                db.GetCollection<Setting>("settings");
+                db.GetCollection<EQTrigger>("triggers");
+                db.GetCollection<Character>("characters");
+                db.GetCollection<TriggerGroupProperty>("groups");
+                //db.GetCollection<Category>("categories");
+            }
+        }
+        private void LoadBase()
+        {
+            //Setup the system tray
+            MyNotifyIcon = new System.Windows.Forms.NotifyIcon();
+            Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/EQAudioTriggers;component/Images/Tonev-Windows-7-Windows-7-headphone.ico")).Stream;
+            MyNotifyIcon.Icon = new System.Drawing.Icon(iconStream);
+            MyNotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(MyNotifyIcon_MouseDoubleClick);
+
+            //Check if database exists, if it does, make a backup.
+            //Else, this is a new instance.  Set the log maintenance start as today.
+            if (File.Exists(GlobalVariables.dbpath))
+            {
+                if (!Directory.Exists(GlobalVariables.backupDB))
+                {
+                    Directory.CreateDirectory(GlobalVariables.backupDB);
+                }
+                File.Copy(GlobalVariables.dbpath, (GlobalVariables.backupDB + @"\eqtriggers.db"), true);
+            }
+            else
+            {
+                Properties.Settings.Default.LastLogMaintenance = DateTime.Now;
+                Properties.Settings.Default.Save();
+            }
+        }
+        private void MyNotifyIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            this.WindowState = WindowState.Normal;
+        }
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            //if ((bool)checkboxMinimize.IsChecked)
+            {
+                if (this.WindowState == WindowState.Minimized)
+                {
+                    this.ShowInTaskbar = false;
+                    MyNotifyIcon.BalloonTipTitle = "Minimize Sucessful";
+                    MyNotifyIcon.BalloonTipText = "Minimized the app ";
+                    MyNotifyIcon.ShowBalloonTip(400);
+                    MyNotifyIcon.Visible = true;
+                }
+                else if (this.WindowState == WindowState.Normal)
+                {
+                    MyNotifyIcon.Visible = false;
+                    this.ShowInTaskbar = true;
+                }
+            }
         }
         private void Filewatcher_Error(object sender, ErrorEventArgs e)
         {
@@ -338,33 +456,135 @@ namespace EQAudioTriggers
         private void LoadSettings()
         {
             //Load settings.json
-        }
-        private void LoadCharacter()
-        {
-            var charfiles = Directory.EnumerateFiles($"{GlobalVariables.workingdirectory}/Characters","*.json");
-            try
+            //Check if EQAudioTriggers folder exists, if not create.
+            bool mainPath = Directory.Exists(GlobalVariables.workingdirectory);
+            if (!mainPath)
             {
-                foreach(string curfile in charfiles)
+                Directory.CreateDirectory(GlobalVariables.workingdirectory);
+            }
+
+            //Load settings from DB
+            //Load settings
+            Boolean newdb = false;
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<Setting> settings = db.GetCollection<Setting>("settings");
+                if (settings.Count() == 0)
                 {
-                    using(StreamReader r = new StreamReader(curfile))
+                    newdb = true;
+                }
+                else
+                {
+                    foreach (Setting programsetting in settings.FindAll())
                     {
-                        string json = r.ReadToEnd();
-                        Character newchar = JsonConvert.DeserializeObject<Character>(json);
-                        //check to see if some how monitor is enabled but monitoring disabled
-                        if(newchar.Monitor)
-                        {
-                            newchar.Monitoring = true;
-                        }
-                        CharacterCollection newcollection = new CharacterCollection();
-                        newcollection.CharacterProfile = newchar;
-                        newcollection.Name = newchar.Name;
-                        _characters.Add(newcollection);
+                        programsettings.Add(programsetting);
                     }
+                    //LoadSettingsTab();
                 }
             }
-            catch(Exception e)
+            if (newdb)
             {
-                //no characters to load
+                //populate default settings
+                DefaultSettings();
+            }
+
+
+        }
+        private void LoadSettingsTab()
+        {
+            //textboxArchiveFolder.Text = logmaintenance.ArchiveFolder = programsettings.Single<Setting>(i => i.Name == "LogArchiveFolder").Value;
+            //logmaintenance.ArchiveFolder = programsettings.Single<Setting>(i => i.Name == "LogArchiveFolder").Value;
+            //comboboxArchiveSchedule.Text = logmaintenance.ArchiveSchedule = programsettings.Single<Setting>(i => i.Name == "ArchiveSchedule").Value;
+            //logmaintenance.AutoDelete = programsettings.Single<Setting>(i => i.Name == "AutoDelete").Value;
+            //logmaintenance.CompressArchive = programsettings.Single<Setting>(i => i.Name == "CompressArchive").Value;
+            //logmaintenance.ArchiveDays = Convert.ToInt32(programsettings.Single<Setting>(i => i.Name == "DeleteArchives").Value);
+            //logmaintenance.LastArchive = Properties.Settings.Default.LastLogMaintenance;
+            //checkboxDarkmode.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "DarkMode").Value);
+            //checkboxDeleteArchive.IsChecked = Convert.ToBoolean(logmaintenance.AutoDelete);
+            //logmaintenance.AutoArchive = programsettings.Single<Setting>(i => i.Name == "AutoArchive").Value;
+            //checkboxAutoArchive.IsChecked = Convert.ToBoolean(logmaintenance.AutoArchive);
+            //checkboxCompress.IsChecked = Convert.ToBoolean(logmaintenance.CompressArchive);
+            //textboxArchiveDays.Text = logmaintenance.ArchiveDays.ToString();
+            //textboxShareURI.Text = programsettings.Single<Setting>(i => i.Name == "ShareServiceURI").Value;
+            //textboxSelfReference.Text = programsettings.Single<Setting>(i => i.Name == "Reference").Value;
+            //checkboxShareDebug.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "EnableDebug").Value);
+            //checkboxEnableSharing.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "SharingEnabled").Value);
+            //int shareindex = Convert.ToInt32(programsettings.Single<Setting>(i => i.Name == "AcceptInvitationsFrom").Value);
+            //switch (shareindex)
+            //{
+            //    case 0:
+            //        radioShareNobody.IsChecked = true;
+            //        break;
+            //    case 1:
+            //        radioShareTrusted.IsChecked = true;
+            //        break;
+            //    case 2:
+            //        radioShareAnybody.IsChecked = true;
+            //        break;
+            //    default:
+            //        radioShareNobody.IsChecked = true;
+            //        break;
+            //}
+            //int mergeindex = Convert.ToInt32(programsettings.Single<Setting>(i => i.Name == "MergeFrom").Value);
+            //switch (mergeindex)
+            //{
+            //    case 0:
+            //        radioMergeNobody.IsChecked = true;
+            //        break;
+            //    case 1:
+            //        radioMergeTrusted.IsChecked = true;
+            //        break;
+            //    case 2:
+            //        radioMergeAnybody.IsChecked = true;
+            //        break;
+            //    default:
+            //        radioMergeNobody.IsChecked = true;
+            //        break;
+            //}
+            //String senders = programsettings.Single<Setting>(i => i.Name == "TrustedSenderList").Value;
+            //if (!string.IsNullOrEmpty(senders))
+            //{
+            //    string[] senderarray = senders.Split(',');
+            //    foreach (string sender in senderarray)
+            //    {
+            //        trustedsenders.Add(sender);
+            //    }
+            //}
+            //listviewSenderList.ItemsSource = trustedsenders;
+            //checkboxSoundEnable.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "EnableSound").Value);
+            //sliderMasterVol.Value = Convert.ToInt32(programsettings.Single<Setting>(i => i.Name == "MasterVolume").Value);
+            //checkboxEnableText.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "EnableText").Value);
+            //checkboxEnableTimer.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "EnableTimers").Value);
+            //checkboxStopTrigger.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "StopTriggerSearch").Value);
+            //checkboxMinimize.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "Minimize").Value);
+            //checkboxMatchLog.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "DisplayMatchLog").Value);
+            //checkboxLogMatches.IsChecked = logmatchestofile = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "LogMatchesToFile").Value);
+            //textboxLogMatches.Text = logmatchlocation = programsettings.Single<Setting>(i => i.Name == "LogMatchFilename").Value;
+            //textboxClipboard.Text = programsettings.Single<Setting>(i => i.Name == "Clipboard").Value;
+            //textboxEQFolder.Text = programsettings.Single<Setting>(i => i.Name == "EQFolder").Value;
+            //textboxMediaFolder.Text = programsettings.Single<Setting>(i => i.Name == "ImportedMediaFolder").Value;
+            //textboxDataFolder.Text = programsettings.Single<Setting>(i => i.Name == "DataFolder").Value;
+            //textboxMaxEntries.Text = programsettings.Single<Setting>(i => i.Name == "MaxLogEntry").Value;
+        }
+        private void LoadCharacters()
+        {
+            using (var db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<Character> characters = db.GetCollection<Character>("characters");
+                foreach(Character character in characters.FindAll())
+                {
+                    //check to see if some how monitor is enabled but monitoring disabled
+                    if (character.Monitor)
+                    {
+                        character.Monitoring = true;
+                    }
+                    CharacterCollection charcollection = new CharacterCollection
+                    {
+                        Name = character.Name,
+                        CharacterProfile = character
+                    };
+                    _characters.Add(charcollection);
+                }
             }
             CollectionViewSource charactervs = new CollectionViewSource();
             SortDescription desc = new SortDescription("Name", ListSortDirection.Ascending);
@@ -372,10 +592,6 @@ namespace EQAudioTriggers
             charactervs.SortDescriptions.Add(desc);
             charactervs.Source = _characters;
             _listviewCharacters.ItemsSource = charactervs.View;
-            if(_characters.Count > 0)
-            {
-                _listviewCharacters.SelectedIndex = 0;
-            }
         }
         private void ActivateLog()
         {
@@ -383,151 +599,314 @@ namespace EQAudioTriggers
         }
         private void LoadTriggers()
         {
-            //Load Triggers into Collection
-            String StartPath = $"{EQAudioTriggers.GlobalVariables.workingdirectory}\\TriggerGroups";
-            DirectoryInfo di = new DirectoryInfo(StartPath);
-            foreach(DirectoryInfo newdir in di.GetDirectories())
+            //Load Triggers into Collection            
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
             {
-                TriggerManager newtrigger = new TriggerManager { 
-                    FullPath = newdir.FullName, 
-                    Name = newdir.Name, 
-                    NodeType = "group", 
-                    Icon = GlobalVariables.foldericon, 
-                    IsRootNode = true, 
-                    ParentNode = null, 
-                    IsActive = false 
-                };
-                treeview.LoadOnDemandCommand = newtrigger.TreeViewOnDemandCommand;
-                _triggermanager.Add(newtrigger);
-                WalkDirectoryTree(newtrigger);
-                SetCheckedItems(newtrigger);
+                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
+                ILiteCollection<TriggerGroupProperty> triggergroups = db.GetCollection<TriggerGroupProperty>("groups");
+                foreach(TriggerGroupProperty group in triggergroups.Find(x => x.ParentId == null))
+                {
+                    TriggerManager newtrigger = new TriggerManager
+                    {
+                        Name = group.Name,
+                        NodeType = "group",
+                        Icon = GlobalVariables.foldericon,
+                        IsRootNode = true,
+                        ParentNode = null,
+                        IsActive = false,
+                        TriggerGroup = group
+                    };
+                    if(group.SubGroups.Count > 0)
+                    {
+                        LoadSubGroup(newtrigger, db);
+                    }
+                    if(group.Triggers.Count > 0)
+                    {
+                        foreach(string triggerid in group.Triggers)
+                        {
+                            EQTrigger eqtrigger = triggers.FindOne(x => x.Id == triggerid);
+                            TriggerManager newmanager = new TriggerManager
+                            {
+                                Name = newtrigger.Name,
+                                NodeType = "trigger",
+                                Icon = GlobalVariables.triggericon,
+                                Trigger = eqtrigger,
+                                ParentNode = newtrigger,
+                                IsActive = false
+                            };
+                            _triggermasterlist.Add(eqtrigger);
+                        }
+                    }                    
+                    _triggermanager.Add(newtrigger);
+                    treeview.LoadOnDemandCommand = newtrigger.TreeViewOnDemandCommand;
+                }
             }
             //Assign trigger collection to tree view
             treeview.ItemsSource = _triggermanager;
         }
-        private void WalkDirectoryTree(TriggerManager root)
+        private void LoadSubGroup(TriggerManager triggermanager, LiteDatabase db)
         {
-            FileInfo[] files = null;
-            DirectoryInfo rootDir = new DirectoryInfo(root.FullPath);
-
-            // First, process all the files directly under this folder
-            //This is Triggers
-            try
+            ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
+            ILiteCollection<TriggerGroupProperty> triggergroups = db.GetCollection<TriggerGroupProperty>("groups");
+            foreach (string groupid in triggermanager.TriggerGroup.SubGroups)
             {
-                files = rootDir.GetFiles("*.json");
-            }
-            // This is thrown if even one of the files requires permissions greater
-            // than the application provides.
-            catch (UnauthorizedAccessException e)
-            {
-                // This code just writes out the message and continues to recurse.
-                // You may decide to do something different here. For example, you
-                // can try to elevate your privileges and access the file again.
-                _log.Add(e.Message);
-            }
-            catch (DirectoryNotFoundException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-
-            if (files != null)
-            {
-                root.HasChildNodes = true;
-                foreach (FileInfo fi in files)
+                TriggerGroupProperty newgroup = triggergroups.FindOne(x => x.Id == groupid);
+                TriggerManager newtrigger = new TriggerManager
                 {
-                    //Parse Trigger Group Info 'properties.json'
-                    if(fi.Name.Contains("properties.json"))
+                    Name = newgroup.Name,
+                    NodeType = "group",
+                    Icon = GlobalVariables.foldericon,
+                    IsRootNode = false,
+                    ParentNode = triggermanager,
+                    IsActive = false,
+                    TriggerGroup = newgroup
+                };
+                if (newgroup.SubGroups.Count > 0)
+                {
+                    LoadSubGroup(newtrigger,db);
+                }
+                if (newgroup.Triggers.Count > 0)
+                {
+                    foreach (string triggerid in newgroup.Triggers)
                     {
-                        //Set the trigger group properties
-                        Console.WriteLine("Found Properties File");
-                        using (StreamReader r = new StreamReader(fi.FullName))
+                        EQTrigger eqtrigger = triggers.FindOne(x => x.Id == triggerid);
+                        TriggerManager newmanager = new TriggerManager
                         {
-                            string json = r.ReadToEnd();
-                            TriggerGroupProperty tgproperty = JsonConvert.DeserializeObject<TriggerGroupProperty>(json);
-                            tgproperty.Name = root.Name;
-                            root.TriggerGroup = tgproperty;
-                            root.Comments = tgproperty.Comments;
-                            root.DefaultEnable = tgproperty.DefaultEnabled;
-                        }
-                    }
-                    else
-                    {
-                        using (StreamReader r = new StreamReader(fi.FullName))
-                        {
-                            string json = r.ReadToEnd();
-                            EQTrigger newtrigger = JsonConvert.DeserializeObject<EQTrigger>(json);
-                            newtrigger.Path = fi.FullName;
-                            _triggermasterlist.Add(newtrigger);
-                            //Cross check the active character list of the trigger to current characters with monitoring active
-                            var activechars = _characters.Where(i => i.CharacterProfile.Monitoring == true && newtrigger.ActiveCharacters.Contains(i.CharacterProfile.Name));
-                            if(activechars.Count() > 0)
-                            {
-                                _activetriggers.Collection.Add(newtrigger);
-                            }
-
-                            // Resursive call for each subdirectory.
-                            TriggerManager newmanager = new TriggerManager
-                            {
-                                FullPath = fi.FullName,
-                                Name = newtrigger.Name,
-                                NodeType = "trigger",
-                                Icon = GlobalVariables.triggericon,
-                                Trigger = newtrigger,
-                                ParentNode = root,
-                                IsActive = false
-                            };
-                            root.SubGroups.Add(newmanager);
-                        }
-                        Console.WriteLine(fi.FullName);
+                            Name = eqtrigger.Name,
+                            NodeType = "trigger",
+                            Icon = GlobalVariables.triggericon,
+                            Trigger = eqtrigger,
+                            ParentNode = newtrigger,
+                            IsActive = false
+                        };
+                        _triggermasterlist.Add(eqtrigger);
+                        newtrigger.SubGroups.Add(newmanager);
                     }
                 }
-
-                //This is Trigger Groups
-                // Now find all the subdirectories under this directory.
-                foreach (DirectoryInfo dirInfo in rootDir.GetDirectories())
-                {
-                    // Resursive call for each subdirectory.
-                    TriggerManager newmanager = new TriggerManager
-                    {
-                        Name = dirInfo.Name,
-                        FullPath = dirInfo.FullName,
-                        NodeType = "group",
-                        Icon = GlobalVariables.foldericon,
-                        ParentNode = root,
-                        IsActive = false
-                    };
-                    root.SubGroups.Add(newmanager);
-                    WalkDirectoryTree(newmanager);
-                }
+                triggermanager.SubGroups.Add(newtrigger);
             }
         }
         private void PurgeFromTriggers(string name)
         {
-            foreach(EQTrigger trigger in _triggermasterlist)
+            foreach (EQTrigger trigger in _triggermasterlist)
             {
-                if(trigger.ActiveCharacters.Contains(name))
+                if (trigger.ActiveCharacters.Contains(name))
                 {
                     trigger.ActiveCharacters.Remove(name);
-                    using (StreamWriter file = File.CreateText(trigger.Path))
-                    {
-                        JsonSerializer serializer = new JsonSerializer();
-                        //serialize object directly into file stream
-                        serializer.Serialize(file, trigger);
-                    }
                 }
             }
         }
-        private Character CreateCharacter()
+        private void CreateCharacter()
         {
             CharacterEdit chareditor = new CharacterEdit();
             Boolean rval = (bool)chareditor.ShowDialog();
             if (chareditor.ReturnChar != null)
             {
-                return chareditor.ReturnChar;
+                using(var db = new LiteDatabase(GlobalVariables.defaultDB))
+                {
+                    ILiteCollection<Character> characters = db.GetCollection<Character>("characters");
+                    characters.Insert(chareditor.ReturnChar);
+                }
+                _characters.Add(new CharacterCollection { Name = chareditor.ReturnChar.Name, CharacterProfile = chareditor.ReturnChar });
             }
-            else
+        }
+        private void DefaultSettings()
+        {
+            Setting mastervolume = new Setting
             {
-                return null;
+                Name = "MasterVolume",
+                Value = "100"
+            };
+            Setting update = new Setting
+            {
+                Name = "ApplicationUpdate",
+                Value = "true"
+            };
+            Setting enablesound = new Setting
+            {
+                Name = "EnableSound",
+                Value = "true"
+            };
+            Setting enabletext = new Setting
+            {
+                Name = "EnableText",
+                Value = "true"
+            };
+            Setting enabletimers = new Setting
+            {
+                Name = "EnableTimers",
+                Value = "true"
+            };
+            Setting minimize = new Setting
+            {
+                Name = "Minimize",
+                Value = "false"
+            };
+            Setting stoptrigger = new Setting
+            {
+                Name = "StopTriggerSearch",
+                Value = "false"
+            };
+            Setting displaymatchlog = new Setting
+            {
+                Name = "DisplayMatchLog",
+                Value = "true"
+            };
+            Setting maxlogentry = new Setting
+            {
+                Name = "MaxLogEntry",
+                Value = "100"
+            };
+            Setting logmatchtofile = new Setting
+            {
+                Name = "LogMatchesToFile",
+                Value = "false"
+            };
+            Setting logmatchfilename = new Setting
+            {
+                Name = "LogMatchFilename",
+                Value = ""
+            };
+            Setting clipboard = new Setting
+            {
+                Name = "Clipboard",
+                Value = "{C}"
+            };
+            Setting eqfolder = new Setting
+            {
+                Name = "EQFolder",
+                Value = @"C:\EQ"
+            };
+            Setting importedmedia = new Setting
+            {
+                Name = "ImportedMediaFolder",
+                Value = $"{GlobalVariables.workingdirectory}\\ImportedMedia"
+            };
+            Setting datafolder = new Setting
+            {
+                Name = "DataFolder",
+                Value = GlobalVariables.workingdirectory
+            };
+            Setting enablesharing = new Setting
+            {
+                Name = "SharingEnabled",
+                Value = "true"
+            };
+            Setting enableincoming = new Setting
+            {
+                Name = "EnableIncomingTriggers",
+                Value = "true"
+            };
+            Setting acceptfrom = new Setting
+            {
+                Name = "AcceptInvitationsFrom",
+                Value = "2"
+            };
+            Setting mergefrom = new Setting
+            {
+                Name = "MergeFrom",
+                Value = "2"
+            };
+            Setting senderlist = new Setting
+            {
+                Name = "TrustedSenderList",
+                Value = ""
+            };
+            Setting logarchive = new Setting
+            {
+                Name = "LogArchiveFolder",
+                Value = $"{GlobalVariables.workingdirectory}\\Archive"
+            };
+            Setting autoarchive = new Setting
+            {
+                Name = "AutoArchive",
+                Value = "true"
+            };
+            Setting compress = new Setting
+            {
+                Name = "CompressArchive",
+                Value = "true"
+            };
+            Setting archivemethod = new Setting
+            {
+                Name = "ArchiveMethod",
+                Value = "Size Threshold"
+            };
+            Setting logsize = new Setting
+            {
+                Name = "LogSize",
+                Value = "50"
+            };
+            Setting autodelete = new Setting
+            {
+                Name = "AutoDelete",
+                Value = "true"
+            };
+            Setting deletearchive = new Setting
+            {
+                Name = "DeleteArchives",
+                Value = "90"
+            };
+            Setting shareuri = new Setting
+            {
+                Name = "ShareServiceURI",
+                Value = @"http:\\shareservice.com"
+            };
+            Setting reference = new Setting
+            {
+                Name = "Reference",
+                Value = "You"
+            };
+            Setting enabledebug = new Setting
+            {
+                Name = "EnableDebug",
+                Value = "false"
+            };
+            Setting archiveschedule = new Setting
+            {
+                Name = "ArchiveSchedule",
+                Value = ""
+            };
+            Setting darkmode = new Setting
+            {
+                Name = "DarkMode",
+                Value = "false"
+            };
+            using (var db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<Setting> settings = db.GetCollection<Setting>("settings");
+                settings.Insert(mastervolume);
+                settings.Insert(update);
+                settings.Insert(enablesound);
+                settings.Insert(enabletext);
+                settings.Insert(enabletimers);
+                settings.Insert(minimize);
+                settings.Insert(stoptrigger);
+                settings.Insert(displaymatchlog);
+                settings.Insert(maxlogentry);
+                settings.Insert(logmatchtofile);
+                settings.Insert(logmatchfilename);
+                settings.Insert(clipboard);
+                settings.Insert(eqfolder);
+                settings.Insert(importedmedia);
+                settings.Insert(datafolder);
+                settings.Insert(enablesharing);
+                settings.Insert(enableincoming);
+                settings.Insert(acceptfrom);
+                settings.Insert(mergefrom);
+                settings.Insert(senderlist);
+                settings.Insert(logarchive);
+                settings.Insert(autoarchive);
+                settings.Insert(compress);
+                settings.Insert(archivemethod);
+                settings.Insert(logsize);
+                settings.Insert(autodelete);
+                settings.Insert(deletearchive);
+                settings.Insert(shareuri);
+                settings.Insert(reference);
+                settings.Insert(enabledebug);
+                settings.Insert(archiveschedule);
+                settings.Insert(darkmode);
             }
         }
 
@@ -567,6 +946,27 @@ namespace EQAudioTriggers
         {
 
         }
+        private void mergedockingmanager_TabClosed(object sender, CloseTabEventArgs e)
+        {
+            mergedockingmanager.Visibility = Visibility.Hidden;
+            triggerdockmanager.SetValue(Grid.ColumnSpanProperty, 2);
+        }
+        private void mergetreeview_ItemDragStarting(object sender, TreeViewItemDragStartingEventArgs e)
+        {
+            Console.WriteLine("Merge Tree Item Drag Starting");
+        }
+        private void mergetreeview_ItemDropping(object sender, TreeViewItemDroppingEventArgs e)
+        {
+            Console.WriteLine("Merge Tree Item Dropping");
+        }
+        private void mergetreeview_ItemDropped(object sender, TreeViewItemDroppedEventArgs e)
+        {
+            Console.WriteLine("Merge Tree Item Dropped");
+        }
+        private void treeview_ItemDragStarted(object sender, TreeViewItemDragStartedEventArgs e)
+        {
+            Console.WriteLine("TreeView Drag Started");
+        }
         #endregion
 
         #region Ribbon
@@ -580,25 +980,35 @@ namespace EQAudioTriggers
         }
         private void addUser_Click(object sender, RoutedEventArgs e)
         {
-            Character toadd = CreateCharacter();
-            if (toadd != null)
-            {
-                CharacterCollection newcollection = new CharacterCollection();
-                newcollection.Name = toadd.Profile;
-                newcollection.CharacterProfile = toadd;
-                _characters.Add(newcollection);
-            }
+            CreateCharacter();
         }
         private void editUser_Click(object sender, RoutedEventArgs e)
         {
-            ((CharacterCollection)_listviewCharacters.SelectedItem).CharacterProfile.EditCharacter();
+            try
+            {
+                Character selected = ((CharacterCollection)_listviewCharacters.SelectedItem).CharacterProfile;
+                selected.EditCharacter();
+                using (var db = new LiteDatabase(GlobalVariables.defaultDB))
+                {
+                    ILiteCollection<Character> characters = db.GetCollection<Character>("characters");
+                    characters.Update(selected);
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBoxResult mbox = Xceed.Wpf.Toolkit.MessageBox.Show("Character Not Selected", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         private void removeUser_Click(object sender, RoutedEventArgs e)
         {
-            string name = ((CharacterCollection)_listviewCharacters.SelectedValue).Name;
-            ((CharacterCollection)_listviewCharacters.SelectedItem).CharacterProfile.Delete();
-            _characters.Remove((CharacterCollection)_listviewCharacters.SelectedValue);
-            PurgeFromTriggers(name);
+            CharacterCollection selected = (CharacterCollection)_listviewCharacters.SelectedItem;
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<Character> characters = db.GetCollection<Character>("characters");
+                characters.Delete(selected.CharacterProfile.Id);
+            }
+            _characters.Remove(selected);
+            PurgeFromTriggers(selected.CharacterProfile.Id);
         }
         #endregion
 
@@ -608,7 +1018,7 @@ namespace EQAudioTriggers
             if (e.Node.Level == 0)
             {
                 //Returns specified item height for items.
-                e.Height = 20;
+                e.Height = 25;
                 e.Handled = true;
             }
             else
@@ -619,51 +1029,91 @@ namespace EQAudioTriggers
         }
         private void treeview_SelectionChanged(object sender, ItemSelectionChangedEventArgs e)
         {
-            TriggerManager selecteditem = (TriggerManager)treeview.SelectedItem;
-            if (selecteditem.NodeType.Equals("group"))
-            {
-                menuaddtoselectedgroup.IsEnabled = true;
-                editTriggerGroup.IsEnabled = true;
-                removeTriggerGroup.IsEnabled = true;
-                addTrigger.IsEnabled = true;
-                editTrigger.IsEnabled = false;
-                removeTrigger.IsEnabled = false;
+            TriggerManager selecteditem = (sender as SfTreeView).CurrentItem as TriggerManager;
+            string treename = (sender as SfTreeView).Name;
 
-            }
-            if (selecteditem.NodeType.Equals("trigger"))
+            if (!treename.Contains("mergetreeview"))
             {
+                if (selecteditem.NodeType.Equals("group"))
+                {
+                    addTriggerGroup.IsEnabled = true;
+                    menuaddtoselectedgroup.IsEnabled = true;
+                    editTriggerGroup.IsEnabled = true;
+                    removeTriggerGroup.IsEnabled = true;
+                    addTrigger.IsEnabled = true;
+                    editTrigger.IsEnabled = false;
+                    removeTrigger.IsEnabled = false;
+
+                }
+                if (selecteditem.NodeType.Equals("trigger"))
+                {
+                    menuaddtoselectedgroup.IsEnabled = false;
+                    editTriggerGroup.IsEnabled = false;
+                    removeTriggerGroup.IsEnabled = false;
+                    addTrigger.IsEnabled = false;
+                    editTrigger.IsEnabled = true;
+                    removeTrigger.IsEnabled = true;
+                }
+            }
+            else
+            {
+                addTriggerGroup.IsEnabled = false;
                 menuaddtoselectedgroup.IsEnabled = false;
                 editTriggerGroup.IsEnabled = false;
                 removeTriggerGroup.IsEnabled = false;
                 addTrigger.IsEnabled = false;
-                editTrigger.IsEnabled = true;
-                removeTrigger.IsEnabled = true;
+                editTrigger.IsEnabled = false;
+                removeTrigger.IsEnabled = false;
             }
         }
         private void treeview_ItemDropped(object sender, TreeViewItemDroppedEventArgs e)
         {
+            Console.WriteLine("TreeView Item Dropped");
             //Folder where our item is going
             if (e.TargetNode != null)
-            {
+            {                
                 TriggerManager desttm = (TriggerManager)e.TargetNode.Content;
-
-                //The item we're draggin
-                TriggerManager sourcetm = (TriggerManager)((SfTreeView)sender).SelectedItem;
-
-                if (e.TargetNode.ParentNode == null && sourcetm.NodeType == "trigger")
+                MessageBoxResult confirmdrop = Xceed.Wpf.Toolkit.MessageBox.Show($"Import Triggers on Group: {desttm.Name}", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirmdrop == MessageBoxResult.Yes)
                 {
-                    MessageBoxResult mbox = Xceed.Wpf.Toolkit.MessageBox.Show("Can't Move Trigger to Root", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
-                {
-                    //if it's a trigger, delete the old json and write the new one in the correct location
-                    if (sourcetm.NodeType == "trigger")
+                    //The item we're draggin
+                    foreach (TreeViewNode node in e.DraggingNodes)
                     {
-                        sourcetm.UpdateTriggerLocation(desttm.FullPath);
-                    }
-                    else if (sourcetm.NodeType == "group")
-                    {
-                        sourcetm.UpdateTriggerGroupLocation(desttm.FullPath);
+                        TriggerManager droppednode = (TriggerManager)node.Content;
+                        if (e.TargetNode.ParentNode == null && droppednode.NodeType == "trigger")
+                        {
+                            MessageBoxResult mbox = Xceed.Wpf.Toolkit.MessageBox.Show("Can't Move Trigger to Root", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        else
+                        {
+                            if (droppednode.NodeType == "trigger")
+                            {
+                                //Add the trigger ID to the parent node Triggers
+                                //write the parent node to the DB
+                                desttm.TriggerGroup.Triggers.Add(droppednode.Trigger.Id);
+                                WriteGroupToDB(desttm.TriggerGroup);
+                                //Add the Group Id to the trigger
+                                //write the trigger to the DB
+                                droppednode.Trigger.GroupId = desttm.TriggerGroup.Id;
+                                WriteTriggerToDB(droppednode.Trigger);
+                            }
+                            else if (droppednode.NodeType == "group")
+                            {
+                                //add the parent id to the dropped node, then import it
+                                droppednode.TriggerGroup.ParentId = desttm.TriggerGroup.Id;
+                                WriteGroupToDB(droppednode.TriggerGroup);
+
+                                //add the dropped node id to the parent subgroup
+                                //write the parent group to the db
+                                desttm.TriggerGroup.SubGroups.Add(droppednode.TriggerGroup.Id);
+                                WriteGroupToDB(desttm.TriggerGroup);
+
+                                //Call a recursive function that goes through the groups and subgroups to pull everything over
+                                //we'll check if somebody imports an empty group, people do dumb stuff
+                                if (droppednode.SubGroups.Count > 0)
+                                { ImportTriggerGroup(droppednode); }
+                            }
+                        }
                     }
                 }
             }
@@ -671,19 +1121,23 @@ namespace EQAudioTriggers
         private void treeview_ItemDropping(object sender, TreeViewItemDroppingEventArgs e)
         {
             //Restrict the dropping on certain nodes
-            if (e.TargetNode != null)
+            if (e.TargetNode != null )
             {
                 try
                 {
                     TriggerManager node = e.TargetNode.Content as TriggerManager;
-                    if (((TriggerManager)((SfTreeView)sender).SelectedItem) != null)
+                    ObservableCollection<TreeViewNode> dragsource = e.DraggingNodes;
+                    if(dragsource != null && dragsource.Count > 0)
                     {
-                        if (((TriggerManager)((SfTreeView)sender).SelectedItem).NodeType == "trigger" && node.ParentNode == null)
+                        TriggerManager droplocation = (e.TargetNode).Content as TriggerManager;
+                        if(droplocation.NodeType == "group")
+                        {
+                            e.Handled = false;
+                        }
+                        else
+                        {
                             e.Handled = true;
-                    }
-                    else
-                    {
-                        e.Handled = true;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -698,6 +1152,7 @@ namespace EQAudioTriggers
         }
         private void treeview_ItemDragOver(object sender, TreeViewItemDragOverEventArgs e)
         {
+            Console.WriteLine("TreeView item Drag Over");
             if (e.TargetNode != null)
             {
                 TriggerManager node = e.TargetNode.Content as TriggerManager;
@@ -711,7 +1166,7 @@ namespace EQAudioTriggers
         {
             if (tm.NodeType == "trigger")
             {
-                if(enable){ EnableTrigger(tm); }
+                if (enable) { EnableTrigger(tm); }
                 else { DisableTrigger(tm); }
                 tm.IsActive = enable;
             }
@@ -723,7 +1178,7 @@ namespace EQAudioTriggers
             {
                 foreach (TriggerManager sub in tm.SubGroups)
                 {
-                    SetCheckedItems(sub,enable);
+                    SetCheckedItems(sub, enable);
                 }
             }
 
@@ -745,7 +1200,7 @@ namespace EQAudioTriggers
             //if the node is a trigger and has the selected character as active, then mark the node active and return true so the parent knows we have an active trigger
             if (tm.NodeType == "trigger")
             {
-                if(tm.Trigger.ActiveCharacters.Contains(_selectedcharacter))
+                if (tm.Trigger.ActiveCharacters.Contains(_selectedcharacter))
                 {
                     tm.IsActive = true;
                     updateparent = true;
@@ -757,12 +1212,8 @@ namespace EQAudioTriggers
                 }
             }
             //if this is a node type "group" and all of the childrenchecked = true, then add this item to the checked list
-            if(tm.NodeType == "group")
+            if (tm.NodeType == "group")
             {
-                if(tm.SubGroups.Count > 1)
-                {
-                    string stop = "";
-                }
                 //count how many branches
                 int totalnodes = tm.SubGroups.Count;
                 //keep track of how many branches are active
@@ -836,16 +1287,16 @@ namespace EQAudioTriggers
             //Top level group is another root node
             //Else if we have a trigger selected, we can add a group to the trigger parent node.
             //otherwise the selecteditem is the parent group and we need to add a group to it.
-            if(selecteditem == null || selecteditem.IsRootNode)
+            if (selecteditem == null || selecteditem.IsRootNode)
             {
-                TriggerManager newtrigger = new TriggerManager { FullPath = $"{GlobalVariables.workingdirectory}\\TriggerGroups", NodeType = "group", Icon = GlobalVariables.foldericon, IsRootNode = true };
+                TriggerManager newtrigger = new TriggerManager { NodeType = "group", Icon = GlobalVariables.foldericon, IsRootNode = true };
                 newtrigger.CreateRootTriggerGroup();
                 _triggermanager.Add(newtrigger);
                 //resort collection
                 _triggermanager = new ObservableCollection<TriggerManager>(_triggermanager.OrderBy(i => i.Name));
                 treeview.ItemsSource = _triggermanager;
             }
-            else if(selecteditem.NodeType.Equals("trigger"))
+            else if (selecteditem.NodeType.Equals("trigger"))
             {
                 selecteditem.ParentNode.AddTriggerGroup();
             }
@@ -859,14 +1310,14 @@ namespace EQAudioTriggers
             ((TriggerManager)treeview.SelectedItem).AddTriggerGroup();
         }
         private void editTriggerGroup_Click(object sender, RoutedEventArgs e)
-        {           
+        {
             ((TriggerManager)treeview.SelectedItem).EditTriggerGroup();
         }
         private void removeTriggerGroup_Click(object sender, RoutedEventArgs e)
         {
             TriggerManager selecteditem = (TriggerManager)treeview.SelectedItem;
             selecteditem.RemoveTriggerGroup();
-            if(selecteditem.IsRootNode)
+            if (selecteditem.IsRootNode)
             {
                 _triggermanager.Remove(selecteditem);
             }
@@ -877,7 +1328,7 @@ namespace EQAudioTriggers
         private void addTrigger_Click(object sender, RoutedEventArgs e)
         {
             EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters);
-            if(newtrigger != null)
+            if (newtrigger != null)
             {
                 _triggermasterlist.Add(newtrigger);
             }
@@ -889,9 +1340,7 @@ namespace EQAudioTriggers
         private void removeTrigger_Click(object sender, RoutedEventArgs e)
         {
             TriggerManager selecteditem = (TriggerManager)treeview.SelectedItem;
-            string todelete = selecteditem.FullPath;
-            selecteditem.ParentNode.SubGroups.Remove(selecteditem);
-            File.Delete(todelete);
+            selecteditem.RemoveTrigger();
             _triggermasterlist.Remove(selecteditem.Trigger);
         }
         #endregion
@@ -909,7 +1358,7 @@ namespace EQAudioTriggers
             else
             {
                 txtblockProfile.Text = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Profile;
-                _selectedcharacter = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Name;
+                _selectedcharacter = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Id;
                 Console.WriteLine($"Changed Character: {_selectedcharacter}");
             }
             UpdateCheckedItems();
@@ -948,15 +1397,31 @@ namespace EQAudioTriggers
         }
         private void MenuItemCharEdit_Click(object sender, RoutedEventArgs e)
         {
-            Character selected = ((CharacterCollection)_listviewCharacters.SelectedItem).CharacterProfile;
-            selected.EditCharacter();
+            try
+            {
+                Character selected = ((CharacterCollection)_listviewCharacters.SelectedItem).CharacterProfile;
+                selected.EditCharacter();
+                using (var db = new LiteDatabase(GlobalVariables.defaultDB))
+                {
+                    ILiteCollection<Character> characters = db.GetCollection<Character>("characters");
+                    characters.Update(selected);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBoxResult mbox = Xceed.Wpf.Toolkit.MessageBox.Show("Character Not Selected", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         private void MenuItemCharDelete_Click(object sender, RoutedEventArgs e)
         {
-            string name = ((CharacterCollection)_listviewCharacters.SelectedValue).Name;
-            ((CharacterCollection)_listviewCharacters.SelectedValue).CharacterProfile.Delete();
-            _characters.Remove((CharacterCollection)_listviewCharacters.SelectedValue);
-            PurgeFromTriggers(name);
+            CharacterCollection selected = (CharacterCollection)_listviewCharacters.SelectedItem;
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<Character> characters = db.GetCollection<Character>("characters");
+                characters.Delete(selected.CharacterProfile.Id);
+            }
+            _characters.Remove(selected);
+            PurgeFromTriggers(selected.CharacterProfile.Id);
         }
         private void MenuItemStartMonitor_Click(object sender, RoutedEventArgs e)
         {
@@ -972,7 +1437,7 @@ namespace EQAudioTriggers
         #endregion
 
         private void _treeCheckbox_Checked(object sender, RoutedEventArgs e)
-        {            
+        {
             TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
             //if Trigger, activate it for the selected character
             if (target.NodeType == "trigger")
@@ -982,14 +1447,16 @@ namespace EQAudioTriggers
             //if Group, iterate through tree and activate each trigger on the way down for the selected character
             if (target.NodeType == "group")
             {
-                SetCheckedItems(target,true);
+                SetCheckedItems(target, true);
             }
             //walk back up the tree and do parent checks
             target.ClimbTree(true);
+            //If the trigger doesn't have any characters subscribing to it, then remove it from active triggers
+            _activetriggers.Refactor(_triggermasterlist);
         }
         private void _treeCheckbox_Unchecked(object sender, RoutedEventArgs e)
         {
-            
+
             TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
             //if Trigger, deactivate it for the selected character
             if (target.NodeType == "trigger")
@@ -997,70 +1464,520 @@ namespace EQAudioTriggers
                 DisableTrigger(target);
             }
             //if Group, iterate through tree and deactivate each trigger on the way down for the selected character
-            if(target.NodeType == "group")
+            if (target.NodeType == "group")
             {
                 SetCheckedItems(target, false);
             }
             //walk back up the tree and do parent unchecks
             target.ClimbTree(false);
+            //If the trigger doesn't have any characters subscribing to it, then remove it from active triggers
+            _activetriggers.Refactor(_triggermasterlist);
         }
 
         #region Trigger
         private void DisableTrigger(TriggerManager tm)
         {
-            string character = ((CharacterCollection)(_listviewCharacters.SelectedItem)).Name;
+            string character = ((CharacterCollection)(_listviewCharacters.SelectedItem)).CharacterProfile.Id;
             Console.WriteLine($"Unchecked Trigger{tm.Name}");
-            try
-            {
-                //check if character is already in the list
-                string found = tm.Trigger.ActiveCharacters.Single<string>(x => x.Contains(character));
-                if (found == character)
-                {
-                    tm.Trigger.RemoveCharacter(character);
 
-                    //write updates to trigger file
-                    //open file stream
-                    using (StreamWriter file = File.CreateText(tm.Trigger.Path))
-                    {
-                        JsonSerializer serializer = new JsonSerializer();
-                        //serialize object directly into file stream
-                        serializer.Serialize(file, tm.Trigger);
-                    }
-                }
-            }
-            catch (Exception ex)
+            //check if character is already in the list
+            //string found = tm.Trigger.ActiveCharacters.Single<string>(x => x.Contains(character));
+            bool found = tm.Trigger.ActiveCharacters.Contains(character);
+            if (found)
             {
-                Console.WriteLine("Character not in list, no need to remove");
+                //Remove trigger, which also updates DB
+                tm.Trigger.RemoveCharacter(character);
             }
-            _activetriggers.Refactor();
         }
         private void EnableTrigger(TriggerManager tm)
         {
             Console.WriteLine("Calling Node Checked");
-            string character = ((CharacterCollection)(_listviewCharacters.SelectedItem)).Name;
+            string character = ((CharacterCollection)(_listviewCharacters.SelectedItem)).CharacterProfile.Id;
             Console.WriteLine($"Checked Trigger{tm.Name}");
-            try
+            bool found = tm.Trigger.ActiveCharacters.Contains(character);
+            if(!found)
             {
-                //check if character is already in the list
-                string found = tm.Trigger.ActiveCharacters.Single<string>(x => x.Contains(character));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Character not in list");
-                //If checked, Add character to trigger
                 tm.Trigger.AddCharacter(character);
-
-                //write updates to trigger file
-                //open file stream
-                using (StreamWriter file = File.CreateText(tm.Trigger.Path))
+            }
+        }
+        private void WriteGroupToDB(TriggerGroupProperty tg)
+        {
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<TriggerGroupProperty> triggergroups = db.GetCollection<TriggerGroupProperty>("groups");
+                //See if the group exists, if so update it
+                TriggerGroupProperty test = triggergroups.FindOne(x => x.Id == tg.Id);
+                if (test != null)
                 {
-                    JsonSerializer serializer = new JsonSerializer();
-                    //serialize object directly into file stream
-                    serializer.Serialize(file, tm.Trigger);
+                    triggergroups.Update(tg);
+                }
+                else
+                {
+                    triggergroups.Insert(tg);
                 }
             }
-            _activetriggers.Refactor();
+        }
+        private void DeleteGroupFromDB(TriggerGroupProperty tg)
+        {
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<TriggerGroupProperty> triggergroups = db.GetCollection<TriggerGroupProperty>("groups");
+                triggergroups.Delete(tg.Id);
+            }
+        }
+        private void WriteTriggerToDB(EQTrigger trigger)
+        {
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
+                //See if the group exists, if so update it
+                EQTrigger test = triggers.FindOne(x => x.Id == trigger.Id);
+                if (test != null)
+                {
+                    triggers.Update(trigger);
+                }
+                else
+                {
+                    triggers.Insert(trigger);
+                }
+            }
+        }
+        private void DeleteTriggerFromDB(EQTrigger trigger)
+        {
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
+                triggers.Delete(trigger.Id);
+            }
         }
         #endregion
+
+        #region Import/Export Triggers
+        private void ImportFromGina_Click(object sender, RoutedEventArgs e)
+        {
+            //clear the merge tree in case we're loading another set
+            _mergemanager.Clear();
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "GINA Trigger Package|*.gtp";
+            if (fileDialog.ShowDialog() == true)
+            {
+                using (ZipArchive archive = ZipFile.OpenRead(fileDialog.FileName))
+                {
+                    //Load the xml
+                    if (archive.Entries.Count > 0)
+                    {
+                        foreach (ZipArchiveEntry entry in archive.Entries)
+                        {
+                            if (entry.Name == "ShareData.xml")
+                            {
+                                ZipArchiveEntry triggersxml = entry;
+                                using (StreamReader streamtriggers = new StreamReader(triggersxml.Open()))
+                                {
+                                    XmlDocument doc = new XmlDocument();
+                                    doc.LoadXml(streamtriggers.ReadToEnd());
+                                    string json = JsonConvert.SerializeXmlNode(doc);
+                                    JToken jsontoken = JObject.Parse(json);
+                                    ParseGina(jsontoken.SelectToken("SharedData"));
+                                }
+                            }
+                            if (entry.Name.Contains("wav"))
+                            {
+                                //Check if EQAudioTriggers folder exists, if not create.
+                                bool mainPath = Directory.Exists($"{GlobalVariables.workingdirectory}\\ImportedSounds");
+                                if (!mainPath)
+                                {
+                                    Directory.CreateDirectory($"{GlobalVariables.workingdirectory}\\ImportedSounds");
+                                }
+                                //export file to export sound dir
+                                String extracttofile = $"{GlobalVariables.workingdirectory}\\ImportedSounds\\{entry.Name}";
+                                entry.ExtractToFile(extracttofile);
+                            }
+                        }
+                    }
+                }
+            }
+            if(_mergemanager.Count > 0)
+            {
+                mergetreeview.ItemsSource = _mergemanager;
+                triggerdockmanager.SetValue(Grid.ColumnSpanProperty, 1);
+                mergedockingmanager.Visibility = Visibility.Visible;
+            }
+        }
+        private TriggerManager CreateJTokenGroup(JToken newtoken, TriggerManager parentnode)
+        {
+            TriggerGroupProperty newgroup = new TriggerGroupProperty
+            {
+                Name = newtoken["Name"].ToString(),
+                Comments = newtoken["Comments"].ToString(),
+                Id = Utilities.IdGenerator(),
+                DefaultEnabled = newtoken["EnableByDefault"].ToObject<Boolean>()
+            };
+            TriggerManager tm = new TriggerManager
+            {
+                Name = newgroup.Name,
+                NodeType = "group",
+                IsActive = false,
+                IsRootNode = true,
+                ParentNode = parentnode,
+                Icon = GlobalVariables.foldericon,
+                TriggerGroup = newgroup
+                //Add File Information
+            };
+            return tm;
+        }
+        private TriggerManager CreateJTokenTrigger(JToken newtoken, TriggerManager parentnode)
+        {
+            EQTrigger newtrigger = new EQTrigger
+            {
+                Name = newtoken["Name"].ToString(),
+                SearchText = newtoken["TriggerText"].ToString(),
+                Comments = newtoken["Comments"].ToString(),
+                UseRegex = newtoken["EnableRegex"].ToObject<Boolean>(),
+                UseBasicText = newtoken["UseText"].ToObject<Boolean>(),
+                BasicText = newtoken["DisplayText"].ToString(),
+                UseClipboardText = newtoken["CopyToClipboard"].ToObject<Boolean>(),
+                BasicClipboardText = newtoken["ClipboardText"].ToString(),
+                RadioBasicTTS = newtoken["UseTextToVoice"].ToObject<Boolean>(),
+                UseBasicInterrupt = newtoken["InterruptSpeech"].ToObject<Boolean>(),
+                BasicTTS = newtoken["TextToVoiceText"].ToString(),
+                RadioBasicPlay = newtoken["PlayMediaFile"].ToObject<Boolean>(),
+                TimerType = newtoken["TimerType"].ToString(),
+                TimerName = newtoken["TimerName"].ToString(),
+                RestartOnTimerId = newtoken["RestartBasedOnTimerName"].ToObject<Boolean>(),
+                EndingNotify = newtoken["UseTimerEnding"].ToObject<Boolean>(),
+                EndedNotify = newtoken["UseTimerEnded"].ToObject<Boolean>(),
+                CounterReset = newtoken["UseCounterResetTimer"].ToObject<Boolean>(),
+                Category = newtoken["Category"].ToString(),
+                FastCheck = newtoken["UseFastCheck"].ToObject<Boolean>()
+            };
+            TriggerManager tm = new TriggerManager
+            {
+                Name = newtrigger.Name,
+                NodeType = "trigger",
+                Icon = GlobalVariables.triggericon,
+                Trigger = newtrigger,
+                ParentNode = parentnode,
+                IsActive = false
+            };
+
+            //Add End Early Text
+            if (newtoken["TimerEarlyEnders"].Count() > 0)
+            {
+                if (newtoken["TimerEarlyEnders"]["EarlyEnder"].GetType().ToString() == "Newtonsoft.Json.Linq.JObject")
+                {
+                    EndEarlyTrigger endEarlyTrigger = new EndEarlyTrigger
+                    {
+                        SearchText = (String)newtoken["TimerEarlyEnders"]["EarlyEnder"]["EarlyEndText"],
+                        UseRegex = (Boolean)newtoken["TimerEarlyEnders"]["EarlyEnder"]["EnableRegex"]
+                    };
+                    newtrigger.EndEarlyTriggers.Add(endEarlyTrigger);
+                }
+                else
+                {
+                    JArray earlyenders = (JArray)newtoken["TimerEarlyEnders"]["EarlyEnder"];
+                    if ((earlyenders.Children()).Count() > 0)
+                    {
+                        foreach (JToken childtoken in earlyenders.Children())
+                        {
+                            EndEarlyTrigger endEarlyTrigger = new EndEarlyTrigger
+                            {
+                                SearchText = (String)childtoken["EarlyEndText"],
+                                UseRegex = (Boolean)childtoken["EnableRegex"]
+                            };
+                            newtrigger.EndEarlyTriggers.Add(endEarlyTrigger);
+                        }
+                    }
+                }
+            }
+            //Generate durations
+            /*            TimerDuration = "";
+                TimerVisibleDuration = "";
+                TimerStartBehavior = "";
+                TimerEndingTime = "";
+            CounterResetDuration = "";
+            */
+            return tm;
+        }
+        private void ParseGina(JToken jsontoken)
+        {
+            if ((jsontoken["TriggerGroups"]["TriggerGroup"]).GetType().ToString() == "Newtonsoft.Json.Linq.JArray")
+            {
+                foreach (JToken grouptoken in ((JArray)(jsontoken["TriggerGroups"]["TriggerGroup"])).Children())
+                {
+                    TriggerManager tm = CreateJTokenGroup(grouptoken, null);
+                    GetTriggerGroups(grouptoken, tm);
+                    _mergemanager.Add(tm);
+                }
+            }
+            else
+            {
+                TriggerManager tm = CreateJTokenGroup(jsontoken.SelectToken("TriggerGroups.TriggerGroup"), null);
+                GetTriggerGroups(jsontoken.SelectToken("TriggerGroups.TriggerGroup"), tm);
+                _mergemanager.Add(tm);
+            }
+        }
+        private void GetTriggerGroups(JToken jsontoken, TriggerManager parentnode)
+        {
+            foreach (JToken token in jsontoken.Children())
+            {
+                switch (((JProperty)token).Name)
+                {
+                    case "TriggerGroups":
+                        if ((jsontoken["TriggerGroups"]["TriggerGroup"]).GetType().ToString() == "Newtonsoft.Json.Linq.JArray")
+                        {
+                            foreach (JToken newtoken in ((JArray)(jsontoken["TriggerGroups"]["TriggerGroup"])).Children())
+                            {
+                                TriggerManager tm = CreateJTokenGroup(newtoken, parentnode);
+                                parentnode.SubGroups.Add(tm);
+                                GetTriggerGroups(newtoken, tm);
+                            }
+                        }
+                        else
+                        {
+                            if ((jsontoken["TriggerGroups"]["TriggerGroup"]).GetType().ToString() == "Newtonsoft.Json.Linq.JObject")
+                            {
+                                JToken newtoken = jsontoken["TriggerGroups"]["TriggerGroup"];
+                                TriggerManager tm = CreateJTokenGroup(newtoken, parentnode);
+                                parentnode.SubGroups.Add(tm);
+                                GetTriggerGroups(newtoken, tm);
+                            }
+                        }
+                        break;
+                    case "Triggers":
+                        if ((jsontoken["Triggers"]["Trigger"]).GetType().ToString() == "Newtonsoft.Json.Linq.JArray")
+                        {
+                            foreach (JToken newtoken in ((JArray)(jsontoken["Triggers"]["Trigger"])).Children())
+                            {
+                                TriggerManager tm = CreateJTokenTrigger(newtoken, parentnode);
+                                parentnode.SubGroups.Add(tm);
+                                GetTrigger(newtoken, tm);
+                            }
+                        }
+                        else
+                        {
+                            if ((jsontoken["Triggers"]["Trigger"]).GetType().ToString() == "Newtonsoft.Json.Linq.JObject")
+                            {
+                                JToken newtoken = jsontoken["Triggers"]["Trigger"];
+                                TriggerManager tm = CreateJTokenTrigger(newtoken, parentnode);
+                                parentnode.SubGroups.Add(tm);
+                                GetTrigger(newtoken, tm);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        private string GetTrigger(JToken jsontoken, TriggerManager parentnode)
+        {
+            string rval = Utilities.IdGenerator();
+            Dictionary<String, String> timerconversion = new Dictionary<string, string>();
+            timerconversion.Add("NoTimer", "No Timer");
+            timerconversion.Add("Timer", "Timer(Count Down)");
+            timerconversion.Add("Stopwatch", "Timer(Count Up)");
+            timerconversion.Add("RepeatingTimer", "Repeating Timer");
+            EQTrigger newtrigger = new EQTrigger
+            {
+                Id = rval,
+                Name = jsontoken["Name"].ToString(),
+                SearchText = (String)jsontoken["TriggerText"],
+                Comments = (String)jsontoken["Comments"],
+                UseRegex = (bool)jsontoken["EnableRegex"],
+                FastCheck = false,
+                Category = "",
+                BasicText = (String)jsontoken["DisplayText"],
+                BasicClipboardText = (String)jsontoken["ClipboardText"],
+                TimerType = timerconversion[(String)jsontoken["TimerType"]],
+                TimerName = (String)jsontoken["TimerName"],
+                // = (int)jsontoken["TimerDuration"],
+                //TriggeredAgain = 2,
+                //TimerEndingDuration = 0,
+                EndingText = "",
+                EndingClipboard = "",
+                //TimerEnding = (bool)jsontoken["UseTimerEnding"],
+                EndedClipboard = "",
+                EndedDisplayText = "",
+                //TimerEnded = (bool)jsontoken["UseTimerEnded"],
+                //ResetCounter = (bool)jsontoken["UseCounterResetTimer"],
+                //ResetCounterDuration = (int)jsontoken["CounterResetDuration"],
+            };
+            //protect from stupid people, if using regex always use fast check
+            if (newtrigger.UseRegex)
+            {
+                newtrigger.FastCheck = true;
+            }
+            //Set Timer Behavior
+            switch ((String)jsontoken["TimerStartBehavior"])
+            {
+                case "DoNothing":
+                    newtrigger.TimerTriggered = "Do Nothing";
+                    break;
+                case "StartNewTimer":
+                    newtrigger.TimerTriggered = "Start a new timer";
+                    break;
+                default:
+                    break;
+            }
+            //Set Audio Settings
+            newtrigger.UseBasicInterrupt = (bool)jsontoken["InterruptSpeech"];
+            if ((bool)jsontoken["UseTextToVoice"])
+            {
+                //newtrigger.BasicTTS = "tts";
+                newtrigger.BasicTTS = (String)jsontoken["TextToVoiceText"];
+            }
+            if ((bool)jsontoken["PlayMediaFile"])
+            {
+                newtrigger.BasicPlayFile = "file";
+                //set audio file
+            }
+
+            //Add End Early Text
+            if (jsontoken["TimerEarlyEnders"].Count() > 0)
+            {
+                if (jsontoken["TimerEarlyEnders"]["EarlyEnder"].GetType().ToString() == "Newtonsoft.Json.Linq.JObject")
+                {
+                    EndEarlyTrigger endEarlyTrigger = new EndEarlyTrigger
+                    {
+                        SearchText = (String)jsontoken["TimerEarlyEnders"]["EarlyEnder"]["EarlyEndText"],
+                        UseRegex = (Boolean)jsontoken["TimerEarlyEnders"]["EarlyEnder"]["EnableRegex"]
+                    };
+                    newtrigger.EndEarlyTriggers.Add(endEarlyTrigger);
+                }
+                else
+                {
+                    JArray earlyenders = (JArray)jsontoken["TimerEarlyEnders"]["EarlyEnder"];
+                    if ((earlyenders.Children()).Count() > 0)
+                    {
+                        foreach (JToken newtoken in earlyenders.Children())
+                        {
+                            EndEarlyTrigger endEarlyTrigger = new EndEarlyTrigger
+                            {
+                                SearchText = (String)newtoken["EarlyEndText"],
+                                UseRegex = (Boolean)newtoken["EnableRegex"]
+                            };
+                            newtrigger.EndEarlyTriggers.Add(endEarlyTrigger);
+                        }
+                    }
+                }
+            }
+            //Add Timer Ending Trigger
+            if (jsontoken["TimerEndingTrigger"] != null)
+            {
+                if (jsontoken["TimerEndingTrigger"].Count() > 0)
+                {
+                    //newtrigger.basi = (bool)jsontoken["TimerEndingTrigger"]["UseText"];
+                    newtrigger.EndedDisplayText = (String)jsontoken["TimerEndingTrigger"]["DisplayText"];
+                    //newtrigger.TimerEndingDuration = (int)jsontoken["TimerEndingTime"];
+                    if ((bool)jsontoken["TimerEndingTrigger"]["UseTextToVoice"])
+                    {
+                        newtrigger.RadioEndingTTS = true;
+                        newtrigger.EndingTTS = (String)jsontoken["TimerEndingTrigger"]["TextToVoiceText"];
+                        newtrigger.EndingInterrupt = (bool)jsontoken["TimerEndingTrigger"]["InterruptSpeech"];
+                    }
+                    if ((bool)jsontoken["TimerEndingTrigger"]["PlayMediaFile"])
+                    {
+                        newtrigger.RadioEndingSound = true;
+                        newtrigger.EndingSoundFile = "file";
+                        newtrigger.EndingInterrupt = (bool)jsontoken["TimerEndingTrigger"]["InterruptSpeech"];
+                    }
+                }
+            }
+            if (jsontoken["TimerEndedTrigger"] != null)
+            {
+                //Add Timer Ended Trigger
+                if (jsontoken["TimerEndedTrigger"].Count() > 0)
+                {
+                    //newtrigger.TimerEnded = (bool)jsontoken["TimerEndedTrigger"]["UseText"];
+                    newtrigger.EndedDisplayText = (String)jsontoken["TimerEndedTrigger"]["DisplayText"];
+                    if ((bool)jsontoken["TimerEndedTrigger"]["UseTextToVoice"])
+                    {
+                        newtrigger.RadioEndedTTS = true;
+                        newtrigger.EndedTTS = (String)jsontoken["TimerEndedTrigger"]["TextToVoiceText"];
+                        newtrigger.EndedInterrupt = (bool)jsontoken["TimerEndedTrigger"]["InterruptSpeech"];
+                    }
+                    if ((bool)jsontoken["TimerEndedTrigger"]["PlayMediaFile"])
+                    {
+                        newtrigger.RadioEndedSound = true;
+                        newtrigger.EndedInterrupt = (bool)jsontoken["TimerEndedTrigger"]["InterruptSpeech"];
+                        //add media file
+                    }
+                }
+            }
+            return rval;
+        }
+        private void ImportTriggerGroup(TriggerManager tm)
+        {
+            if(tm.SubGroups.Count > 0)
+            {
+                foreach(TriggerManager subgroup in tm.SubGroups)
+                {
+                    if(subgroup.NodeType == "trigger")
+                    {
+                        //Ensure the child and parent information is correct
+                        //Add the trigger ID to the parent node Triggers
+                        //write the parent node to the DB
+                        tm.TriggerGroup.Triggers.Add(subgroup.Trigger.Id);
+                        WriteGroupToDB(tm.TriggerGroup);
+                        //Add the Group Id to the trigger
+                        //write the trigger to the DB
+                        subgroup.Trigger.GroupId = tm.TriggerGroup.Id;
+                        WriteTriggerToDB(subgroup.Trigger);
+                    }
+                    if(subgroup.NodeType == "group")
+                    {
+                        //Ensure child and parent information is correct
+                        //add the parent id to the dropped node, then import it
+                        subgroup.TriggerGroup.ParentId = tm.TriggerGroup.Id;
+                        WriteGroupToDB(subgroup.TriggerGroup);
+
+                        //add the dropped node id to the parent subgroup
+                        //write the parent group to the db
+                        tm.TriggerGroup.SubGroups.Add(subgroup.TriggerGroup.Id);
+                        WriteGroupToDB(tm.TriggerGroup);
+
+                        //If we have more subgroups, keep processing
+                        if (subgroup.SubGroups.Count > 0)
+                        { ImportTriggerGroup(subgroup); }                        
+                    }
+                }
+            }
+        }
+        #endregion
+
+        private void buttonGeneralSave_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void buttonEQFolder_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void buttonMediaFolder_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void buttonDataFolder_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void buttonAddSender_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void buttonRemoveSender_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void buttonSaveSharing_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

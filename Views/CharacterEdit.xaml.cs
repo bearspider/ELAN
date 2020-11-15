@@ -107,41 +107,9 @@ namespace EQAudioTriggers.Views
 
         private void buttonSave_Click(object sender, RoutedEventArgs e)
         {
-            Boolean writefile = true;
             Boolean returnchar = true;
             this.ReturnChar = null;
-            string filename = $"{EQAudioTriggers.GlobalVariables.workingdirectory}/Characters/{textBoxProfileName.Text}.json";
-            string oldfilename = $"{EQAudioTriggers.GlobalVariables.workingdirectory}/Characters/{_origProfileName}.json";
 
-            //Add Code if profile already exists
-            if (File.Exists(filename))
-            {
-                //Prompt for overwrite
-                MessageBoxResult mbox = Xceed.Wpf.Toolkit.MessageBox.Show("Profile Exists, Overwrite", "Overwrite", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                //if No, revert back to old character
-                if(mbox == MessageBoxResult.No)
-                {
-                    _character = _backupcharacter;
-                }
-                returnchar = false;
-            }
-
-            if (writefile)
-            {
-                //Add Code if profile name changes, then delete old json
-                if (_origProfileName != _character.Profile)
-                {
-                    File.Delete(oldfilename);
-                }
-
-                //open file stream
-                using (StreamWriter file = File.CreateText(filename))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    //serialize object directly into file stream
-                    serializer.Serialize(file, _character);
-                }
-            }
             if(returnchar)
             {
                 this.DialogResult = true;

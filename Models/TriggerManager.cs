@@ -19,16 +19,13 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using LiteDB;
 
 namespace EQAudioTriggers.Models
 {
     public class TriggerManager : INotifyPropertyChanged
     {
         private string _name;
-        private string _comments;
-        private Boolean _defaultenable;
-        private string _fullpath;
-        private bool _hasChildNodes;
         private string _nodetype;
         private string _icon;
         private bool? _isactive;
@@ -47,9 +44,6 @@ namespace EQAudioTriggers.Models
         public TriggerManager()
         {
             _name = "";
-            _comments = "";
-            _defaultenable = false;
-            _fullpath = "";
             _subGroups = new ObservableCollection<TriggerManager>();
             _nodetype = "group";
             _icon = "";
@@ -71,7 +65,6 @@ namespace EQAudioTriggers.Models
         }
 
         #region Public Access
-
         public TriggerGroupProperty TriggerGroup
         {
             get { return _triggergroup; }
@@ -81,7 +74,6 @@ namespace EQAudioTriggers.Models
                 RaisedOnPropertyChanged("TriggerGroup");
             }
         }
-
         public TriggerManager ParentNode
         {
             get { return _parentnode; }
@@ -91,7 +83,6 @@ namespace EQAudioTriggers.Models
                 RaisedOnPropertyChanged("ParentNode");
             }
         }
-
         public Boolean IsRootNode
         {
             get { return _isrootnode; }
@@ -102,7 +93,6 @@ namespace EQAudioTriggers.Models
 
             }
         }
-
         public bool? IsActive
         {
             get { return _isactive; }
@@ -112,7 +102,6 @@ namespace EQAudioTriggers.Models
                 RaisedOnPropertyChanged("IsActive");
             }
         }
-
         public EQTrigger Trigger
         {
             get { return _trigger; }
@@ -122,7 +111,6 @@ namespace EQAudioTriggers.Models
                 RaisedOnPropertyChanged("Trigger");
             }
         }
-
         public ObservableCollection<Character> Characters
         {
             get { return _characters; }
@@ -132,17 +120,6 @@ namespace EQAudioTriggers.Models
                 RaisedOnPropertyChanged("Characters");
             }
         }
-
-        public Boolean HasChildNodes
-        {
-            get { return _hasChildNodes; }
-            set
-            {
-                _hasChildNodes = value;
-                RaisedOnPropertyChanged("HasChildNodes");
-            }
-        }
-
         public string Icon
         {
             get { return _icon; }
@@ -161,7 +138,6 @@ namespace EQAudioTriggers.Models
                 RaisedOnPropertyChanged("NodeType");
             }
         }
-
         public ObservableCollection<TriggerManager> SubGroups
         {
             get { return _subGroups; }
@@ -169,16 +145,6 @@ namespace EQAudioTriggers.Models
             {
                 _subGroups = value;
                 RaisedOnPropertyChanged("SubGroups");
-            }
-        }
-
-        public string FullPath
-        {
-            get { return _fullpath; }
-            set
-            {
-                _fullpath = value;
-                RaisedOnPropertyChanged("FullPath");
             }
         }
         public string Name
@@ -190,26 +156,57 @@ namespace EQAudioTriggers.Models
                 RaisedOnPropertyChanged("Name");
             }
         }
-
-        public string Comments
-        {
-            get { return _comments; }
-            set
-            {
-                _comments = value;
-                RaisedOnPropertyChanged("Comments");
-            }
-        }
-        public Boolean DefaultEnable
-        {
-            get { return _defaultenable; }
-            set
-            {
-                _defaultenable = value;
-                RaisedOnPropertyChanged("DefaultEnable");
-            }
-        }
         #endregion
+        private void WriteGroupToDB(TriggerGroupProperty tg)
+        {
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<TriggerGroupProperty> triggergroups = db.GetCollection<TriggerGroupProperty>("groups");
+                //See if the group exists, if so update it
+                TriggerGroupProperty test = triggergroups.FindOne(x => x.Id == tg.Id);
+                if(test != null)
+                {
+                    triggergroups.Update(tg);
+                }
+                else
+                {
+                    triggergroups.Insert(tg);
+                }                
+            }
+        }
+        private void DeleteGroupFromDB(TriggerGroupProperty tg)
+        {
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<TriggerGroupProperty> triggergroups = db.GetCollection<TriggerGroupProperty>("groups");
+                triggergroups.Delete(tg.Id);
+            }
+        }
+        private void WriteTriggerToDB(EQTrigger trigger)
+        {
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
+                //See if the group exists, if so update it
+                EQTrigger test = triggers.FindOne(x => x.Id == trigger.Id);
+                if (test != null)
+                {
+                    triggers.Update(trigger);
+                }
+                else
+                {
+                    triggers.Insert(trigger);
+                }
+            }
+        }
+        private void DeleteTriggerFromDB(EQTrigger trigger)
+        {
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
+                triggers.Delete(trigger.Id);
+            }
+        }
         public void ClimbTree(Boolean enable)
         {
             //get the active count of the sub nodes, this will be used in a couple spots
@@ -247,121 +244,84 @@ namespace EQAudioTriggers.Models
                 ParentNode.ClimbTree(enable);
             }
         }
-
         public void EditTriggerGroup()
         {
             TriggerGroupEdit tge = new TriggerGroupEdit(this.TriggerGroup);
             Boolean rval = (bool)tge.ShowDialog();
             if (rval)
             {
-                //check if the name changed, if true, then we need to rename the old folder
-                if(_name != tge.ReturnTriggerGroup.Name)
-                {
-                    Directory.Move(_fullpath, $"{_parentnode.FullPath}\\{tge.ReturnTriggerGroup.Name}");
-                    FullPath = $"{_parentnode.FullPath}\\{tge.ReturnTriggerGroup.Name}";
-                    Name = tge.ReturnTriggerGroup.Name;
-                }
-                Comments = tge.ReturnTriggerGroup.Comments;
-                DefaultEnable = tge.ReturnTriggerGroup.DefaultEnabled;
+                Name = tge.ReturnTriggerGroup.Name;
                 TriggerGroup = tge.ReturnTriggerGroup;
-
-                //open file stream
-                using (StreamWriter file = File.CreateText($"{_fullpath}\\properties.json"))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    //serialize object directly into file stream
-                    serializer.Serialize(file, _triggergroup);
-                }
+                WriteGroupToDB(tge.ReturnTriggerGroup);
             }
         }
-
         public void AddTriggerGroup()
         {
             TriggerGroupEdit tge = new TriggerGroupEdit();
             Boolean rval = (bool)tge.ShowDialog();
             if (rval)
             {
-                //Check if this node has any children, because now it does
-                if (HasChildNodes != true)
-                {
-                    HasChildNodes = true;
-                }
-
                 //build the new trigger manager
                 TriggerManager tm = new TriggerManager
                 {
                     Name = tge.ReturnTriggerGroup.Name,
-                    Comments = tge.ReturnTriggerGroup.Comments,
-                    DefaultEnable = tge.ReturnTriggerGroup.DefaultEnabled,
                     ParentNode = this,
                     TriggerGroup = tge.ReturnTriggerGroup,
                     Icon = GlobalVariables.foldericon,
-                    FullPath = $"{this.FullPath}\\{tge.ReturnTriggerGroup.Name}",
                 };
-                tm.TriggerGroup.FullPath = tm.FullPath;
+                //Add the new ID to his subgroup
+                this.TriggerGroup.SubGroups.Add(tm.TriggerGroup.Id);
+                //Add this ID to the new group parent id
+                tm.TriggerGroup.ParentId = this.TriggerGroup.Id;
+                WriteGroupToDB(tm.TriggerGroup);
+                WriteGroupToDB(TriggerGroup);
                 //add it as a child to this trigger manager
                 SubGroups.Add(tm);
-
-                //create directory
-                Directory.CreateDirectory(tm.FullPath);
-                //create properties.json in folder
-                using (StreamWriter file = File.CreateText($"{tm.FullPath}\\properties.json"))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    //serialize object directly into file stream
-                    serializer.Serialize(file, tm.TriggerGroup);
-                }
             }
         }
-
         public void CreateRootTriggerGroup()
         {
-            TriggerGroupEdit tge = new TriggerGroupEdit(_fullpath);
+            TriggerGroupEdit tge = new TriggerGroupEdit();
             Boolean rval = (bool)tge.ShowDialog();
             if (rval)
             {
-                Name = tge.ReturnTriggerGroup.Name;
-                Comments = tge.ReturnTriggerGroup.Comments;
-                DefaultEnable = tge.ReturnTriggerGroup.DefaultEnabled;
-                TriggerGroup = tge.ReturnTriggerGroup;
-                Icon = GlobalVariables.foldericon;
-                FullPath = $"{tge.ReturnTriggerGroup.FullPath}\\{tge.ReturnTriggerGroup.Name}";
-            }
-            //create directory
-            Directory.CreateDirectory(FullPath);
-            //create properties.json in folder
-            using (StreamWriter file = File.CreateText($"{FullPath}\\properties.json"))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                //serialize object directly into file stream
-                serializer.Serialize(file, TriggerGroup);
+                this.Name = tge.ReturnTriggerGroup.Name;
+                this.TriggerGroup = tge.ReturnTriggerGroup;
+                WriteGroupToDB(tge.ReturnTriggerGroup);
             }
         }
-
         public void RemoveTriggerGroup()
         {
-            Directory.Delete(_fullpath, true);
-            if(!this.IsRootNode)
+            //if we have sub groups, delete those too
+            foreach (TriggerManager subgroup in SubGroups)
+            {
+                if (subgroup.NodeType == "group")
+                {
+                    subgroup.RemoveTriggerGroup();
+                }
+                if (subgroup.NodeType == "trigger")
+                {
+                    subgroup.RemoveTrigger();
+                }
+            }
+            //Once we've cleared out all the children, remove ourself from the parent node.
+            if (!this.IsRootNode)
             {
                 ParentNode.SubGroups.Remove(this);
+                ParentNode.TriggerGroup.SubGroups.Remove(TriggerGroup.Id);
+                //Update the parent node in the DB
+                WriteGroupToDB(ParentNode.TriggerGroup);
             }
-            
+            //Delete from DB
+            DeleteGroupFromDB(TriggerGroup);
         }
-
         public EQTrigger AddTrigger(ObservableCollection<CharacterCollection> Characters)
         {
             TriggerEdit te = new TriggerEdit(Characters);
             Boolean rval = (bool)te.ShowDialog();
             if(rval)
             {
-                //Check if this node has any children, because now it does
-                if (HasChildNodes != true)
-                {
-                    HasChildNodes = true;
-                }
-
                 //build the new trigger manager
-                te.ReturnTrigger.Path = $"{this.FullPath}\\{te.ReturnTrigger.Name}.json";
                 TriggerManager tm = new TriggerManager
                 {
                     Name = te.ReturnTrigger.Name,
@@ -369,13 +329,12 @@ namespace EQAudioTriggers.Models
                     Trigger = te.ReturnTrigger,
                     Icon = GlobalVariables.triggericon,
                     NodeType = "trigger",
-                    FullPath = te.ReturnTrigger.Path,
                 };
-                
+
                 //If the parent group says default enable, enable this trigger
-                if(DefaultEnable)
+                if (TriggerGroup.DefaultEnabled)
                 {
-                    foreach(CharacterCollection character in Characters)
+                    foreach (CharacterCollection character in Characters)
                     {
                         tm.Trigger.ActiveCharacters.Add(character.Name);
                     }
@@ -384,124 +343,46 @@ namespace EQAudioTriggers.Models
                 //add it as a child to this trigger manager
                 SubGroups.Add(tm);
 
-                //create properties.json in folder
-                using (StreamWriter file = File.CreateText($"{tm.FullPath}"))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    //serialize object directly into file stream
-                    serializer.Serialize(file, tm.Trigger);
-                }
+                //add group id to trigger and trigger to group
+                te.ReturnTrigger.GroupId = TriggerGroup.Id;
+                TriggerGroup.Triggers.Add(te.ReturnTrigger.Id);
+
+                //Insert Trigger in database
+                WriteTriggerToDB(te.ReturnTrigger);
+                //update group in database with new trigger
+                WriteGroupToDB(TriggerGroup);
                 return tm.Trigger;
             }
             return null;
         }
-
-        public void UpdateTriggerLocation(string filename)
-        {
-            string oldfile = this.FullPath;
-            this.FullPath = $"{filename}\\{this.Name}.json";
-            this.Trigger.Path = this.FullPath;            
-            //write new trigger
-            using (StreamWriter file = File.CreateText($"{this.FullPath}"))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                //serialize object directly into file stream
-                serializer.Serialize(file, this.Trigger);
-            }
-            //check if the new file exists before deleting trigger
-            if(File.Exists(this.FullPath))
-            {
-                File.Delete(oldfile);
-            }            
-        }
-
-        public void UpdateTriggerGroupLocation(string filename)
-        {
-            string oldfile = this.FullPath;
-            this.FullPath = $"{filename}\\{this.Name}";
-            this.TriggerGroup.FullPath = this.FullPath;
-            //check if the new destination makes this a root node
-
-            //Walk through the tree, use this function recursively
-
-            //check if a folder with the triggergroupname exists
-            //   no => create new folder
-            if(!Directory.Exists(this.FullPath))
-            {
-                Directory.CreateDirectory(this.FullPath);
-            }
-
-            //create new properties.json
-            using (StreamWriter file = File.CreateText($"{this.FullPath}\\properties.json"))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                //serialize object directly into file stream
-                serializer.Serialize(file, this.TriggerGroup);
-            }
-
-            //check if this has subgroups
-            //   yes => go through each node and call updatetriggerlocation or updatetriggergrouplocation
-            if (this.SubGroups.Count > 0)
-            {
-                foreach(TriggerManager sub in SubGroups)
-                {
-                    if(sub.NodeType == "trigger")
-                    {
-                        sub.UpdateTriggerLocation($"{this.FullPath}");
-                    }
-                    if(sub.NodeType == "group")
-                    {
-                        sub.UpdateTriggerGroupLocation($"{this.FullPath}");
-                    }
-                }
-            }
-            //Check if there are subdirectories, if there are don't do anything.  If only properties.json, then delete folder.
-            if ((Directory.EnumerateDirectories(oldfile).Count() == 0))
-            {
-                //Finally, delete properties.json and old folder if empty
-                try
-                {
-                    File.Delete($"{oldfile}\\properties.json");
-                    Directory.Delete(oldfile);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Directory Not Empty");
-                }
-            }
-            
-        }
-
         public void RemoveTrigger()
         {
-            File.Delete(_fullpath);
-            ParentNode.SubGroups.Remove(this);
-        }
+            //Remove trigger from this group and update the group entry in the database
+            ParentNode.TriggerGroup.Triggers.Remove(Trigger.Id);
+            WriteGroupToDB(ParentNode.TriggerGroup);
 
+            //Remove this triggermanager from parent node
+            ParentNode.SubGroups.Remove(this);
+
+            //Delete this trigger from database
+            DeleteTriggerFromDB(Trigger);            
+        }
         public void EditTrigger(ObservableCollection<CharacterCollection> charcollection)
         {
             TriggerEdit te = new TriggerEdit(this.Trigger, charcollection);
             Boolean rval = (bool)te.ShowDialog();
-            if(rval)
+            if (rval)
             {
-                if(_name != te.ReturnTrigger.Name)
+                //See if the name changed, if it did, update the triggermanager
+                if (_name != te.ReturnTrigger.Name)
                 {
-                    File.Delete(_fullpath);
-                    FullPath = $"{this.ParentNode.FullPath}\\{te.ReturnTrigger.Name}.json";
                     Name = te.ReturnTrigger.Name;
                 }
-                //open file stream
-                using (StreamWriter file = File.CreateText(this.FullPath))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    //serialize object directly into file stream
-                    serializer.Serialize(file, _trigger);
-                }
+                //write changes to the db
+                WriteTriggerToDB(te.ReturnTrigger);
             }
         }
-
         public event PropertyChangedEventHandler PropertyChanged;
-
         public void RaisedOnPropertyChanged(string _PropertyName)
         {
             if(PropertyChanged != null)
@@ -509,18 +390,18 @@ namespace EQAudioTriggers.Models
                 PropertyChanged(this, new PropertyChangedEventArgs(_PropertyName));
             }
         }
-
         private void Timer_Tick(object sender, EventArgs e)
         {
             TriggerManager tm = currentNode.Content as TriggerManager;
-            //currentNode.IsChecked = tm.IsActive;
 
             CollectionViewSource treevs = new CollectionViewSource();
             SortDescription desc = new SortDescription("Name", ListSortDirection.Ascending);
+            SortDescription groupDesc = new SortDescription("NodeType", ListSortDirection.Ascending);
             PropertyGroupDescription pgd = new PropertyGroupDescription("NodeType");
             treevs.IsLiveFilteringRequested = true;
-            treevs.SortDescriptions.Add(desc);
             treevs.GroupDescriptions.Add(pgd);
+            treevs.SortDescriptions.Add(groupDesc);
+            treevs.SortDescriptions.Add(desc);            
             treevs.Source = tm.SubGroups;
 
             //Populating child items for the node in on-demand
@@ -544,9 +425,10 @@ namespace EQAudioTriggers.Models
         /// <returns>Returns true, if the specified node has child items to load on demand and expander icon is displayed for that node, else returns false and icon is not displayed.</returns>
         private bool CanExecuteOnDemandLoading(object sender)
         {
+            //This doesn't seem to be working right, returning false makes it work correctly.
             var tm = ((sender as TreeViewNode).Content as TriggerManager);
-            if (tm.HasChildNodes)
-                return true;
+            if (SubGroups.Count > 0)
+                return false;
             else
                 return false;
         }

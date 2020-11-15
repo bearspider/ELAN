@@ -13,7 +13,7 @@
     xmlns:treeviewengine="clr-namespace:Syncfusion.UI.Xaml.TreeView.Engine;assembly=Syncfusion.SfTreeView.WPF"
     Title="     EQ Audio Triggers" TitleTextAlignment="Left" Icon="Images/elan.ico"
     Office2010Icon="Images/elan.ico"
-    skin:SfSkinManager.VisualStyle="Office2019Black" x:Name="MainRibbon">
+    skin:SfSkinManager.VisualStyle="MaterialDark" x:Name="MainRibbon" StateChanged="Window_StateChanged">
 
     <Window.Resources>
         <local:FontAttributeConverter x:Key="FontAttributeConverter"/>
@@ -23,8 +23,9 @@
         <local:MonitoringColorConverter x:Key="MonitoringColorConverter"/>
         <local:MonitoringImageConverter x:Key="MonitoringImageConverter"/>
         <local:MonitoringContextConverter x:Key="MonitoringContextConverter"/>
+        <local:CheckboxColorConverter x:Key="CheckboxColorConverter"/>
     </Window.Resources>
-    
+
     <syncfusion:RibbonWindow.StatusBar>
         <syncfusion:RibbonStatusBar>
             <Grid>
@@ -60,13 +61,14 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <!-- Ribbon Definition-->
-        <syncfusion:Ribbon Grid.Row="0" Grid.ColumnSpan="2" x:Name="_ribbon" 
+        <syncfusion:Ribbon Grid.Row="0" Grid.ColumnSpan="3" x:Name="_ribbon" 
                            HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="_ribbon_SelectionChanged"
                            syncfusion:Ribbon.IsAutoSizeFormEnabled="True" >
             <syncfusion:RibbonTab Caption="Home">
@@ -111,7 +113,7 @@
                 <syncfusion:RibbonBar x:Name="share" Header="Share">
                     <syncfusion:SplitButton Label="Import" x:Name="import" IconType="Icon" SizeForm="Large" LargeIcon="/Images/Oxygen-Icons.org-Oxygen-Actions-svn-update.ico">
                         <syncfusion:DropDownMenuItem Header="From EQ Audio Triggers"/>
-                        <syncfusion:DropDownMenuItem Header="From GINA"/>
+                        <syncfusion:DropDownMenuItem Header="From GINA" Click="ImportFromGina_Click"/>
                     </syncfusion:SplitButton>
                 </syncfusion:RibbonBar>
             </syncfusion:RibbonTab>
@@ -147,13 +149,106 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Content="Enable Sound"/>
-                                <!-- Place Holder for Master Volume Control -->
-                                <syncfusion:RibbonCheckBox Grid.Row="1" Grid.Column="0" Content="Enable Text"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Name="chkboxEnableSound" Content="Enable Sound"/>
+                                <Label Content="Master Volume" Grid.Row="1" Grid.Column="0"/>
+                                <Slider x:Name="sliderMaster" Value="100" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="1" Grid.Column="1"/>
+                                <Label Grid.Row="1" Grid.Column="2" Content="{Binding ElementName=sliderMaster, Path=Value}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="2" Grid.Column="0" Name="chkboxEnableText" Content="Enable Text"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="3" Grid.Column="0" Name="chkboxEnableTimers" Content="Enable Timers"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="4" Grid.Column="0" Name="chkboxStopFirstMatch" Content="Stop Trigger Search After First Match"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="5" Grid.Column="0" Name="chkboxSystemTray" Content="Minimize To System Tray"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="6" Grid.Column="0" Name="chkboxDisplayMatches" Content="Display Match Log"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="7" Grid.Column="0" Name="chkboxLogMatches" Content="Log Matches To File:"/>
+                                <syncfusion:RibbonTextBox Grid.Row="7" Grid.Column="1" Name="textboxMatchLog" Width="220" Height="25"/>
+                                <Label Grid.Row="8" Grid.Column="0" Content="Clipboard Replacement for {C}:"/>
+                                <syncfusion:RibbonTextBox Grid.Row="8" Grid.Column="1" Name="textboxClipboard" HorizontalAlignment="Left" Width="75" Height="25"/>
+                                <Label Grid.Row="9" Grid.Column="0" Content="Everquest Folder:"/>
+                                <syncfusion:RibbonTextBox Grid.Row="9" Grid.Column="1" Name="textboxEQFolder" Width="220" Height="25"/>
+                                <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="9" Grid.Column="2" Name="buttonEQFolder" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonEQFolder_Click"/>
+                                <Label Grid.Row="10" Grid.Column="0" Content="Imported Media Folder"/>
+                                <syncfusion:RibbonTextBox Grid.Row="10" Grid.Column="1" Name="textboxImportedMedia" Width="220" Height="25"/>
+                                <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="10" Grid.Column="2" Name="buttonMediaFolder" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonMediaFolder_Click"/>
+                                <Label Grid.Row="11" Grid.Column="0" Content="EQ Audio Triggers Data Folder"/>
+                                <syncfusion:RibbonTextBox Grid.Row="11" Grid.Column="1" Name="textboxDataFolder" Width="220" Height="25"/>
+                                <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="11" Grid.Column="2" Name="buttonDataFolder" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonDataFolder_Click"/>
+                                <Label Grid.Row="12" Grid.Column="0" Content="Maximum Log Entries"/>
+                                <syncfusion:RibbonButton Margin="5,5,0,0" Grid.Row="13" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonGeneralSave" Click="buttonGeneralSave_Click"/>
                             </Grid>
                         </StackPanel>
                     </syncfusion:BackstageTabItem>
-                    <syncfusion:BackstageTabItem Header="Sharing"></syncfusion:BackstageTabItem>
+                    <syncfusion:BackstageTabItem Header="Sharing">
+                        <StackPanel Margin="5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <syncfusion:RibbonCheckBox Margin="5" Grid.Row="0" Grid.Column="0" Content="Enable Sharing" Name="chkboxSharing"/>
+                                <GroupBox Margin="5" Grid.Row="1" Header="Accept Share Invitations From">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto "/>
+                                            <RowDefinition Height="auto "/>
+                                            <RowDefinition Height="auto "/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <syncfusion:RibbonRadioButton Grid.Row="0" Name="radioAcceptNobody" GroupName="Accept" Content="Nobody"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="1" Name="radioTrusted" GroupName="Accept" Content="Trusted List"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="2" Name="radioAnybody" GroupName="Accept" Content="Anybody"/>
+                                    </Grid>
+                                </GroupBox>
+                            <GroupBox Margin="5" Grid.Row="2" Grid.Column="0" Header="Automatic Merge From">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto "/>
+                                        <RowDefinition Height="auto "/>
+                                        <RowDefinition Height="auto "/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <syncfusion:RibbonRadioButton Grid.Row="0" Name="radioAutoNobody" GroupName="Auto" Content="Nobody"/>
+                                    <syncfusion:RibbonRadioButton Grid.Row="1" Name="radioAutoTrusted" GroupName="Auto" Content="Trusted List"/>
+                                    <syncfusion:RibbonRadioButton Grid.Row="2" Name="radioAutoAnbody" GroupName="Auto" Content="Anybody"/>
+                                </Grid>
+                            </GroupBox>
+                                <GroupBox Margin="5" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Header="Trusted Sender List">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto "/>
+                                            <RowDefinition Height="auto "/>
+                                            <RowDefinition Height="auto "/>
+                                            <RowDefinition Height="auto "/>
+                                            <RowDefinition Height="auto "/>
+                                            <RowDefinition Height="auto "/>
+                                            <RowDefinition Height="auto "/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Content="Name:"/>
+                                        <syncfusion:RibbonTextBox Grid.Row="0" Grid.Column="1" Width="100" Name="txtboxSenderName"/>
+                                        <syncfusion:RibbonButton Grid.Row="0" Grid.Column="2" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-list-add.ico" Name="buttonAddSender" Label="Add" Click="buttonAddSender_Click"/>
+                                        <ListView Margin="5" Background="AntiqueWhite" Grid.Row="1" Grid.RowSpan="5" Grid.ColumnSpan="3" Name="listviewSenders" Height="125" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
+                                        <syncfusion:RibbonButton Grid.Row="6" Grid.Column="0" Label="Remove" Name="buttonRemoveSender" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-list-remove.ico" Click="buttonRemoveSender_Click"/>
+                                    </Grid>
+                                </GroupBox>
+                                <syncfusion:RibbonButton Margin="5" Width="50" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="0" Label="Save" Name="buttonSaveSharing" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Click="buttonSaveSharing_Click"/>
+                            </Grid>
+                        </StackPanel>
+                    </syncfusion:BackstageTabItem>
                     <syncfusion:BackstageTabItem Header="Log Maintenance"></syncfusion:BackstageTabItem>
                     <syncfusion:BackstageTabItem Header="Advanced"></syncfusion:BackstageTabItem>
                     <syncfusion:BackstageTabItem Header="Categories"></syncfusion:BackstageTabItem>
@@ -164,7 +259,7 @@
             </syncfusion:Ribbon.BackStage>
 
         </syncfusion:Ribbon>
-        
+
         <!--Dock Window Area-->
         <syncfusion:DockingManager Grid.Row="1" Grid.Column="0" x:Name="dockingmanager" PersistState="false" UseInteropCompatibilityMode="False"
                                 UseDocumentContainer="True" CloseAllTabs="dockingmanager_CloseAllTabs" IsVS2010DraggingEnabled="False"
@@ -225,8 +320,7 @@
                 </ListView.ItemTemplate>
             </ListView>
         </syncfusion:DockingManager>
-
-        <syncfusion:DockingManager Grid.Row="1" Grid.Column="1" x:Name="triggerdockmanager" UseDocumentContainer="True" ContainerMode="TDI" DockFill="True">
+        <syncfusion:DockingManager Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="triggerdockmanager" UseDocumentContainer="True" ContainerMode="TDI" DockFill="True">
             <ContentControl syncfusion:DockingManager.Header="Activated Triggers" syncfusion:DockingManager.State="Document">
                 <syncfusion:SfDataGrid x:Name="activatedDatagrid" AllowSorting="true" AutoGenerateColumns="False" ColumnSizer="Star" NavigationMode="Row">
                     <syncfusion:SfDataGrid.Columns>
@@ -248,8 +342,16 @@
                                            CheckBoxMode="Recursive"
                                            ItemTemplateDataContextType="Node"
                                            SelectionChanged="treeview_SelectionChanged"
-                                           AllowDragging="False"
+                                           SelectionMode="Single"
                                            NodePopulationMode="Instant"
+                                           AllowDragging="True"
+                                           ItemDragStarted="treeview_ItemDragStarted"
+                                           ItemDropped="treeview_ItemDropped"
+                                           ItemDropping="treeview_ItemDropping"
+                                           ItemDragOver="treeview_ItemDragOver"
+                                       SelectionBackgroundColor="DarkSlateGray"
+                                       ShowRootLines="True"
+                                       ShowLines="True"
                                            >
                     <syncfusion:SfTreeView.ItemContextMenu>
                         <ContextMenu>
@@ -271,7 +373,7 @@
                                               Content="{Binding Content.Name}"
                                               IsChecked="{Binding Content.IsActive, Mode=TwoWay}"
                                               Visibility="{Binding Converter={StaticResource CheckBoxActiveConverter}}" 
-                                              FontWeight="{Binding Content.NodeType, Converter={StaticResource FontAttributeConverter}}"
+                                              FontWeight="{Binding Content.NodeType, Converter={StaticResource FontAttributeConverter}}" Background="{Binding Content.IsActive, Converter={StaticResource CheckboxColorConverter}}"
                                               FontSize="{Binding Content.NodeType, Converter={StaticResource FontSizeConverter}}" Checked="_treeCheckbox_Checked" Unchecked="_treeCheckbox_Unchecked"
                                               />
                                 <Image Grid.Row="0" Grid.Column="0" Source="{Binding Content.Icon}"
@@ -279,6 +381,51 @@
                                                        HorizontalAlignment="Left"
                                                        Height="16"
                                                        Width="16"/>
+                            </Grid>
+                        </DataTemplate>
+                    </syncfusion:SfTreeView.ItemTemplate>
+                </syncfusion:SfTreeView>
+            </ContentControl>
+        </syncfusion:DockingManager>
+        <syncfusion:DockingManager Grid.Row="1" Grid.Column="2" x:Name="mergedockingmanager" UseDocumentContainer="true" ContainerMode="TDI" DockFill="True" Visibility="Hidden" TabClosed="mergedockingmanager_TabClosed">
+            <ContentControl syncfusion:DockingManager.Header ="Merge Triggers" syncfusion:DockingManager.State="Document">
+                <syncfusion:SfTreeView Name="mergetreeview" syncfusion:DockingManager.Header="Triggers" syncfusion:DockingManager.State="Document"
+                                        NotificationSubscriptionMode="CollectionChange"
+                                        ExpandActionTrigger="Node"
+                                        AutoExpandMode="None"
+                                        QueryNodeSize="SfTreeView_QueryNodeSize"
+                                        ChildPropertyName="SubGroups"
+                                        ItemTemplateDataContextType="Node"
+                                        SelectionChanged="treeview_SelectionChanged"
+                                        NodePopulationMode="OnDemand"
+                                       SelectionMode="Single"
+                                       AllowDragging="True"
+                                       ItemDropped="mergetreeview_ItemDropped"
+                                        >
+                    <syncfusion:SfTreeView.ItemContextMenu>
+                        <ContextMenu>
+                            <MenuItem Command="{Binding Path=TreeView.DataContext.ExpandCommand}" CommandParameter="{Binding }"  Header="Expand"/>
+                        </ContextMenu>
+                    </syncfusion:SfTreeView.ItemContextMenu>
+                    <syncfusion:SfTreeView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Margin="0,0,0,0" Grid.Row="0" Grid.Column="1" Height="30" Name="mergelabel" Content="{Binding Content.Name}"
+                                    FontSize="{Binding Content.NodeType, Converter={StaticResource FontSizeConverter}}"
+                                    FontWeight="{Binding Content.NodeType, Converter={StaticResource FontAttributeConverter}}"/>
+                                <Image Grid.Row="0" Grid.Column="0" Source="{Binding Content.Icon}"
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Left"
+                                                    Height="16"
+                                                    Width="16"/>
                             </Grid>
                         </DataTemplate>
                     </syncfusion:SfTreeView.ItemTemplate>

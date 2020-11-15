@@ -39,16 +39,6 @@ namespace EQAudioTriggers.Views
             _tgeditor.DataContext = _triggergroup;
         }
 
-        public TriggerGroupEdit(string fullpath)
-        {
-            InitializeComponent();
-            _triggergroup = new TriggerGroupProperty
-            {
-                FullPath = fullpath
-            };
-            _tgeditor.DataContext = _triggergroup;
-        }
-
         public TriggerGroupProperty TriggerGroup { 
             get { return _triggergroup; } 
             set { _triggergroup = value; } 

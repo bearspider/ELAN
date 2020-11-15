@@ -125,7 +125,7 @@ namespace EQAudioTriggers.Views
         {
             if((bool)radioBasicTTS.IsChecked && !string.IsNullOrEmpty(textboxBasicTTS.Text))
             {
-                ((Character)comboBasicTest.SelectedItem).Speak(textboxBasicTTS.Text);
+                ((CharacterCollection)comboBasicTest.SelectedItem).CharacterProfile.Speak(textboxBasicTTS.Text);
             }
             if((bool)radioBasicPlay.IsChecked && !string.IsNullOrEmpty(textboxBasicSoundFile.Text))
             {
@@ -146,7 +146,7 @@ namespace EQAudioTriggers.Views
         {
             if ((bool)radioEndingTTS.IsChecked && !string.IsNullOrEmpty(textboxEndingTTS.Text))
             {
-                ((Character)comboEndingTest.SelectedItem).Speak(textboxEndingTTS.Text);
+                ((CharacterCollection)comboEndingTest.SelectedItem).CharacterProfile.Speak(textboxEndingTTS.Text);
             }
             if ((bool)radioEndingPlay.IsChecked && !string.IsNullOrEmpty(textboxEndingSoundFile.Text))
             {
@@ -167,7 +167,7 @@ namespace EQAudioTriggers.Views
         {
             if ((bool)radioEndedTTS.IsChecked && !string.IsNullOrEmpty(textboxEndedTTS.Text))
             {
-                ((Character)comboEndedTest.SelectedItem).Speak(textboxEndedTTS.Text);
+                ((CharacterCollection)comboEndedTest.SelectedItem).CharacterProfile.Speak(textboxEndedTTS.Text);
             }
             if ((bool)radioEndedPlay.IsChecked && !string.IsNullOrEmpty(textboxEndedSoundFile.Text))
             {

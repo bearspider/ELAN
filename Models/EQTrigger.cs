@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LiteDB;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -70,6 +71,8 @@ namespace EQAudioTriggers.Models
         private string _activezone;
         private Boolean _global;
         private string _id;
+        private Boolean _restartontimerid;
+        private string _groupid;
         #endregion
 
         public EQTrigger()
@@ -131,9 +134,29 @@ namespace EQAudioTriggers.Models
             _resetseconds = 0;
             _global = true;
             _activezone = "";
-            _id = Guid.NewGuid().ToString();
+            _id = Utilities.IdGenerator();
+            _restartontimerid = false;
+            _groupid = "";
         }
         #region Public Access
+        public string GroupId
+        {
+            get { return _groupid; }
+            set
+            {
+                _groupid = value;
+                RaisedOnPropertyChanged("GroupId");
+            }
+        }
+        public Boolean RestartOnTimerId
+        {
+            get { return _restartontimerid; }
+            set
+            {
+                _restartontimerid = value;
+                RaisedOnPropertyChanged("RestartOnTimerId");
+            }
+        }
         public string Id
         {
             get { return _id; }
@@ -554,13 +577,40 @@ namespace EQAudioTriggers.Models
         #endregion
         public void AddCharacter(string newchar)
         {
-            _activecharacters.Add(newchar);
+            ActiveCharacters.Add(newchar);
             RaisedOnPropertyChanged("Added Character");
+            WriteTriggerToDB(this);
         }
         public void RemoveCharacter(string oldchar)
         {
-            _activecharacters.Remove(oldchar);
+            ActiveCharacters.Remove(oldchar);
             RaisedOnPropertyChanged("RemovedCharacter");
+            WriteTriggerToDB(this);
+        }
+        private void WriteTriggerToDB(EQTrigger trigger)
+        {
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
+                //See if the group exists, if so update it
+                EQTrigger test = triggers.FindOne(x => x.Id == trigger.Id);
+                if (test != null)
+                {
+                    triggers.Update(trigger);
+                }
+                else
+                {
+                    triggers.Insert(trigger);
+                }
+            }
+        }
+        private void DeleteTriggerFromDB(EQTrigger trigger)
+        {
+            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            {
+                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
+                triggers.Delete(trigger.Id);
+            }
         }
 
         public void RaisedOnPropertyChanged(string _PropertyName)

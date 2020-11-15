@@ -26,6 +26,7 @@ namespace EQAudioTriggers.Models
         private SpeechSynthesizer _synth;
         private long _lastlogposition;
         private Boolean _monitoring;
+        private string _id;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -48,6 +49,7 @@ namespace EQAudioTriggers.Models
             _synth.SelectVoice(_audiovoice);
             _lastlogposition = 0;
             _monitoring = _monitor;
+            _id = Utilities.IdGenerator();
         }
 
         public Character(Character newchar)
@@ -69,8 +71,10 @@ namespace EQAudioTriggers.Models
             _synth.SelectVoice(newchar.AudioVoice);
             _lastlogposition = newchar.LastLogPosition;
             _monitoring = newchar.Monitoring;
+            _id = newchar.Id;
         }
 
+        public string Id { get { return _id; } set { _id = value; NotifyPropertyChanged("Id"); } }
         public Boolean Monitoring { get { return _monitoring; } set { _monitoring = value; NotifyPropertyChanged("Monitoring"); } }
         public long LastLogPosition { get { return _lastlogposition; } set { _lastlogposition = value; NotifyPropertyChanged("LastLogPostion"); } }
         public string Name { get { return _name; } set { _name = value; NotifyPropertyChanged("Name"); } }
@@ -87,8 +91,7 @@ namespace EQAudioTriggers.Models
 
         public void Delete()
         {
-            string filetodelete = $"{EQAudioTriggers.GlobalVariables.workingdirectory}\\Characters\\{this.Profile}.json";
-            File.Delete(filetodelete);
+
         }
 
         public void EditCharacter()
@@ -99,6 +102,7 @@ namespace EQAudioTriggers.Models
             //Poor man's cancel edit revert
             if (!rval)
             {
+                Id = newchar.Id;
                 Name = newchar.Name;
                 LogFile = newchar.LogFile;
                 Profile = newchar.Profile;

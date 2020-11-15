@@ -33,74 +33,95 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LiteDB, Version=5.0.9.0, Culture=neutral, PublicKeyToken=4ee40123013c9f27, processorArchitecture=MSIL">
+      <HintPath>packages\LiteDB.5.0.9\lib\net45\LiteDB.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Data.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Data.WPF.18.3.0.44\lib\net46\Syncfusion.Data.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Data.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Data.WPF.18.3.0.48\lib\net46\Syncfusion.Data.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Licensing, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=632609b4d040f6b4, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Licensing.18.3.0.47\lib\net46\Syncfusion.Licensing.dll</HintPath>
+    <Reference Include="Syncfusion.Licensing, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=632609b4d040f6b4, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Licensing.18.3.0.48\lib\net46\Syncfusion.Licensing.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfBusyIndicator.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfBusyIndicator.WPF.18.3.0.44\lib\net46\Syncfusion.SfBusyIndicator.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfAccordion.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfAccordion.WPF.18.3.0.48\lib\net46\Syncfusion.SfAccordion.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfChart.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfChart.WPF.18.3.0.44\lib\net46\Syncfusion.SfChart.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfBusyIndicator.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfBusyIndicator.WPF.18.3.0.48\lib\net46\Syncfusion.SfBusyIndicator.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfDiagram.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfDiagram.WPF.18.3.0.44\lib\net46\Syncfusion.SfDiagram.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfChart.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfChart.WPF.18.3.0.48\lib\net46\Syncfusion.SfChart.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfGrid.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfGrid.WPF.18.3.0.44\lib\net46\Syncfusion.SfGrid.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfDiagram.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfDiagram.WPF.18.3.0.48\lib\net46\Syncfusion.SfDiagram.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfGridCommon.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfGridCommon.WPF.18.3.0.44\lib\net46\Syncfusion.SfGridCommon.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfGrid.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfGrid.WPF.18.3.0.48\lib\net46\Syncfusion.SfGrid.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfShared.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfShared.WPF.18.3.0.44\lib\net46\Syncfusion.SfShared.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfGridCommon.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfGridCommon.WPF.18.3.0.48\lib\net46\Syncfusion.SfGridCommon.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfSkinManager.WPF, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfSkinManager.WPF.18.3.0.47\lib\net46\Syncfusion.SfSkinManager.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfShared.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfShared.WPF.18.3.0.48\lib\net46\Syncfusion.SfShared.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfTreeView.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfTreeView.WPF.18.3.0.44\lib\net46\Syncfusion.SfTreeView.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfSkinManager.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfSkinManager.WPF.18.3.0.48\lib\net46\Syncfusion.SfSkinManager.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Shared.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Shared.WPF.18.3.0.44\lib\net46\Syncfusion.Shared.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfTreeNavigator.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfTreeNavigator.WPF.18.3.0.48\lib\net46\Syncfusion.SfTreeNavigator.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Themes.Blend.WPF, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Themes.Blend.WPF.18.3.0.47\lib\net46\Syncfusion.Themes.Blend.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfTreeView.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfTreeView.WPF.18.3.0.48\lib\net46\Syncfusion.SfTreeView.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Themes.MaterialDark.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Themes.MaterialDark.WPF.18.3.0.44\lib\net46\Syncfusion.Themes.MaterialDark.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Shared.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Shared.WPF.18.3.0.48\lib\net46\Syncfusion.Shared.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Themes.MaterialLight.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Themes.MaterialLight.WPF.18.3.0.44\lib\net46\Syncfusion.Themes.MaterialLight.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Themes.MaterialDark.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.MaterialDark.WPF.18.3.0.48\lib\net46\Syncfusion.Themes.MaterialDark.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Themes.Metro.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Themes.Metro.WPF.18.3.0.44\lib\net46\Syncfusion.Themes.Metro.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Themes.MaterialDarkBlue.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.MaterialDarkBlue.WPF.18.3.0.48\lib\net46\Syncfusion.Themes.MaterialDarkBlue.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Themes.Office2013DarkGray.WPF, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Themes.Office2013DarkGray.WPF.18.3.0.47\lib\net46\Syncfusion.Themes.Office2013DarkGray.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Themes.MaterialLight.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.MaterialLight.WPF.18.3.0.48\lib\net46\Syncfusion.Themes.MaterialLight.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Themes.Office2019Black.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Themes.Office2019Black.WPF.18.3.0.44\lib\net46\Syncfusion.Themes.Office2019Black.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Themes.MaterialLightBlue.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.MaterialLightBlue.WPF.18.3.0.48\lib\net46\Syncfusion.Themes.MaterialLightBlue.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Themes.Office365.WPF, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Themes.Office365.WPF.18.3.0.47\lib\net46\Syncfusion.Themes.Office365.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Themes.Office2019Black.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.Office2019Black.WPF.18.3.0.48\lib\net46\Syncfusion.Themes.Office2019Black.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Themes.VisualStudio2015.WPF, Version=18.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Themes.VisualStudio2015.WPF.18.3.0.47\lib\net46\Syncfusion.Themes.VisualStudio2015.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Themes.Office2019Colorful.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.Office2019Colorful.WPF.18.3.0.48\lib\net46\Syncfusion.Themes.Office2019Colorful.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Tools.WPF, Version=18.3460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Tools.WPF.18.3.0.44\lib\net46\Syncfusion.Tools.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Themes.Office2019DarkGray.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.Office2019DarkGray.WPF.18.3.0.48\lib\net46\Syncfusion.Themes.Office2019DarkGray.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Office2019White.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.Office2019White.WPF.18.3.0.48\lib\net46\Syncfusion.Themes.Office2019White.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Tools.WPF, Version=18.3460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Tools.WPF.18.3.0.48\lib\net46\Syncfusion.Tools.WPF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.IO.Compression.ZipFile, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>packages\System.IO.Compression.ZipFile.4.3.0\lib\net46\System.IO.Compression.ZipFile.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime" />
     <Reference Include="System.Speech" />
     <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\System.Windows.Interactivity.dll</HintPath>
@@ -157,6 +178,9 @@
     <Compile Include="Models\CharacterCollection.cs" />
     <Compile Include="Models\EndEarlyTrigger.cs" />
     <Compile Include="Models\EQTrigger.cs" />
+    <Compile Include="Models\GINAGroup.cs" />
+    <Compile Include="Models\GINATrigger.cs" />
+    <Compile Include="Models\Setting.cs" />
     <Compile Include="Models\TreeViewModel.cs" />
     <Compile Include="Models\TriggerGroupProperty.cs" />
     <Compile Include="Models\TriggerManager.cs" />

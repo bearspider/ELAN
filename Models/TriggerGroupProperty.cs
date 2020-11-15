@@ -16,17 +16,47 @@ namespace EQAudioTriggers.Models
         private string _id;
         private string _comments;
         private Boolean _defaultenabled;
-        private string _fullpath;
+        private ObservableCollection<string> _subgroups;
+        private ObservableCollection<string> _triggers;
+        private string _parentid;
 
         public TriggerGroupProperty()
         {
             _name = "";
             _comments = "";
             _defaultenabled = false;
-            _fullpath = "";
-            _id = Guid.NewGuid().ToString();
+            _id = Utilities.IdGenerator();
+            _subgroups = new ObservableCollection<string>();
+            _triggers = new ObservableCollection<string>();
+            _parentid = "";
         }
-
+        public string ParentId
+        {
+            get { return _parentid; }
+            set
+            {
+                _parentid = value;
+                RaisedOnPropertyChanged("ParentId");
+            }
+        }
+        public ObservableCollection<string> Triggers
+        {
+            get { return _triggers; }
+            set
+            {
+                _triggers = value;
+                RaisedOnPropertyChanged("Triggers");
+            }
+        }
+        public ObservableCollection<string> SubGroups
+        {
+            get { return _subgroups; }
+            set
+            {
+                _subgroups = value;
+                RaisedOnPropertyChanged("SubGroups");
+            }
+        }
         public string Id
         {
             get { return _id; }
@@ -36,17 +66,6 @@ namespace EQAudioTriggers.Models
                 RaisedOnPropertyChanged("Id");
             }
         }
-
-        public string FullPath
-        {
-            get { return _fullpath; }
-            set
-            {
-                _fullpath = value;
-                RaisedOnPropertyChanged("FullPath");
-            }
-        }
-
         public string Name
         {
             get { return _name; }
@@ -64,8 +83,7 @@ namespace EQAudioTriggers.Models
                 _comments = value;
                 RaisedOnPropertyChanged("Comments");
             }
-        }
-        
+        }        
         public Boolean DefaultEnabled
         {
             get { return _defaultenabled; }
@@ -75,7 +93,6 @@ namespace EQAudioTriggers.Models
                 RaisedOnPropertyChanged("DefaultEnabled");
             }
         }
-
         public event PropertyChangedEventHandler PropertyChanged;
         public void RaisedOnPropertyChanged(string _PropertyName)
         {
