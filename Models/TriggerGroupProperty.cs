@@ -25,7 +25,7 @@ namespace EQAudioTriggers.Models
             _name = "";
             _comments = "";
             _defaultenabled = false;
-            _id = Utilities.IdGenerator();
+            _id = Guid.NewGuid().ToString();
             _subgroups = new ObservableCollection<string>();
             _triggers = new ObservableCollection<string>();
             _parentid = "";

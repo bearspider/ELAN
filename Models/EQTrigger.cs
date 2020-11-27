@@ -1,5 +1,4 @@
-﻿using LiteDB;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -134,9 +133,72 @@ namespace EQAudioTriggers.Models
             _resetseconds = 0;
             _global = true;
             _activezone = "";
-            _id = Utilities.IdGenerator();
+            _id = Guid.NewGuid().ToString();
             _restartontimerid = false;
             _groupid = "";
+        }
+        public EQTrigger(EQTrigger copyfrom)
+        {
+            _name = copyfrom.Name;
+            _searchtext = copyfrom.SearchText;
+            _activecharacters = copyfrom.ActiveCharacters;
+            _endearlytriggers = copyfrom.EndEarlyTriggers;
+            _path = copyfrom.Path;
+            _timertype = copyfrom.TimerType;
+            _useregex = copyfrom.UseRegex;
+            _fastcheck = copyfrom.FastCheck;
+            _category = copyfrom.Category;
+            _comments = copyfrom.Comments;
+            _usebasictext = copyfrom.UseBasicText;
+            _useclipboardtext = copyfrom.UseClipboardText;
+            _basictext = copyfrom.BasicText;
+            _basicclipboardtext = copyfrom.BasicClipboardText;
+            _radiobasicnosound = copyfrom.RadioBasicNoSound;
+            _radiobasictts = copyfrom.RadioBasicTTS;
+            _radiobasicplay = copyfrom.RadioBasicPlay;
+            _usebasicinterrupt = copyfrom.UseBasicInterrupt;
+            _basictts = copyfrom.BasicTTS;
+            _basicplayfile = copyfrom.BasicPlayFile;
+            _timertype = copyfrom.TimerType;
+            _timername = copyfrom.TimerName;
+            _timerhours = copyfrom.TimerHours;
+            _timerminutes = copyfrom.TimerMinutes;
+            _timerseconds = copyfrom.TimerSeconds;
+            _timertriggered = copyfrom.TimerTriggered;
+            _endingnotify = copyfrom.EndingNotify;
+            _endinghours = copyfrom.EndingHours;
+            _endingminutes = copyfrom.EndingMinutes;
+            _endingseconds = copyfrom.EndingSeconds;
+            _useendingtext = copyfrom.UseEndingText;
+            _useendingclipboard = copyfrom.UseEndingClipboard;
+             _endingtext = copyfrom.EndingText;
+            _endingclipboard = copyfrom.EndingClipboard;
+            _radioendingnosound = copyfrom.RadioEndingNoSound;
+            _radioendingtts = copyfrom.RadioEndingTTS;
+            _radioendingsound = copyfrom.RadioEndingSound;
+            _endingtts = copyfrom.EndingTTS;
+            _endinginterrupt = copyfrom.EndingInterrupt;
+            _endingsoundfile = copyfrom.EndingSoundFile;
+            _endednotify = copyfrom.EndedNotify;
+            _useendedtext = copyfrom.UseEndedText;
+            _useendedclipboard = copyfrom.UseEndedClipboard;
+            _endeddisplaytext = copyfrom.EndedDisplayText;
+            _endedclipboard = copyfrom.EndedClipboard;
+            _radioendednosound = copyfrom.RadioEndedNoSound;
+            _radioendedtts = copyfrom.RadioEndedTTS;
+            _radioendedsound = copyfrom.RadioEndedSound;
+            _endedtts = copyfrom.EndedTTS;
+            _endedinterrupt = copyfrom.EndedInterrupt;
+            _endedsoundfile = copyfrom.EndedSoundFile;
+            _counterreset = copyfrom.CounterReset;
+            _resethours = copyfrom.ResetHours;
+            _resetminutes = copyfrom.ResetMinutes;
+            _resetseconds = copyfrom.ResetSeconds;
+            _global = copyfrom.Global;
+            _activezone = copyfrom.ActiveZone;
+            _id = Guid.NewGuid().ToString();
+            _restartontimerid = copyfrom.RestartOnTimerId;
+            _groupid = copyfrom.GroupId;
         }
         #region Public Access
         public string GroupId
@@ -579,40 +641,15 @@ namespace EQAudioTriggers.Models
         {
             ActiveCharacters.Add(newchar);
             RaisedOnPropertyChanged("Added Character");
-            WriteTriggerToDB(this);
         }
         public void RemoveCharacter(string oldchar)
         {
-            ActiveCharacters.Remove(oldchar);
-            RaisedOnPropertyChanged("RemovedCharacter");
-            WriteTriggerToDB(this);
-        }
-        private void WriteTriggerToDB(EQTrigger trigger)
-        {
-            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
+            if (ActiveCharacters.Contains(oldchar))
             {
-                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
-                //See if the group exists, if so update it
-                EQTrigger test = triggers.FindOne(x => x.Id == trigger.Id);
-                if (test != null)
-                {
-                    triggers.Update(trigger);
-                }
-                else
-                {
-                    triggers.Insert(trigger);
-                }
+                ActiveCharacters.Remove(oldchar);
+                RaisedOnPropertyChanged("RemovedCharacter");
             }
         }
-        private void DeleteTriggerFromDB(EQTrigger trigger)
-        {
-            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
-            {
-                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
-                triggers.Delete(trigger.Id);
-            }
-        }
-
         public void RaisedOnPropertyChanged(string _PropertyName)
         {
             if (PropertyChanged != null)

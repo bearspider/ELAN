@@ -19,7 +19,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using LiteDB;
 
 namespace EQAudioTriggers.Models
 {
@@ -157,56 +156,6 @@ namespace EQAudioTriggers.Models
             }
         }
         #endregion
-        private void WriteGroupToDB(TriggerGroupProperty tg)
-        {
-            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
-            {
-                ILiteCollection<TriggerGroupProperty> triggergroups = db.GetCollection<TriggerGroupProperty>("groups");
-                //See if the group exists, if so update it
-                TriggerGroupProperty test = triggergroups.FindOne(x => x.Id == tg.Id);
-                if(test != null)
-                {
-                    triggergroups.Update(tg);
-                }
-                else
-                {
-                    triggergroups.Insert(tg);
-                }                
-            }
-        }
-        private void DeleteGroupFromDB(TriggerGroupProperty tg)
-        {
-            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
-            {
-                ILiteCollection<TriggerGroupProperty> triggergroups = db.GetCollection<TriggerGroupProperty>("groups");
-                triggergroups.Delete(tg.Id);
-            }
-        }
-        private void WriteTriggerToDB(EQTrigger trigger)
-        {
-            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
-            {
-                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
-                //See if the group exists, if so update it
-                EQTrigger test = triggers.FindOne(x => x.Id == trigger.Id);
-                if (test != null)
-                {
-                    triggers.Update(trigger);
-                }
-                else
-                {
-                    triggers.Insert(trigger);
-                }
-            }
-        }
-        private void DeleteTriggerFromDB(EQTrigger trigger)
-        {
-            using (LiteDatabase db = new LiteDatabase(GlobalVariables.defaultDB))
-            {
-                ILiteCollection<EQTrigger> triggers = db.GetCollection<EQTrigger>("triggers");
-                triggers.Delete(trigger.Id);
-            }
-        }
         public void ClimbTree(Boolean enable)
         {
             //get the active count of the sub nodes, this will be used in a couple spots
@@ -252,10 +201,9 @@ namespace EQAudioTriggers.Models
             {
                 Name = tge.ReturnTriggerGroup.Name;
                 TriggerGroup = tge.ReturnTriggerGroup;
-                WriteGroupToDB(tge.ReturnTriggerGroup);
             }
         }
-        public void AddTriggerGroup()
+        public TriggerManager AddTriggerGroup()
         {
             TriggerGroupEdit tge = new TriggerGroupEdit();
             Boolean rval = (bool)tge.ShowDialog();
@@ -273,11 +221,11 @@ namespace EQAudioTriggers.Models
                 this.TriggerGroup.SubGroups.Add(tm.TriggerGroup.Id);
                 //Add this ID to the new group parent id
                 tm.TriggerGroup.ParentId = this.TriggerGroup.Id;
-                WriteGroupToDB(tm.TriggerGroup);
-                WriteGroupToDB(TriggerGroup);
                 //add it as a child to this trigger manager
                 SubGroups.Add(tm);
+                return tm;
             }
+            return null;
         }
         public void CreateRootTriggerGroup()
         {
@@ -287,13 +235,12 @@ namespace EQAudioTriggers.Models
             {
                 this.Name = tge.ReturnTriggerGroup.Name;
                 this.TriggerGroup = tge.ReturnTriggerGroup;
-                WriteGroupToDB(tge.ReturnTriggerGroup);
             }
         }
         public void RemoveTriggerGroup()
         {
             //if we have sub groups, delete those too
-            foreach (TriggerManager subgroup in SubGroups)
+            foreach (TriggerManager subgroup in SubGroups.ToList<TriggerManager>())
             {
                 if (subgroup.NodeType == "group")
                 {
@@ -310,10 +257,7 @@ namespace EQAudioTriggers.Models
                 ParentNode.SubGroups.Remove(this);
                 ParentNode.TriggerGroup.SubGroups.Remove(TriggerGroup.Id);
                 //Update the parent node in the DB
-                WriteGroupToDB(ParentNode.TriggerGroup);
             }
-            //Delete from DB
-            DeleteGroupFromDB(TriggerGroup);
         }
         public EQTrigger AddTrigger(ObservableCollection<CharacterCollection> Characters)
         {
@@ -346,26 +290,53 @@ namespace EQAudioTriggers.Models
                 //add group id to trigger and trigger to group
                 te.ReturnTrigger.GroupId = TriggerGroup.Id;
                 TriggerGroup.Triggers.Add(te.ReturnTrigger.Id);
-
-                //Insert Trigger in database
-                WriteTriggerToDB(te.ReturnTrigger);
-                //update group in database with new trigger
-                WriteGroupToDB(TriggerGroup);
                 return tm.Trigger;
             }
             return null;
+        }
+        public Boolean AddTrigger(ObservableCollection<CharacterCollection> Characters, EQTrigger copytrigger)
+        {
+            TriggerEdit te = new TriggerEdit(copytrigger, Characters);
+            Boolean rval = (bool)te.ShowDialog();
+            if (rval)
+            {
+                //build the new trigger manager
+                TriggerManager tm = new TriggerManager
+                {
+                    Name = te.ReturnTrigger.Name,
+                    ParentNode = this,
+                    Trigger = te.ReturnTrigger,
+                    Icon = GlobalVariables.triggericon,
+                    NodeType = "trigger",
+                };
+
+                //If the parent group says default enable, enable this trigger
+                if (TriggerGroup.DefaultEnabled)
+                {
+                    foreach (CharacterCollection character in Characters)
+                    {
+                        tm.Trigger.ActiveCharacters.Add(character.Name);
+                    }
+                }
+
+                //add it as a child to this trigger manager
+                SubGroups.Add(tm);
+
+                //add group id to trigger and trigger to group
+                te.ReturnTrigger.GroupId = TriggerGroup.Id;
+                TriggerGroup.Triggers.Add(te.ReturnTrigger.Id);
+                return true;
+            }
+            return false;
         }
         public void RemoveTrigger()
         {
             //Remove trigger from this group and update the group entry in the database
             ParentNode.TriggerGroup.Triggers.Remove(Trigger.Id);
-            WriteGroupToDB(ParentNode.TriggerGroup);
 
             //Remove this triggermanager from parent node
             ParentNode.SubGroups.Remove(this);
-
-            //Delete this trigger from database
-            DeleteTriggerFromDB(Trigger);            
+           
         }
         public void EditTrigger(ObservableCollection<CharacterCollection> charcollection)
         {
@@ -378,8 +349,6 @@ namespace EQAudioTriggers.Models
                 {
                     Name = te.ReturnTrigger.Name;
                 }
-                //write changes to the db
-                WriteTriggerToDB(te.ReturnTrigger);
             }
         }
         public event PropertyChangedEventHandler PropertyChanged;

@@ -49,7 +49,7 @@ namespace EQAudioTriggers.Models
             _synth.SelectVoice(_audiovoice);
             _lastlogposition = 0;
             _monitoring = _monitor;
-            _id = Utilities.IdGenerator();
+            _id = Guid.NewGuid().ToString();
         }
 
         public Character(Character newchar)

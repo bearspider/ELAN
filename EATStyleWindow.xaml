@@ -350,14 +350,26 @@
                                            ItemDropping="treeview_ItemDropping"
                                            ItemDragOver="treeview_ItemDragOver"
                                        SelectionBackgroundColor="DarkSlateGray"
-                                       ShowRootLines="True"
-                                       ShowLines="True"
                                            >
-                    <syncfusion:SfTreeView.ItemContextMenu>
-                        <ContextMenu>
-                            <MenuItem Command="{Binding Path=TreeView.DataContext.ExpandCommand}" CommandParameter="{Binding }"  Header="Expand"/>
+                    <syncfusion:SfTreeView.Resources>
+                        <ContextMenu x:Key="groupContext" StaysOpen="True">
+                            <MenuItem Header="Add Group" Click="ContextMenuGroupAdd_Click"/>
+                            <MenuItem Header="Edit Group" Click="ContextMenuGroupEdit_Click"/>
+                            <MenuItem Header="Remove Group" Click="ContextMenuGroupRemove_Click"/>
+                            <Separator />
+                            <MenuItem Header="Add Trigger" Click="ContextMenuTriggerAdd_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Quick Share" Click="ContextMenuGroupShare_Click"/>
                         </ContextMenu>
-                    </syncfusion:SfTreeView.ItemContextMenu>
+                        <ContextMenu x:Key="triggerContext" StaysOpen="True">
+                            <MenuItem Header="Duplicate Trigger" Click="ContextMenuTriggerDup_Click"/>
+                            <MenuItem Header="Edit Trigger" Click="ContextMenuTriggerEdit_Click"/>
+                            <MenuItem Header="Remove Trigger" Click="ContextMenuTriggerRemove_Click"/>
+                            <MenuItem Header="Disable Trigger" Click="ContextMenuTriggerDisable_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Quick Share" Click="ContextMenuTriggerShare_Click"/>
+                        </ContextMenu>
+                    </syncfusion:SfTreeView.Resources>
                     <syncfusion:SfTreeView.ItemTemplate>
                         <DataTemplate>
                             <Grid>
@@ -402,11 +414,6 @@
                                        AllowDragging="True"
                                        ItemDropped="mergetreeview_ItemDropped"
                                         >
-                    <syncfusion:SfTreeView.ItemContextMenu>
-                        <ContextMenu>
-                            <MenuItem Command="{Binding Path=TreeView.DataContext.ExpandCommand}" CommandParameter="{Binding }"  Header="Expand"/>
-                        </ContextMenu>
-                    </syncfusion:SfTreeView.ItemContextMenu>
                     <syncfusion:SfTreeView.ItemTemplate>
                         <DataTemplate>
                             <Grid>
