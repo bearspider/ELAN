@@ -222,6 +222,7 @@ namespace EQAudioTriggers
         private string _selectedcharacter = "";
         private ObservableCollection<Setting> programsettings = new ObservableCollection<Setting>();
         private ObservableCollection<EQTrigger> modifiedtriggers = new ObservableCollection<EQTrigger>();
+        private ParallelOptions _po = new ParallelOptions();
 
         //System Tray Icons
         private System.Windows.Forms.NotifyIcon MyNotifyIcon;
@@ -233,7 +234,8 @@ namespace EQAudioTriggers
             LoadBase();
             DataContext = this;
             syncontext = SynchronizationContext.Current;
-            //po.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
+            int systemprocs = System.Environment.ProcessorCount;
+            _po.MaxDegreeOfParallelism = Convert.ToInt32(Math.Floor((Environment.ProcessorCount * .75)));
             LoadSettings();
             LoadCharacters();
             LoadTriggers();
@@ -316,7 +318,7 @@ namespace EQAudioTriggers
         private async void StartMonitor(Character character)
         {
             #region threading
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 Console.WriteLine($"Monitoring {character.Name}");
                 using (FileStream filestream = File.Open(character.LogFile, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -347,7 +349,7 @@ namespace EQAudioTriggers
                                 { }
                                 else
                                 {
-                                    Parallel.ForEach(_activetriggers.Collection, (EQTrigger doc, ParallelLoopState state) =>
+                                    Parallel.ForEach(_activetriggers.Collection, _po, (EQTrigger doc, ParallelLoopState state) =>
                                     {
                                         //Do regex match if enabled otherwise string.contains
                                         //capturedline is a whole block of text.  If we match something inside that block, then compare each single line to find it.

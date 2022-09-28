@@ -152,7 +152,7 @@
                                 <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Name="chkboxEnableSound" Content="Enable Sound"/>
                                 <Label Content="Master Volume" Grid.Row="1" Grid.Column="0"/>
                                 <Slider x:Name="sliderMaster" Value="100" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="1" Grid.Column="1"/>
-                                <Label Grid.Row="1" Grid.Column="2" Content="{Binding ElementName=sliderMaster, Path=Value}"/>
+                                <Label Grid.Row="1" Grid.Column="2" Content="{Binding ElementName=sliderMaster, Path=Value}" Foreground="AntiqueWhite"/>
                                 <syncfusion:RibbonCheckBox Grid.Row="2" Grid.Column="0" Name="chkboxEnableText" Content="Enable Text"/>
                                 <syncfusion:RibbonCheckBox Grid.Row="3" Grid.Column="0" Name="chkboxEnableTimers" Content="Enable Timers"/>
                                 <syncfusion:RibbonCheckBox Grid.Row="4" Grid.Column="0" Name="chkboxStopFirstMatch" Content="Stop Trigger Search After First Match"/>
@@ -250,7 +250,29 @@
                         </StackPanel>
                     </syncfusion:BackstageTabItem>
                     <syncfusion:BackstageTabItem Header="Log Maintenance"></syncfusion:BackstageTabItem>
-                    <syncfusion:BackstageTabItem Header="Advanced"></syncfusion:BackstageTabItem>
+                    <syncfusion:BackstageTabItem Header="Advanced">
+                        <StackPanel Margin="5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Percentage of Cores to Utilize" Grid.Row="1" Grid.Column="0"/>
+                                <Slider x:Name="sliderCores" Value="75" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="1" Grid.Column="1"/>
+                                <Label Grid.Row="1" Grid.Column="2" Content="{Binding ElementName=sliderCores, Path=Value}" Foreground="AntiqueWhite"/>
+                                </Grid>
+                        </StackPanel>
+                    </syncfusion:BackstageTabItem>
                     <syncfusion:BackstageTabItem Header="Categories"></syncfusion:BackstageTabItem>
                     <syncfusion:BackstageTabItem Header="About"></syncfusion:BackstageTabItem>
                     <syncfusion:BackStageSeparator/>
