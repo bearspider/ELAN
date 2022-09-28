@@ -32,7 +32,7 @@ namespace EQAudioTriggers.Models
 
         public Character()
         {
-            _name = "";
+            _name = "ChangeMe";
             _logfile = "";
             _profile = "";
             _monitor = false;

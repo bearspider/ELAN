@@ -76,7 +76,7 @@ namespace EQAudioTriggers.Models
 
         public EQTrigger()
         {
-            _name = "";
+            _name = "Default";
             _searchtext = "";
             _activecharacters = new ObservableCollection<string>();
             _endearlytriggers = new ObservableCollection<EndEarlyTrigger>();

@@ -40,7 +40,7 @@ namespace EQAudioTriggers
 {
     public class GlobalVariables
     {
-        public static string workingdirectory = @"F:\\EAT";
+        public static string workingdirectory = @"C:\\EAT";
         public static string foldericon = "\\Images\\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico";
         public static string triggericon = "\\Images\\Oxygen-Icons.org-Oxygen-Actions-irc-voice.ico";
         public static Regex eqRegex = new Regex(@"\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\](?<stringToMatch>.*)", RegexOptions.Compiled);
@@ -523,6 +523,11 @@ namespace EQAudioTriggers
         }
         private void LoadCharacters()
         {
+            //If this is the initial load, create a default character
+            if (!File.Exists($"{GlobalVariables.workingdirectory}\\characters.json"))
+            {
+                CreateCharacter();
+            }
             using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\characters.json"))
             {
                 string json = r.ReadToEnd();
@@ -541,6 +546,17 @@ namespace EQAudioTriggers
         }
         private void LoadTriggers()
         {
+            //If this is the first time loading, create default files
+            if (!File.Exists($"{GlobalVariables.workingdirectory}\\triggers.json"))
+            {
+                Trigger newtrigger = new Trigger();
+                WriteTriggers();
+            }
+            if (!File.Exists($"{GlobalVariables.workingdirectory}\\triggergroups.json"))
+            {
+                TriggerGroupProperty newgroup = new TriggerGroupProperty();
+                WriteTriggerGroups();
+            }
             //Load Triggers into Collection     
             using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\triggers.json"))
             {
