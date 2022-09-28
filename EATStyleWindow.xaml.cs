@@ -101,7 +101,7 @@ namespace EQAudioTriggers
             }
             else
             {
-                return Brushes.Red;
+                return null;
             }
         }
 
@@ -593,13 +593,14 @@ namespace EQAudioTriggers
                         EQTrigger eqtrigger = FindTrigger(triggerid);
                         TriggerManager newmanager = new TriggerManager
                         {
-                            Name = newtrigger.Name,
+                            Name = eqtrigger.Name,
                             NodeType = "trigger",
                             Icon = GlobalVariables.triggericon,
                             Trigger = eqtrigger,
                             ParentNode = newtrigger,
                             IsActive = false
                         };
+                        newtrigger.SubGroups.Add(newmanager);
                     }
                 } 
                 _triggermanager.Add(newtrigger);
@@ -1038,6 +1039,54 @@ namespace EQAudioTriggers
                 addTrigger.IsEnabled = false;
                 editTrigger.IsEnabled = false;
                 removeTrigger.IsEnabled = false;
+            }
+        }
+        private void _treeCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
+            //if Trigger, activate it for the selected character
+            if (target.NodeType == "trigger")
+            {
+                EnableTrigger(target);
+            }
+            //if Group, iterate through tree and activate each trigger on the way down for the selected character
+            if (target.NodeType == "group")
+            {
+                SetCheckedItems(target, true);
+            }
+            //walk back up the tree and do parent checks
+            target.ClimbTree(true);
+
+            //If the trigger doesn't have any characters subscribing to it, then remove it from active triggers
+            _activetriggers.Refactor(_triggermasterlist);
+
+            //write the modified triggers
+            if ((sender as CheckBox).IsMouseOver)
+            {
+                WriteTriggers();
+            }
+        }
+        private void _treeCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
+            //if Trigger, deactivate it for the selected character
+            if (target.NodeType == "trigger")
+            {
+                DisableTrigger(target);
+            }
+            //if Group, iterate through tree and deactivate each trigger on the way down for the selected character
+            if (target.NodeType == "group")
+            {
+                SetCheckedItems(target, false);
+            }
+            //walk back up the tree and do parent unchecks
+            target.ClimbTree(false);
+            //If the trigger doesn't have any characters subscribing to it, then remove it from active triggers
+            _activetriggers.Refactor(_triggermasterlist);
+            //write the modified triggers
+            if ((sender as CheckBox).IsMouseOver)
+            {
+                WriteTriggers();
             }
         }
         private void treeview_ItemDropped(object sender, TreeViewItemDroppedEventArgs e)
@@ -1484,55 +1533,6 @@ namespace EQAudioTriggers
         }
         #endregion
 
-        private void _treeCheckbox_Checked(object sender, RoutedEventArgs e)
-        {
-            TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
-            //if Trigger, activate it for the selected character
-            if (target.NodeType == "trigger")
-            {
-                EnableTrigger(target);
-            }
-            //if Group, iterate through tree and activate each trigger on the way down for the selected character
-            if (target.NodeType == "group")
-            {
-                SetCheckedItems(target, true);
-            }
-            //walk back up the tree and do parent checks
-            target.ClimbTree(true);
-
-            //If the trigger doesn't have any characters subscribing to it, then remove it from active triggers
-            _activetriggers.Refactor(_triggermasterlist);
-
-            //write the modified triggers
-            if ((sender as CheckBox).IsMouseOver)
-            {
-                WriteTriggers();
-            }          
-        }
-        private void _treeCheckbox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
-            //if Trigger, deactivate it for the selected character
-            if (target.NodeType == "trigger")
-            {
-                DisableTrigger(target);
-            }
-            //if Group, iterate through tree and deactivate each trigger on the way down for the selected character
-            if (target.NodeType == "group")
-            {
-                SetCheckedItems(target, false);
-            }
-            //walk back up the tree and do parent unchecks
-            target.ClimbTree(false);
-            //If the trigger doesn't have any characters subscribing to it, then remove it from active triggers
-            _activetriggers.Refactor(_triggermasterlist);
-            //write the modified triggers
-            if ((sender as CheckBox).IsMouseOver)
-            {
-                WriteTriggers();
-            }
-        }
-
         #region Trigger
         private void DisableTrigger(TriggerManager tm)
         {
@@ -1964,7 +1964,8 @@ namespace EQAudioTriggers
         }
         private void buttonGeneralSave_Click(object sender, RoutedEventArgs e)
         {
-
+            WriteSettings();
+            _ribbon.HideBackStage();
         }
 
         private void buttonEQFolder_Click(object sender, RoutedEventArgs e)
@@ -1997,6 +1998,8 @@ namespace EQAudioTriggers
 
         }
         #endregion
+
+        #region Context Menus
 
         private void ContextMenuGroupAdd_Click(object sender, RoutedEventArgs e)
         {
@@ -2074,5 +2077,6 @@ namespace EQAudioTriggers
             }
 
         }
+        #endregion
     }
 }

@@ -349,8 +349,7 @@
                                            ItemDropped="treeview_ItemDropped"
                                            ItemDropping="treeview_ItemDropping"
                                            ItemDragOver="treeview_ItemDragOver"
-                                       SelectionBackgroundColor="DarkSlateGray"
-                                           >
+                                           SelectionBackgroundColor="DarkSlateGray">
                     <syncfusion:SfTreeView.Resources>
                         <ContextMenu x:Key="groupContext" StaysOpen="True">
                             <MenuItem Header="Add Group" Click="ContextMenuGroupAdd_Click"/>
