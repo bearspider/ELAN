@@ -338,5 +338,8 @@
   <ItemGroup>
     <Resource Include="Images\elan.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-speaker.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

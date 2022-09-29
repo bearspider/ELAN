@@ -77,7 +77,7 @@ namespace EQAudioTriggers.Models
             _logsize = "50";
             _autodelete = "true";
             _deletearchives = "90";
-            _shareserviceuri = "http:\\shareservice.com";
+            _shareserviceuri = "http:\\\\shareservice.com";
             _reference = "You";
             _enabledebug = "false";
             _archiveschedule = "Weekly (Friday)";

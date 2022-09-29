@@ -277,9 +277,9 @@ namespace EQAudioTriggers
             DataContext = this;
             //set datacontext for status bar
             txtblockStatus.DataContext = _totallinecount;
-            SfSkinManager.SetTheme(this, new Theme("MaterialLight"));
             //adding this lame code so when the first item auto selects the checkboxes render
             _listviewCharacters.SelectedItem = null;
+            string stop = "";
         }
         private void LoadThemes()
         {
@@ -356,7 +356,7 @@ namespace EQAudioTriggers
         private async void StartMonitor(Character character)
         {
             #region threading
-            await Task.Run(async () =>
+            await Task.Run(() =>
             {
                 Console.WriteLine($"Monitoring {character.Name}");
                 using (FileStream filestream = File.Open(character.LogFile, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -1848,7 +1848,12 @@ namespace EQAudioTriggers
 
         private void ContextMenuGroupAdd_Click(object sender, RoutedEventArgs e)
         {
-            ((TriggerManager)treeview.SelectedItem).AddTriggerGroup();
+            TriggerManager newmanager = ((TriggerManager)treeview.SelectedItem).AddTriggerGroup();
+            if (newmanager != null)
+            {
+                _triggergroups.Add(newmanager.TriggerGroup);
+            }
+            WriteTriggerGroups();
         }
 
         private void ContextMenuGroupRemove_Click(object sender, RoutedEventArgs e)
@@ -1890,9 +1895,16 @@ namespace EQAudioTriggers
 
         private void ContextMenuTriggerDisable_Click(object sender, RoutedEventArgs e)
         {
-
+            TriggerManager selecteditem = (TriggerManager)treeview.SelectedItem;
+            selecteditem.IsActive = false;
+            WriteTriggers();
         }
-
+        private void ContextMenuTriggerEnable_Click(object sender, RoutedEventArgs e)
+        {
+            TriggerManager selecteditem = (TriggerManager)treeview.SelectedItem;
+            selecteditem.IsActive = true;
+            WriteTriggers();
+        }
         private void ContextMenuGroupShare_Click(object sender, RoutedEventArgs e)
         {
 
@@ -1960,6 +1972,7 @@ namespace EQAudioTriggers
             radioMergeAnbody.DataContext = settings;
             radioMergeNobody.DataContext = settings;
             radioMergeTrusted.DataContext = settings;
+            textboxSharingURL.DataContext = settings;
         }
 
         private void buttonLogArchiveFolder_Click(object sender, RoutedEventArgs e)
