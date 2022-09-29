@@ -45,6 +45,7 @@ namespace EQAudioTriggers.Models
         private string _corepercentage;
         private List<string> _archivemethodlist;
         private List<string> _archiveschedulelist;
+        private string _theme;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -67,8 +68,8 @@ namespace EQAudioTriggers.Models
             _datafolder = "C:\\EAT";
             _sharingenabled = "true";
             _enableincomingtriggers = "true";
-            _acceptinvitationsfrom = "2";
-            _mergefrom = "2";
+            _acceptinvitationsfrom = "Nobody";
+            _mergefrom = "Nobody";
             _logarchivefolder = "C:\\EAT\\Archive";
             _autoarchive = "true";
             _compressarchive = "true";
@@ -85,8 +86,7 @@ namespace EQAudioTriggers.Models
             _trustedsenderlist = new ObservableCollection<string>();
             _archivemethodlist = new List<string>();
             _archiveschedulelist = new List<string>();
-
-
+            _theme = "FluentDark";
         }
         public void DefaultSettings()
         {
@@ -139,6 +139,7 @@ namespace EQAudioTriggers.Models
         public string ArchiveSchedule { get { return _archiveschedule; } set { _archiveschedule = value; NotifyPropertyChanged("ArchiveSchedule"); } }
         public string DarkMode { get { return _darkmode; } set { _darkmode = value; NotifyPropertyChanged("DarkMode"); } }
         public string CorePercentage { get { return _corepercentage; } set { _corepercentage = value; NotifyPropertyChanged("CorePercentage"); } }
+        public string Theme { get { return _theme; } set { _theme = value; NotifyPropertyChanged("Theme"); } }
         public void NotifyPropertyChanged(string propName)
         {
             Console.WriteLine($"Modified: {propName}");

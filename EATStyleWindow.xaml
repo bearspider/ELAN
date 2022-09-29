@@ -13,7 +13,7 @@
     xmlns:treeviewengine="clr-namespace:Syncfusion.UI.Xaml.TreeView.Engine;assembly=Syncfusion.SfTreeView.WPF"
     Title="     EQ Audio Triggers" TitleTextAlignment="Left" Icon="Images/elan.ico"
     Office2010Icon="Images/elan.ico"
-    skin:SfSkinManager.VisualStyle="MaterialDark" x:Name="MainRibbon" StateChanged="Window_StateChanged">
+    skin:SfSkinManager.VisualStyle="{Binding ElementName=comboVisualStyle, Path=SelectedValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" x:Name="MainRibbon" StateChanged="Window_StateChanged">
 
     <Window.Resources>
         <local:FontAttributeConverter x:Key="FontAttributeConverter"/>
@@ -24,6 +24,7 @@
         <local:MonitoringImageConverter x:Key="MonitoringImageConverter"/>
         <local:MonitoringContextConverter x:Key="MonitoringContextConverter"/>
         <local:CheckboxColorConverter x:Key="CheckboxColorConverter"/>
+        <local:RadioButtonCheckedConverter x:Key="RadioButtonCheckedConverter"/>
     </Window.Resources>
 
     <syncfusion:RibbonWindow.StatusBar>
@@ -143,6 +144,7 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -173,7 +175,9 @@
                                 <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="11" Grid.Column="2" Name="buttonDataFolder" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonDataFolder_Click"/>
                                 <Label Grid.Row="12" Grid.Column="0" Content="Maximum Log Entries"/>
                                 <syncfusion:RibbonTextBox Grid.Row="12" Grid.Column="1" Name="textboxMaxLogEntries" Height="25" Text="{Binding Path=MaxLogEntry}"/>
-                                <syncfusion:RibbonButton Margin="5,5,0,0" Grid.Row="13" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonGeneralSave" Click="buttonGeneralSave_Click"/>
+                                <Label Grid.Row="13" Grid.Column="0" Content="Theme"/>
+                                <syncfusion:RibbonComboBox Grid.Row="13" Grid.Column="1" Name="comboVisualStyle" ItemsSource="{Binding }" SelectedValue="{Binding Theme}"/>
+                                <syncfusion:RibbonButton Margin="5,5,0,0" Grid.Row="14" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonGeneralSave" Click="buttonGeneralSave_Click"/>
                             </Grid>
                         </StackPanel>
                     </syncfusion:BackstageTabItem>
@@ -203,9 +207,9 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <syncfusion:RibbonRadioButton Grid.Row="0" Name="radioAcceptNobody" GroupName="Accept" Content="Nobody"/>
-                                        <syncfusion:RibbonRadioButton Grid.Row="1" Name="radioTrusted" GroupName="Accept" Content="Trusted List"/>
-                                        <syncfusion:RibbonRadioButton Grid.Row="2" Name="radioAnybody" GroupName="Accept" Content="Anybody"/>
+                                        <syncfusion:RibbonRadioButton Name="radioAcceptNobody" GroupName="Accept" Content="Nobody" IsChecked="{Binding AcceptInvitationsFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Nobody}}"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="1" Name="radioAcceptTrusted" GroupName="Accept" Content="Trusted List" IsChecked="{Binding AcceptInvitationsFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Trusted}}"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="2" Name="radioAcceptAnybody" GroupName="Accept" Content="Anybody" IsChecked="{Binding AcceptInvitationsFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Anybody}}"/>
                                     </Grid>
                                 </GroupBox>
                             <GroupBox Margin="5" Grid.Row="2" Grid.Column="0" Header="Automatic Merge From">
@@ -218,9 +222,9 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <syncfusion:RibbonRadioButton Grid.Row="0" Name="radioAutoNobody" GroupName="Auto" Content="Nobody"/>
-                                    <syncfusion:RibbonRadioButton Grid.Row="1" Name="radioAutoTrusted" GroupName="Auto" Content="Trusted List"/>
-                                    <syncfusion:RibbonRadioButton Grid.Row="2" Name="radioAutoAnbody" GroupName="Auto" Content="Anybody"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="0" Name="radioMergeNobody" GroupName="Merge" Content="Nobody" IsChecked="{Binding MergeFrom, Mode=TwoWay,Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Nobody}}"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="1" Name="radioMergeTrusted" GroupName="Merge" Content="Trusted List" IsChecked="{Binding MergeFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Trusted}}"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="2" Name="radioMergeAnbody" GroupName="Merge" Content="Anybody" IsChecked="{Binding MergeFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Anybody}}"/>
                                 </Grid>
                             </GroupBox>
                                 <GroupBox Margin="5" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Header="Trusted Sender List">

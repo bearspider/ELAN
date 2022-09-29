@@ -89,6 +89,12 @@
     <Reference Include="Syncfusion.Themes.Blend.WPF, Version=20.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
       <HintPath>packages\Syncfusion.Themes.Blend.WPF.20.3.0.47\lib\net46\Syncfusion.Themes.Blend.WPF.dll</HintPath>
     </Reference>
+    <Reference Include="Syncfusion.Themes.FluentDark.WPF, Version=20.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.FluentDark.WPF.20.3.0.47\lib\net46\Syncfusion.Themes.FluentDark.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.FluentLight.WPF, Version=20.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.FluentLight.WPF.20.3.0.47\lib\net46\Syncfusion.Themes.FluentLight.WPF.dll</HintPath>
+    </Reference>
     <Reference Include="Syncfusion.Themes.MaterialDark.WPF, Version=20.3460.0.47, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
       <HintPath>packages\Syncfusion.Themes.MaterialDark.WPF.20.3.0.47\lib\net46\Syncfusion.Themes.MaterialDark.WPF.dll</HintPath>
     </Reference>
@@ -204,6 +210,7 @@
     <Compile Include="Models\TreeViewModel.cs" />
     <Compile Include="Models\TriggerGroupProperty.cs" />
     <Compile Include="Models\TriggerManager.cs" />
+    <Compile Include="Models\TriggerShareEnum.cs" />
     <Compile Include="Views\CharacterEdit.xaml.cs">
       <DependentUpon>CharacterEdit.xaml</DependentUpon>
     </Compile>

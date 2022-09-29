@@ -47,8 +47,13 @@ namespace EQAudioTriggers
         public static Regex eqRegex = new Regex(@"\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\](?<stringToMatch>.*)", RegexOptions.Compiled);
         public static Regex shareRegex = new Regex(@".*?\{HEAP:(?<GUID>.*?)\}", RegexOptions.Compiled);
         public static Regex eqspellRegex = new Regex(@"(\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\])\s((?<character>\w+)\sbegin\s(casting|singing)\s(?<spellname>.*)\.)|(\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\])\s(?<character>\w+)\s(begins\sto\s(cast|sing)\s.*\<(?<spellname>.*)\>)", RegexOptions.Compiled);
-        //public static string dbpath = $"{workingdirectory}\\eqtriggers.db";
         public static string backupDB = $"{workingdirectory}\\Backup";
+    }
+    public enum ShareInvitation
+    {
+        Nobody,
+        Trusted,
+        Anybody
     }
 
     #region Converters
@@ -198,6 +203,24 @@ namespace EQAudioTriggers
             throw new NotImplementedException();
         }
     }
+
+    public class RadioButtonCheckedConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {   
+            if (value == null)
+            {
+                return false;
+            }
+            Enum.TryParse((string)value, out ShareInvitation share);
+            Boolean rval = share.Equals(parameter);
+            return rval;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value.Equals(true) ? parameter : Binding.DoNothing;
+        }
+    }
     #endregion
 
     /// <summary>
@@ -225,23 +248,19 @@ namespace EQAudioTriggers
         private Settings settings = new Settings();
         private ObservableCollection<EQTrigger> modifiedtriggers = new ObservableCollection<EQTrigger>();
         private ParallelOptions _po = new ParallelOptions();
+        private List<string> _availableThemes = new List<string>();
 
         //System Tray Icons
         private System.Windows.Forms.NotifyIcon MyNotifyIcon;
 
-        #region Settings
-        //Settings Variables
-        private int _mastervolume = 30;
-        #endregion
-
         #endregion
         public EATStyleWindow()
         {
-
             InitializeComponent();
             syncontext = SynchronizationContext.Current;
             LoadBase();
             LoadSettings();
+            LoadThemes();
             LoadCharacters();
             LoadTriggers();
             ActivateLog();
@@ -258,9 +277,23 @@ namespace EQAudioTriggers
             DataContext = this;
             //set datacontext for status bar
             txtblockStatus.DataContext = _totallinecount;
-
+            SfSkinManager.SetTheme(this, new Theme("MaterialLight"));
             //adding this lame code so when the first item auto selects the checkboxes render
             _listviewCharacters.SelectedItem = null;
+        }
+        private void LoadThemes()
+        {
+            _availableThemes.Add("MaterialDark");
+            _availableThemes.Add("MaterialLight");
+            _availableThemes.Add("FluentLight");
+            _availableThemes.Add("FluentDark");
+            _availableThemes.Add("MaterialLightBlue");
+            _availableThemes.Add("MaterialDarkBlue");
+            _availableThemes.Add("Office2019Colorful");
+            _availableThemes.Add("Office2019Black");
+            _availableThemes.Add("Office2019DarkGray");
+            comboVisualStyle.ItemsSource = _availableThemes;
+            comboVisualStyle.DataContext = settings;
         }
         private void LoadBase()
         {
@@ -461,82 +494,6 @@ namespace EQAudioTriggers
                 totalcores = 1;
             }
             _po.MaxDegreeOfParallelism = totalcores;
-        }
-        private void LoadSettingsTab()
-        {
-            //textboxArchiveFolder.Text = logmaintenance.ArchiveFolder = programsettings.Single<Setting>(i => i.Name == "LogArchiveFolder").Value;
-            //logmaintenance.ArchiveFolder = programsettings.Single<Setting>(i => i.Name == "LogArchiveFolder").Value;
-            //comboboxArchiveSchedule.Text = logmaintenance.ArchiveSchedule = programsettings.Single<Setting>(i => i.Name == "ArchiveSchedule").Value;
-            //logmaintenance.AutoDelete = programsettings.Single<Setting>(i => i.Name == "AutoDelete").Value;
-            //logmaintenance.CompressArchive = programsettings.Single<Setting>(i => i.Name == "CompressArchive").Value;
-            //logmaintenance.ArchiveDays = Convert.ToInt32(programsettings.Single<Setting>(i => i.Name == "DeleteArchives").Value);
-            //logmaintenance.LastArchive = Properties.Settings.Default.LastLogMaintenance;
-            //checkboxDarkmode.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "DarkMode").Value);
-            //checkboxDeleteArchive.IsChecked = Convert.ToBoolean(logmaintenance.AutoDelete);
-            //logmaintenance.AutoArchive = programsettings.Single<Setting>(i => i.Name == "AutoArchive").Value;
-            //checkboxAutoArchive.IsChecked = Convert.ToBoolean(logmaintenance.AutoArchive);
-            //checkboxCompress.IsChecked = Convert.ToBoolean(logmaintenance.CompressArchive);
-            //textboxArchiveDays.Text = logmaintenance.ArchiveDays.ToString();
-            //textboxShareURI.Text = programsettings.Single<Setting>(i => i.Name == "ShareServiceURI").Value;
-            //textboxSelfReference.Text = programsettings.Single<Setting>(i => i.Name == "Reference").Value;
-            //checkboxShareDebug.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "EnableDebug").Value);
-            //checkboxEnableSharing.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "SharingEnabled").Value);
-            //int shareindex = Convert.ToInt32(programsettings.Single<Setting>(i => i.Name == "AcceptInvitationsFrom").Value);
-            //switch (shareindex)
-            //{
-            //    case 0:
-            //        radioShareNobody.IsChecked = true;
-            //        break;
-            //    case 1:
-            //        radioShareTrusted.IsChecked = true;
-            //        break;
-            //    case 2:
-            //        radioShareAnybody.IsChecked = true;
-            //        break;
-            //    default:
-            //        radioShareNobody.IsChecked = true;
-            //        break;
-            //}
-            //int mergeindex = Convert.ToInt32(programsettings.Single<Setting>(i => i.Name == "MergeFrom").Value);
-            //switch (mergeindex)
-            //{
-            //    case 0:
-            //        radioMergeNobody.IsChecked = true;
-            //        break;
-            //    case 1:
-            //        radioMergeTrusted.IsChecked = true;
-            //        break;
-            //    case 2:
-            //        radioMergeAnybody.IsChecked = true;
-            //        break;
-            //    default:
-            //        radioMergeNobody.IsChecked = true;
-            //        break;
-            //}
-            //String senders = programsettings.Single<Setting>(i => i.Name == "TrustedSenderList").Value;
-            //if (!string.IsNullOrEmpty(senders))
-            //{
-            //    string[] senderarray = senders.Split(',');
-            //    foreach (string sender in senderarray)
-            //    {
-            //        trustedsenders.Add(sender);
-            //    }
-            //}
-            //listviewSenderList.ItemsSource = trustedsenders;
-            //checkboxSoundEnable.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "EnableSound").Value);
-            //sliderMasterVol.Value = Convert.ToInt32(programsettings.Single<Setting>(i => i.Name == "MasterVolume").Value);
-            //checkboxEnableText.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "EnableText").Value);
-            //checkboxEnableTimer.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "EnableTimers").Value);
-            //checkboxStopTrigger.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "StopTriggerSearch").Value);
-            //checkboxMinimize.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "Minimize").Value);
-            //checkboxMatchLog.IsChecked = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "DisplayMatchLog").Value);
-            //checkboxLogMatches.IsChecked = logmatchestofile = Convert.ToBoolean(programsettings.Single<Setting>(i => i.Name == "LogMatchesToFile").Value);
-            //textboxLogMatches.Text = logmatchlocation = programsettings.Single<Setting>(i => i.Name == "LogMatchFilename").Value;
-            //textboxClipboard.Text = programsettings.Single<Setting>(i => i.Name == "Clipboard").Value;
-            //textboxEQFolder.Text = programsettings.Single<Setting>(i => i.Name == "EQFolder").Value;
-            //textboxMediaFolder.Text = programsettings.Single<Setting>(i => i.Name == "ImportedMediaFolder").Value;
-            //textboxDataFolder.Text = programsettings.Single<Setting>(i => i.Name == "DataFolder").Value;
-            //textboxMaxEntries.Text = programsettings.Single<Setting>(i => i.Name == "MaxLogEntry").Value;
         }
         private void LoadCharacters()
         {
@@ -1997,7 +1954,12 @@ namespace EQAudioTriggers
             comboboxArchiveSchedule.DataContext = settings;
             listviewSenders.DataContext = settings;
             chkboxSharing.DataContext = settings;
-            
+            radioAcceptNobody.DataContext = settings;
+            radioAcceptAnybody.DataContext = settings;
+            radioAcceptTrusted.DataContext = settings;
+            radioMergeAnbody.DataContext = settings;
+            radioMergeNobody.DataContext = settings;
+            radioMergeTrusted.DataContext = settings;
         }
 
         private void buttonLogArchiveFolder_Click(object sender, RoutedEventArgs e)
