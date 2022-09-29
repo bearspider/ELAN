@@ -124,7 +124,7 @@
             </syncfusion:RibbonTab>
             <syncfusion:Ribbon.BackStage>
                 <syncfusion:Backstage>
-                    <syncfusion:BackstageTabItem Header="General">
+                    <syncfusion:BackstageTabItem Header="General" GotFocus="BackstageGeneral_GotFocus">
                         <StackPanel>
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -149,29 +149,30 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Name="chkboxEnableSound" Content="Enable Sound"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Name="chkboxEnableSound" Content="Enable Sound" IsChecked="{Binding Path=EnableSound}"/>
                                 <Label Content="Master Volume" Grid.Row="1" Grid.Column="0"/>
-                                <Slider x:Name="sliderMaster" Value="100" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="1" Grid.Column="1"/>
-                                <Label Grid.Row="1" Grid.Column="2" Content="{Binding ElementName=sliderMaster, Path=Value}" Foreground="AntiqueWhite"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="2" Grid.Column="0" Name="chkboxEnableText" Content="Enable Text"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="3" Grid.Column="0" Name="chkboxEnableTimers" Content="Enable Timers"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="4" Grid.Column="0" Name="chkboxStopFirstMatch" Content="Stop Trigger Search After First Match"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="5" Grid.Column="0" Name="chkboxSystemTray" Content="Minimize To System Tray"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="6" Grid.Column="0" Name="chkboxDisplayMatches" Content="Display Match Log"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="7" Grid.Column="0" Name="chkboxLogMatches" Content="Log Matches To File:"/>
-                                <syncfusion:RibbonTextBox Grid.Row="7" Grid.Column="1" Name="textboxMatchLog" Width="220" Height="25"/>
+                                <Slider Name="sliderMaster" Value="{Binding Path=MasterVolume}" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="1" Grid.Column="1" ValueChanged="sliderMaster_ValueChanged"/>
+                                <Label Name="labelMaster" Grid.Row="1" Grid.Column="2" Foreground="AntiqueWhite"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="2" Grid.Column="0" Name="chkboxEnableText" Content="Enable Text" IsChecked="{Binding Path=EnableText}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="3" Grid.Column="0" Name="chkboxEnableTimers" Content="Enable Timers" IsChecked="{Binding Path=EnableTimers}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="4" Grid.Column="0" Name="chkboxStopFirstMatch" Content="Stop Trigger Search After First Match" IsChecked="{Binding Path=StopTriggerSearch}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="5" Grid.Column="0" Name="chkboxSystemTray" Content="Minimize To System Tray" IsChecked="{Binding Path=Minimize}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="6" Grid.Column="0" Name="chkboxDisplayMatches" Content="Display Match Log" IsChecked="{Binding Path=DisplayMatchLog}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="7" Grid.Column="0" Name="chkboxLogMatches" Content="Log Matches To File:" IsChecked="{Binding Path=LogMatchesToFile}"/>
+                                <syncfusion:RibbonTextBox Grid.Row="7" Grid.Column="1" Name="textboxMatchLog" Width="220" Height="25" Text="{Binding Path=LogMatchFilename}"/>
                                 <Label Grid.Row="8" Grid.Column="0" Content="Clipboard Replacement for {C}:"/>
-                                <syncfusion:RibbonTextBox Grid.Row="8" Grid.Column="1" Name="textboxClipboard" HorizontalAlignment="Left" Width="75" Height="25"/>
+                                <syncfusion:RibbonTextBox Grid.Row="8" Grid.Column="1" Name="textboxClipboard" HorizontalAlignment="Left" Width="75" Height="25" Text="{Binding Path=Clipboard}"/>
                                 <Label Grid.Row="9" Grid.Column="0" Content="Everquest Folder:"/>
-                                <syncfusion:RibbonTextBox Grid.Row="9" Grid.Column="1" Name="textboxEQFolder" Width="220" Height="25"/>
+                                <syncfusion:RibbonTextBox Grid.Row="9" Grid.Column="1" Name="textboxEQFolder" Width="220" Height="25" Text="{Binding Path=EQFolder}"/>
                                 <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="9" Grid.Column="2" Name="buttonEQFolder" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonEQFolder_Click"/>
                                 <Label Grid.Row="10" Grid.Column="0" Content="Imported Media Folder"/>
-                                <syncfusion:RibbonTextBox Grid.Row="10" Grid.Column="1" Name="textboxImportedMedia" Width="220" Height="25"/>
+                                <syncfusion:RibbonTextBox Grid.Row="10" Grid.Column="1" Name="textboxImportedMedia" Width="220" Height="25" Text="{Binding Path=ImportedMediaFolder}"/>
                                 <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="10" Grid.Column="2" Name="buttonMediaFolder" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonMediaFolder_Click"/>
                                 <Label Grid.Row="11" Grid.Column="0" Content="EQ Audio Triggers Data Folder"/>
-                                <syncfusion:RibbonTextBox Grid.Row="11" Grid.Column="1" Name="textboxDataFolder" Width="220" Height="25"/>
+                                <syncfusion:RibbonTextBox Grid.Row="11" Grid.Column="1" Name="textboxDataFolder" Width="220" Height="25" Text="{Binding Path=DataFolder}"/>
                                 <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="11" Grid.Column="2" Name="buttonDataFolder" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonDataFolder_Click"/>
                                 <Label Grid.Row="12" Grid.Column="0" Content="Maximum Log Entries"/>
+                                <syncfusion:RibbonTextBox Grid.Row="12" Grid.Column="1" Name="textboxMaxLogEntries" Height="25" Text="{Binding Path=MaxLogEntry}"/>
                                 <syncfusion:RibbonButton Margin="5,5,0,0" Grid.Row="13" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonGeneralSave" Click="buttonGeneralSave_Click"/>
                             </Grid>
                         </StackPanel>
@@ -191,7 +192,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <syncfusion:RibbonCheckBox Margin="5" Grid.Row="0" Grid.Column="0" Content="Enable Sharing" Name="chkboxSharing"/>
+                                <syncfusion:RibbonCheckBox Margin="5" Grid.Row="0" Grid.Column="0" Content="Enable Sharing" Name="chkboxSharing" IsChecked="{Binding SharingEnabled}"/>
                                 <GroupBox Margin="5" Grid.Row="1" Header="Accept Share Invitations From">
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -241,19 +242,20 @@
                                         <Label Grid.Row="0" Grid.Column="0" Content="Name:"/>
                                         <syncfusion:RibbonTextBox Grid.Row="0" Grid.Column="1" Width="100" Name="txtboxSenderName"/>
                                         <syncfusion:RibbonButton Grid.Row="0" Grid.Column="2" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-list-add.ico" Name="buttonAddSender" Label="Add" Click="buttonAddSender_Click"/>
-                                        <ListView Margin="5" Background="AntiqueWhite" Grid.Row="1" Grid.RowSpan="5" Grid.ColumnSpan="3" Name="listviewSenders" Height="125" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
+                                        <ListView ItemsSource="{Binding TrustedSenderList}" Margin="5" Grid.Row="1" Grid.RowSpan="5" Grid.ColumnSpan="3" Name="listviewSenders" Height="125" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" SelectionChanged="listviewSenders_SelectionChanged" MouseDoubleClick="listviewSenders_MouseDoubleClick"/>
                                         <syncfusion:RibbonButton Grid.Row="6" Grid.Column="0" Label="Remove" Name="buttonRemoveSender" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-list-remove.ico" Click="buttonRemoveSender_Click"/>
                                     </Grid>
                                 </GroupBox>
-                                <syncfusion:RibbonButton Margin="5" Width="50" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="0" Label="Save" Name="buttonSaveSharing" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Click="buttonSaveSharing_Click"/>
+                                <syncfusion:RibbonButton Margin="5" Width="50" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="0" Label="Save" Name="buttonSaveSharing" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Click="buttonGeneralSave_Click"/>
                             </Grid>
                         </StackPanel>
                     </syncfusion:BackstageTabItem>
-                    <syncfusion:BackstageTabItem Header="Log Maintenance"></syncfusion:BackstageTabItem>
-                    <syncfusion:BackstageTabItem Header="Advanced">
-                        <StackPanel Margin="5">
+                    <syncfusion:BackstageTabItem Header="Log Maintenance">
+                        <StackPanel>
                             <Grid>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -265,12 +267,50 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Row="0" Grid.Column="0" Content="Log Archive Folder"/>
+                                <syncfusion:RibbonTextBox Name="textboxLogArchiveFolder" Grid.Row="0" Grid.Column="1" Width="280" Text="{Binding Path=LogArchiveFolder}"/>
+                                <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="0" Grid.Column="2" Name="buttonLogArchiveFolder" Width="20" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonLogArchiveFolder_Click"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="1" Grid.Column="0" Name="chkboxAutoArchive" Content="Automatically Archive Logs" IsChecked="{Binding Path=AutoArchive}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="2" Grid.Column="0" Name="chkboxCompressArchive" Content="Compress Archived Log Files" IsChecked="{Binding Path=CompressArchive}"/>
+                                <Label Grid.Row="3" Grid.Column="0" Content="Archive Method"/>
+                                <syncfusion:RibbonComboBox Grid.Row="3" Grid.Column="1" Name="comboboxArchiveMethod" ItemsSource="{Binding ArchiveMethodList}" SelectedValue="{Binding ArchiveMethod}"/>
+                                <Label Grid.Row="4" Grid.Column="0" Content="Archive Schedule"/>
+                                <syncfusion:RibbonComboBox Grid.Row="4" Grid.Column="1" Name="comboboxArchiveSchedule" ItemsSource="{Binding ArchiveScheduleList}" SelectedValue="{Binding ArchiveSchedule}"/>
+                                <Grid Grid.Row="5" Grid.ColumnSpan="3">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Name="chkboxDeleteArchive" Content="Delete Archived Log Files Over " IsChecked="{Binding Path=AutoDelete}"/>
+                                    <syncfusion:RibbonTextBox Grid.Row="0" Grid.Column="1"  Name="textboxDeleteArchive" Width="80" Text="{Binding Path=DeleteArchives}"/>
+                                    <Label Grid.Row="0" Grid.Column="2" Content="Days Old."/>
+                                </Grid>
+                                <syncfusion:RibbonButton Margin="5,5,0,0" Grid.Row="6" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonLogSave" Click="buttonGeneralSave_Click"/>
+                            </Grid>
+                        </StackPanel>
+                    </syncfusion:BackstageTabItem>
+                    <syncfusion:BackstageTabItem Header="Advanced" GotFocus="BackstageAdvanced_GotFocus">
+                        <StackPanel Margin="5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="300"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Content="Percentage of Cores to Utilize" Grid.Row="1" Grid.Column="0"/>
-                                <Slider x:Name="sliderCores" Value="75" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="1" Grid.Column="1"/>
-                                <Label Grid.Row="1" Grid.Column="2" Content="{Binding ElementName=sliderCores, Path=Value}" Foreground="AntiqueWhite"/>
-                                </Grid>
+                                <Label Content="Percentage of Cores to Utilize" Grid.Row="0" Grid.Column="0"/>
+                                <Slider x:Name="sliderCores" Value="{Binding Path=CorePercentage}" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="0" Grid.Column="1" ValueChanged="sliderCores_ValueChanged"/>
+                                <Label Name="labelCores" Grid.Row="0" Grid.Column="2" Foreground="AntiqueWhite"/>
+                                <syncfusion:RibbonButton Margin="5,5,0,0" Grid.Row="1" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonAdvancedSave" Click="buttonGeneralSave_Click"/>
+                            </Grid>
                         </StackPanel>
                     </syncfusion:BackstageTabItem>
                     <syncfusion:BackstageTabItem Header="Categories"></syncfusion:BackstageTabItem>

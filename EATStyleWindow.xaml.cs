@@ -35,6 +35,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using System.IO.Compression;
 using System.Xml;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace EQAudioTriggers
 {
@@ -210,6 +211,7 @@ namespace EQAudioTriggers
         //parse out the "You have entered {The Plane of Knowledge}" and ignore "you have entered something where levitation doesn't work
 
         private int _totallinecount = 0;
+        private int systemprocs = Environment.ProcessorCount;
         private ObservableCollection<CharacterCollection> _characters = new ObservableCollection<CharacterCollection>();
         private ObservableCollection<TriggerGroupProperty> _triggergroups = new ObservableCollection<TriggerGroupProperty>();
         private ActivatedTriggerCollection _activatedtriggers = new ActivatedTriggerCollection();
@@ -220,22 +222,25 @@ namespace EQAudioTriggers
         private readonly SynchronizationContext syncontext;
         private ObservableCollection<EQTrigger> _triggermasterlist = new ObservableCollection<EQTrigger>();
         private string _selectedcharacter = "";
-        private ObservableCollection<Setting> programsettings = new ObservableCollection<Setting>();
+        private Settings settings = new Settings();
         private ObservableCollection<EQTrigger> modifiedtriggers = new ObservableCollection<EQTrigger>();
         private ParallelOptions _po = new ParallelOptions();
 
         //System Tray Icons
         private System.Windows.Forms.NotifyIcon MyNotifyIcon;
 
+        #region Settings
+        //Settings Variables
+        private int _mastervolume = 30;
+        #endregion
+
         #endregion
         public EATStyleWindow()
         {
+
             InitializeComponent();
-            LoadBase();
-            DataContext = this;
             syncontext = SynchronizationContext.Current;
-            int systemprocs = System.Environment.ProcessorCount;
-            _po.MaxDegreeOfParallelism = Convert.ToInt32(Math.Floor((Environment.ProcessorCount * .75)));
+            LoadBase();
             LoadSettings();
             LoadCharacters();
             LoadTriggers();
@@ -250,7 +255,7 @@ namespace EQAudioTriggers
                     }
                 }
             }
-
+            DataContext = this;
             //set datacontext for status bar
             txtblockStatus.DataContext = _totallinecount;
 
@@ -294,7 +299,7 @@ namespace EQAudioTriggers
         }
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            //if ((bool)checkboxMinimize.IsChecked)
+            if (settings.Minimize == "True")
             {
                 if (this.WindowState == WindowState.Minimized)
                 {
@@ -439,13 +444,23 @@ namespace EQAudioTriggers
                 using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\settings.json"))
                 {
                     string json = r.ReadToEnd();
-                    programsettings = JsonConvert.DeserializeObject<ObservableCollection<Setting>>(json);
+                    settings = JsonConvert.DeserializeObject<Settings>(json);
                 }
             }
             else
             {
-                DefaultSettings();
+                settings.DefaultSettings();
+                WriteSettings();
             }
+        }
+        private void SetCores(int percentage)
+        {
+            int totalcores = Convert.ToInt32(Math.Floor(systemprocs * (percentage / 100.0)));
+            if(totalcores < 1)
+            {
+                totalcores = 1;
+            }
+            _po.MaxDegreeOfParallelism = totalcores;
         }
         private void LoadSettingsTab()
         {
@@ -667,170 +682,6 @@ namespace EQAudioTriggers
             }
             WriteTriggers();
         }
-        private void DefaultSettings()
-        {
-            programsettings.Add(new Setting
-            {
-                Name = "MasterVolume",
-                Value = "100"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "ApplicationUpdate",
-                Value = "true"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "EnableSound",
-                Value = "true"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "EnableText",
-                Value = "true"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "EnableTimers",
-                Value = "true"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "Minimize",
-                Value = "false"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "StopTriggerSearch",
-                Value = "false"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "DisplayMatchLog",
-                Value = "true"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "MaxLogEntry",
-                Value = "100"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "LogMatchesToFile",
-                Value = "false"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "LogMatchFilename",
-                Value = ""
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "Clipboard",
-                Value = "{C}"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "EQFolder",
-                Value = @"C:\EQ"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "ImportedMediaFolder",
-                Value = $"{GlobalVariables.workingdirectory}\\ImportedMedia"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "DataFolder",
-                Value = GlobalVariables.workingdirectory
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "SharingEnabled",
-                Value = "true"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "EnableIncomingTriggers",
-                Value = "true"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "AcceptInvitationsFrom",
-                Value = "2"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "MergeFrom",
-                Value = "2"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "TrustedSenderList",
-                Value = ""
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "LogArchiveFolder",
-                Value = $"{GlobalVariables.workingdirectory}\\Archive"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "AutoArchive",
-                Value = "true"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "CompressArchive",
-                Value = "true"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "ArchiveMethod",
-                Value = "Size Threshold"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "LogSize",
-                Value = "50"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "AutoDelete",
-                Value = "true"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "DeleteArchives",
-                Value = "90"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "ShareServiceURI",
-                Value = @"http:\\shareservice.com"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "Reference",
-                Value = "You"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "EnableDebug",
-                Value = "false"
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "ArchiveSchedule",
-                Value = ""
-            });
-            programsettings.Add(new Setting
-            {
-                Name = "DarkMode",
-                Value = "false"
-            });
-            WriteSettings();
-        }
         private void WriteTriggers()
         {
             using (StreamWriter file = File.CreateText($"{GlobalVariables.workingdirectory}\\triggers.json"))
@@ -985,6 +836,17 @@ namespace EQAudioTriggers
         private void removeUser_Click(object sender, RoutedEventArgs e)
         {
             DeleteCharacter((CharacterCollection)_listviewCharacters.SelectedItem);
+        }
+        private void sliderMaster_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            labelMaster.Content = sliderMaster.Value;
+            settings.MasterVolume = Convert.ToString(sliderMaster.Value);
+        }
+        private void sliderCores_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            labelCores.Content = sliderCores.Value;
+            settings.CorePercentage = Convert.ToString(sliderCores.Value);
+            SetCores(Convert.ToInt32(Math.Floor(sliderCores.Value)));
         }
         #endregion
 
@@ -1961,7 +1823,7 @@ namespace EQAudioTriggers
         {
             using (StreamWriter file = File.CreateText($"{GlobalVariables.workingdirectory}\\settings.json"))
             {
-                file.Write(JsonConvert.SerializeObject(programsettings, Newtonsoft.Json.Formatting.Indented));
+                file.Write(JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented));
             }
         }
         private void buttonGeneralSave_Click(object sender, RoutedEventArgs e)
@@ -1972,27 +1834,51 @@ namespace EQAudioTriggers
 
         private void buttonEQFolder_Click(object sender, RoutedEventArgs e)
         {
-
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = "C:\\";
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                settings.EQFolder = dialog.FileName;
+            }
         }
 
         private void buttonMediaFolder_Click(object sender, RoutedEventArgs e)
         {
-
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = "C:\\";
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                settings.ImportedMediaFolder = dialog.FileName;
+            }
         }
 
         private void buttonDataFolder_Click(object sender, RoutedEventArgs e)
         {
-
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = "C:\\";
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                settings.DataFolder = dialog.FileName;
+            }
         }
 
         private void buttonAddSender_Click(object sender, RoutedEventArgs e)
         {
-
+            //Check if the name already exists
+            bool hasname = settings.TrustedSenderList.Contains(txtboxSenderName.Text);
+            if (!hasname)
+            {
+                settings.TrustedSenderList.Add(txtboxSenderName.Text);
+            }
+            txtboxSenderName.Text = "";
         }
 
         private void buttonRemoveSender_Click(object sender, RoutedEventArgs e)
         {
-
+            settings.TrustedSenderList.Remove((string)listviewSenders.SelectedValue);
         }
 
         private void buttonSaveSharing_Click(object sender, RoutedEventArgs e)
@@ -2080,5 +1966,59 @@ namespace EQAudioTriggers
 
         }
         #endregion
+
+        private void BackstageAdvanced_GotFocus(object sender, RoutedEventArgs e)
+        {
+            sliderCores.DataContext = settings;
+        }
+
+        private void BackstageGeneral_GotFocus(object sender, RoutedEventArgs e)
+        {
+            chkboxEnableSound.DataContext = settings;
+            chkboxEnableText.DataContext = settings;
+            chkboxEnableTimers.DataContext = settings;
+            chkboxStopFirstMatch.DataContext = settings;
+            chkboxSystemTray.DataContext = settings;
+            chkboxDisplayMatches.DataContext = settings;
+            chkboxLogMatches.DataContext = settings;
+            textboxMatchLog.DataContext = settings;
+            textboxClipboard.DataContext = settings;
+            textboxEQFolder.DataContext = settings;
+            textboxImportedMedia.DataContext = settings;
+            textboxDataFolder.DataContext = settings;
+            textboxMaxLogEntries.DataContext = settings;
+            textboxLogArchiveFolder.DataContext = settings;
+            chkboxAutoArchive.DataContext = settings;
+            chkboxCompressArchive.DataContext = settings;
+            chkboxDeleteArchive.DataContext = settings;
+            textboxDeleteArchive.DataContext = settings;
+            sliderMaster.DataContext = settings;
+            comboboxArchiveMethod.DataContext = settings;
+            comboboxArchiveSchedule.DataContext = settings;
+            listviewSenders.DataContext = settings;
+            chkboxSharing.DataContext = settings;
+            
+        }
+
+        private void buttonLogArchiveFolder_Click(object sender, RoutedEventArgs e)
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = "C:\\";
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                settings.LogArchiveFolder = dialog.FileName;
+            }
+        }
+        private void listviewSenders_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            
+        }
+
+        private void listviewSenders_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            txtboxSenderName.Text = (string)listviewSenders.SelectedValue;
+            settings.TrustedSenderList.Remove(txtboxSenderName.Text);
+        }
     }
 }

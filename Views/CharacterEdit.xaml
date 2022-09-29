@@ -15,7 +15,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="150" />
-            <RowDefinition Height="125" />
+            <RowDefinition Height="130" />
             <RowDefinition Height="220" />
             <RowDefinition Height="35" />
         </Grid.RowDefinitions>
@@ -35,17 +35,17 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="400"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" x:Name="labelLogFile" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Log File" />
-                <TextBox Grid.Row="0" Grid.Column="1" Name="textboxLogFile" HorizontalAlignment="Center" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" MinWidth="280" Text="{Binding LogFile}"/>
-                <Button Grid.Row="0" Grid.Column="2"  Name="buttonLogFile" Content=". . ." HorizontalAlignment="Left" Width="30" Margin="5,0,0,0" Height="24" VerticalAlignment="Top" FontWeight="Bold" Click="buttonLogFile_Click"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Name="textboxLogFile" HorizontalAlignment="Left" Height="24" TextWrapping="NoWrap" VerticalAlignment="Top" MinWidth="380" Text="{Binding LogFile}"/>
+                <Button Grid.Row="0" Grid.Column="2"  Name="buttonLogFile" Content=". . ." HorizontalAlignment="Left" Width="30" Height="24" VerticalAlignment="Top" FontWeight="Bold" Click="buttonLogFile_Click"/>
                 <Label Grid.Row="2" Grid.Column="0" x:Name="labelProfileName" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Profile Name" />
-                <TextBox Grid.Row="2" Grid.Column="1" Name="textBoxProfileName" HorizontalAlignment="Center" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" MinWidth="280" Text="{Binding Profile}"/>
+                <TextBox Grid.Row="2" Grid.Column="1" Name="textBoxProfileName" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" MinWidth="380" Text="{Binding Profile}"/>
                 <Label Grid.Row="4" Grid.Column="0" x:Name="labelCharacter" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Character Name" />
-                <TextBox Grid.Row="4" Grid.Column="1" Name="textboxCharacter" HorizontalAlignment="Center" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" MinWidth="280" Text="{Binding Name}"/>
-                <CheckBox Grid.Row="6" Grid.Column="1" Name="checkboxMonitor" Content="Monitor on Startup" IsChecked="{Binding Monitor}"/>
+                <TextBox Grid.Row="4" Grid.Column="1" Name="textboxCharacter" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" MinWidth="380" Text="{Binding Name}"/>
+                <CheckBox Grid.Row="6" Grid.Column="1" Name="checkboxMonitor" Content="Monitor on Startup" HorizontalAlignment="Left" IsChecked="{Binding Monitor}"/>
             </Grid>
         </GroupBox>
         <GroupBox Grid.Row="1" x:Name="groupColors" Margin="5" Header="Colors" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
