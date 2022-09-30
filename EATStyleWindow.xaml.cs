@@ -954,9 +954,19 @@ namespace EQAudioTriggers
                         // write old parent group, new parent group, and this group to db
                         if(rootmanager.NodeType == "group")
                         {
-                            parentnode.TriggerGroup.SubGroups.Remove(rootmanager.TriggerGroup.Id);
                             desttm.TriggerGroup.SubGroups.Add(rootmanager.TriggerGroup.Id);
                             rootmanager.TriggerGroup.ParentId = desttm.TriggerGroup.Id;
+                            rootmanager.ParentNode = desttm;
+                            //if this is a root group, we don't need to remove the parent node
+                            //we need to remove it from the _triggermanager
+                            if (parentnode != null)
+                            {
+                                parentnode.TriggerGroup.SubGroups.Remove(rootmanager.TriggerGroup.Id);
+                            }
+                            else
+                            {
+                                _triggermanager.Remove(parentnode);
+                            }
                         }
                     }
                     else
@@ -1870,6 +1880,20 @@ namespace EQAudioTriggers
         {
             EditTriggerGroup(((TriggerManager)treeview.SelectedItem));
         }
+        private void ContextMenuGroupMove_Click(object sender, RoutedEventArgs e)
+        {
+            TriggerManager nodeToMove = ((TriggerManager)treeview.SelectedItem);
+            //Remove node from parents list for json file
+            nodeToMove.ParentNode.TriggerGroup.SubGroups.Remove(nodeToMove.TriggerGroup.Id);
+            //Remove node from parents for collection
+            nodeToMove.ParentNode.SubGroups.Remove(nodeToMove);
+            //Set parent to null
+            nodeToMove.TriggerGroup.ParentId = null;
+            //set parent node to null
+            nodeToMove.ParentNode = null;
+            _triggermanager.Add(nodeToMove);
+            WriteTriggerGroups();
+        }
 
         private void ContextMenuTriggerAdd_Click(object sender, RoutedEventArgs e)
         {
@@ -2002,5 +2026,6 @@ namespace EQAudioTriggers
             _settings.TrustedSenderList.Remove(txtboxSenderName.Text);
         }
         #endregion
+
     }
 }

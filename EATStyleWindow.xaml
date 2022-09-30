@@ -441,6 +441,8 @@
                             <MenuItem Header="Edit Group" Click="ContextMenuGroupEdit_Click"/>
                             <MenuItem Header="Remove Group" Click="ContextMenuGroupRemove_Click"/>
                             <Separator />
+                            <MenuItem Header="Move Group to Root" Click="ContextMenuGroupMove_Click"/>
+                            <Separator />
                             <MenuItem Header="Add Trigger" Click="ContextMenuTriggerAdd_Click"/>
                             <Separator/>
                             <MenuItem Header="Quick Share" Click="ContextMenuGroupShare_Click"/>
