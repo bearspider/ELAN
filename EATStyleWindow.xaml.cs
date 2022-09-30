@@ -234,7 +234,7 @@ namespace EQAudioTriggers
         //parse out the "You have entered {The Plane of Knowledge}" and ignore "you have entered something where levitation doesn't work
 
         private int _totallinecount = 0;
-        private int systemprocs = Environment.ProcessorCount;
+        private int _systemprocs = Environment.ProcessorCount;
         private ObservableCollection<CharacterCollection> _characters = new ObservableCollection<CharacterCollection>();
         private ObservableCollection<TriggerGroupProperty> _triggergroups = new ObservableCollection<TriggerGroupProperty>();
         private ActivatedTriggerCollection _activatedtriggers = new ActivatedTriggerCollection();
@@ -242,11 +242,11 @@ namespace EQAudioTriggers
         private ObservableCollection<TriggerManager> _triggermanager = new ObservableCollection<TriggerManager>();
         private ObservableCollection<TriggerManager> _mergemanager = new ObservableCollection<TriggerManager>();
         private static StringCollection _log = new StringCollection();
-        private readonly SynchronizationContext syncontext;
+        private readonly SynchronizationContext _syncontext;
         private ObservableCollection<EQTrigger> _triggermasterlist = new ObservableCollection<EQTrigger>();
         private string _selectedcharacter = "";
-        private Settings settings = new Settings();
-        private ObservableCollection<EQTrigger> modifiedtriggers = new ObservableCollection<EQTrigger>();
+        private Settings _settings = new Settings();
+        private ObservableCollection<EQTrigger> _modifiedtriggers = new ObservableCollection<EQTrigger>();
         private ParallelOptions _po = new ParallelOptions();
         private List<string> _availableThemes = new List<string>();
 
@@ -257,12 +257,11 @@ namespace EQAudioTriggers
         public EATStyleWindow()
         {
             InitializeComponent();
-            syncontext = SynchronizationContext.Current;
+            _syncontext = SynchronizationContext.Current;
             LoadBase();
             LoadSettings();
             LoadThemes();
             LoadCharacters();
-            LoadTriggers();
             ActivateLog();
             if (_characters.Count > 0)
             {
@@ -277,9 +276,6 @@ namespace EQAudioTriggers
             DataContext = this;
             //set datacontext for status bar
             txtblockStatus.DataContext = _totallinecount;
-            //adding this lame code so when the first item auto selects the checkboxes render
-            _listviewCharacters.SelectedItem = null;
-            string stop = "";
         }
         private void LoadThemes()
         {
@@ -293,7 +289,7 @@ namespace EQAudioTriggers
             _availableThemes.Add("Office2019Black");
             _availableThemes.Add("Office2019DarkGray");
             comboVisualStyle.ItemsSource = _availableThemes;
-            comboVisualStyle.DataContext = settings;
+            comboVisualStyle.DataContext = _settings;
         }
         private void LoadBase()
         {
@@ -323,7 +319,6 @@ namespace EQAudioTriggers
                     FileInfo fi = new FileInfo(file);
                     File.Copy(file, $"{GlobalVariables.workingdirectory}\\Backup\\{fi.Name}", true);
                 }
-                //check for triggers and triggergroup json file, create empty file if not there
             }
         }
         private void MyNotifyIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
@@ -332,7 +327,7 @@ namespace EQAudioTriggers
         }
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            if (settings.Minimize == "True")
+            if (_settings.Minimize == "True")
             {
                 if (this.WindowState == WindowState.Minimized)
                 {
@@ -477,18 +472,18 @@ namespace EQAudioTriggers
                 using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\settings.json"))
                 {
                     string json = r.ReadToEnd();
-                    settings = JsonConvert.DeserializeObject<Settings>(json);
+                    _settings = JsonConvert.DeserializeObject<Settings>(json);
                 }
             }
             else
             {
-                settings.DefaultSettings();
+                _settings.DefaultSettings();
                 WriteSettings();
             }
         }
         private void SetCores(int percentage)
         {
-            int totalcores = Convert.ToInt32(Math.Floor(systemprocs * (percentage / 100.0)));
+            int totalcores = Convert.ToInt32(Math.Floor(_systemprocs * (percentage / 100.0)));
             if(totalcores < 1)
             {
                 totalcores = 1;
@@ -507,6 +502,7 @@ namespace EQAudioTriggers
                 string json = r.ReadToEnd();
                 _characters = JsonConvert.DeserializeObject<ObservableCollection<CharacterCollection>>(json);
             }
+            LoadTriggers();
             CollectionViewSource charactervs = new CollectionViewSource();
             SortDescription desc = new SortDescription("Name", ListSortDirection.Ascending);
             charactervs.IsLiveFilteringRequested = true;
@@ -719,7 +715,7 @@ namespace EQAudioTriggers
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            syncontext.Post(new SendOrPostCallback(o =>
+            _syncontext.Post(new SendOrPostCallback(o =>
             {
                 _totallinecount += (int)o;
                 txtblockStatus.DataContext = _totallinecount;
@@ -797,12 +793,12 @@ namespace EQAudioTriggers
         private void sliderMaster_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             labelMaster.Content = sliderMaster.Value;
-            settings.MasterVolume = Convert.ToString(sliderMaster.Value);
+            _settings.MasterVolume = Convert.ToString(sliderMaster.Value);
         }
         private void sliderCores_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             labelCores.Content = sliderCores.Value;
-            settings.CorePercentage = Convert.ToString(sliderCores.Value);
+            _settings.CorePercentage = Convert.ToString(sliderCores.Value);
             SetCores(Convert.ToInt32(Math.Floor(sliderCores.Value)));
         }
         #endregion
@@ -862,10 +858,8 @@ namespace EQAudioTriggers
                 removeTrigger.IsEnabled = false;
             }
         }
-        private void _treeCheckbox_Checked(object sender, RoutedEventArgs e)
+        private void CheckboxChecked(TriggerManager target)
         {
-            TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
-            //if Trigger, activate it for the selected character
             if (target.NodeType == "trigger")
             {
                 EnableTrigger(target);
@@ -880,17 +874,9 @@ namespace EQAudioTriggers
 
             //If the trigger doesn't have any characters subscribing to it, then remove it from active triggers
             _activetriggers.Refactor(_triggermasterlist);
-
-            //write the modified triggers
-            if ((sender as CheckBox).IsMouseOver)
-            {
-                WriteTriggers();
-            }
         }
-        private void _treeCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckboxUnchecked(TriggerManager target)
         {
-            TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
-            //if Trigger, deactivate it for the selected character
             if (target.NodeType == "trigger")
             {
                 DisableTrigger(target);
@@ -904,9 +890,26 @@ namespace EQAudioTriggers
             target.ClimbTree(false);
             //If the trigger doesn't have any characters subscribing to it, then remove it from active triggers
             _activetriggers.Refactor(_triggermasterlist);
-            //write the modified triggers
+        }
+        private void _treeCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
             if ((sender as CheckBox).IsMouseOver)
             {
+                TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
+                //if Trigger, activate it for the selected character
+                CheckboxChecked(target);
+                //write the modified triggers
+                WriteTriggers();
+            }
+        }
+        private void _treeCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if ((sender as CheckBox).IsMouseOver)
+            {
+                TriggerManager target = (((e.Source as CheckBox).DataContext as TreeViewNode).Content as TriggerManager);
+                //if Trigger, deactivate it for the selected character
+                CheckboxUnchecked(target);
+                //write the modified triggers
                 WriteTriggers();
             }
         }
@@ -936,13 +939,14 @@ namespace EQAudioTriggers
 
                         if (rootmanager.NodeType == "trigger")
                         {
+                            //Remove the trigger from the old parent node
                             parentnode.TriggerGroup.Triggers.Remove(rootmanager.Trigger.Id);
-                            //add the trigger to the subgroups of parent and the id to the trigger group subgroup                            
-                            desttm.TriggerGroup.SubGroups.Add(rootmanager.Trigger.Id);
-
+                            //add the trigger to the Triggers of parent and the id to the trigger group subgroup                            
+                            desttm.TriggerGroup.Triggers.Add(rootmanager.Trigger.Id);
                             //add the new parent group id to the trigger group id property
                             rootmanager.Trigger.GroupId = desttm.TriggerGroup.Id;
-
+                            //Change the parent node on the trigger to its new parent
+                            rootmanager.ParentNode = desttm;
                         }
 
                         //if a group, delete id out of parent sub group
@@ -1012,10 +1016,9 @@ namespace EQAudioTriggers
         private void treeview_ItemDropping(object sender, TreeViewItemDroppingEventArgs e)
         {
             //Restrict the dropping on certain nodes
-            //dragging into the same tree does dumb shit, just disable it
             string sourcetree = (e.DragSource as SfTreeView).Name;
             string desttree = (sender as SfTreeView).Name;
-            if (e.TargetNode != null && (sourcetree != desttree) )
+            if (e.TargetNode != null )
             {
                 try
                 {
@@ -1060,7 +1063,9 @@ namespace EQAudioTriggers
             if (tm.NodeType == "trigger")
             {
                 if (enable) { EnableTrigger(tm); }
-                else { DisableTrigger(tm); }
+                else { 
+                    DisableTrigger(tm);
+                    }
                 tm.IsActive = enable;
             }
             if (tm.NodeType == "group")
@@ -1297,7 +1302,7 @@ namespace EQAudioTriggers
             {
                 txtblockProfile.Text = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Profile;
                 _selectedcharacter = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Id;
-                Console.WriteLine($"Changed Character: {_selectedcharacter}");
+                Console.WriteLine($"Changed Character: {_selectedcharacter}");                
             }
             UpdateCheckedItems();
         }
@@ -1780,7 +1785,7 @@ namespace EQAudioTriggers
         {
             using (StreamWriter file = File.CreateText($"{GlobalVariables.workingdirectory}\\settings.json"))
             {
-                file.Write(JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented));
+                file.Write(JsonConvert.SerializeObject(_settings, Newtonsoft.Json.Formatting.Indented));
             }
         }
         private void buttonGeneralSave_Click(object sender, RoutedEventArgs e)
@@ -1796,7 +1801,7 @@ namespace EQAudioTriggers
             dialog.IsFolderPicker = true;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                settings.EQFolder = dialog.FileName;
+                _settings.EQFolder = dialog.FileName;
             }
         }
 
@@ -1807,7 +1812,7 @@ namespace EQAudioTriggers
             dialog.IsFolderPicker = true;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                settings.ImportedMediaFolder = dialog.FileName;
+                _settings.ImportedMediaFolder = dialog.FileName;
             }
         }
 
@@ -1818,24 +1823,24 @@ namespace EQAudioTriggers
             dialog.IsFolderPicker = true;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                settings.DataFolder = dialog.FileName;
+                _settings.DataFolder = dialog.FileName;
             }
         }
 
         private void buttonAddSender_Click(object sender, RoutedEventArgs e)
         {
             //Check if the name already exists
-            bool hasname = settings.TrustedSenderList.Contains(txtboxSenderName.Text);
+            bool hasname = _settings.TrustedSenderList.Contains(txtboxSenderName.Text);
             if (!hasname)
             {
-                settings.TrustedSenderList.Add(txtboxSenderName.Text);
+                _settings.TrustedSenderList.Add(txtboxSenderName.Text);
             }
             txtboxSenderName.Text = "";
         }
 
         private void buttonRemoveSender_Click(object sender, RoutedEventArgs e)
         {
-            settings.TrustedSenderList.Remove((string)listviewSenders.SelectedValue);
+            _settings.TrustedSenderList.Remove((string)listviewSenders.SelectedValue);
         }
 
         private void buttonSaveSharing_Click(object sender, RoutedEventArgs e)
@@ -1936,43 +1941,44 @@ namespace EQAudioTriggers
         }
         #endregion
 
+        #region Backstage Functions
         private void BackstageAdvanced_GotFocus(object sender, RoutedEventArgs e)
         {
-            sliderCores.DataContext = settings;
+            sliderCores.DataContext = _settings;
         }
 
         private void BackstageGeneral_GotFocus(object sender, RoutedEventArgs e)
         {
-            chkboxEnableSound.DataContext = settings;
-            chkboxEnableText.DataContext = settings;
-            chkboxEnableTimers.DataContext = settings;
-            chkboxStopFirstMatch.DataContext = settings;
-            chkboxSystemTray.DataContext = settings;
-            chkboxDisplayMatches.DataContext = settings;
-            chkboxLogMatches.DataContext = settings;
-            textboxMatchLog.DataContext = settings;
-            textboxClipboard.DataContext = settings;
-            textboxEQFolder.DataContext = settings;
-            textboxImportedMedia.DataContext = settings;
-            textboxDataFolder.DataContext = settings;
-            textboxMaxLogEntries.DataContext = settings;
-            textboxLogArchiveFolder.DataContext = settings;
-            chkboxAutoArchive.DataContext = settings;
-            chkboxCompressArchive.DataContext = settings;
-            chkboxDeleteArchive.DataContext = settings;
-            textboxDeleteArchive.DataContext = settings;
-            sliderMaster.DataContext = settings;
-            comboboxArchiveMethod.DataContext = settings;
-            comboboxArchiveSchedule.DataContext = settings;
-            listviewSenders.DataContext = settings;
-            chkboxSharing.DataContext = settings;
-            radioAcceptNobody.DataContext = settings;
-            radioAcceptAnybody.DataContext = settings;
-            radioAcceptTrusted.DataContext = settings;
-            radioMergeAnbody.DataContext = settings;
-            radioMergeNobody.DataContext = settings;
-            radioMergeTrusted.DataContext = settings;
-            textboxSharingURL.DataContext = settings;
+            chkboxEnableSound.DataContext = _settings;
+            chkboxEnableText.DataContext = _settings;
+            chkboxEnableTimers.DataContext = _settings;
+            chkboxStopFirstMatch.DataContext = _settings;
+            chkboxSystemTray.DataContext = _settings;
+            chkboxDisplayMatches.DataContext = _settings;
+            chkboxLogMatches.DataContext = _settings;
+            textboxMatchLog.DataContext = _settings;
+            textboxClipboard.DataContext = _settings;
+            textboxEQFolder.DataContext = _settings;
+            textboxImportedMedia.DataContext = _settings;
+            textboxDataFolder.DataContext = _settings;
+            textboxMaxLogEntries.DataContext = _settings;
+            textboxLogArchiveFolder.DataContext = _settings;
+            chkboxAutoArchive.DataContext = _settings;
+            chkboxCompressArchive.DataContext = _settings;
+            chkboxDeleteArchive.DataContext = _settings;
+            textboxDeleteArchive.DataContext = _settings;
+            sliderMaster.DataContext = _settings;
+            comboboxArchiveMethod.DataContext = _settings;
+            comboboxArchiveSchedule.DataContext = _settings;
+            listviewSenders.DataContext = _settings;
+            chkboxSharing.DataContext = _settings;
+            radioAcceptNobody.DataContext = _settings;
+            radioAcceptAnybody.DataContext = _settings;
+            radioAcceptTrusted.DataContext = _settings;
+            radioMergeAnbody.DataContext = _settings;
+            radioMergeNobody.DataContext = _settings;
+            radioMergeTrusted.DataContext = _settings;
+            textboxSharingURL.DataContext = _settings;
         }
 
         private void buttonLogArchiveFolder_Click(object sender, RoutedEventArgs e)
@@ -1982,7 +1988,7 @@ namespace EQAudioTriggers
             dialog.IsFolderPicker = true;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                settings.LogArchiveFolder = dialog.FileName;
+                _settings.LogArchiveFolder = dialog.FileName;
             }
         }
         private void listviewSenders_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1993,7 +1999,8 @@ namespace EQAudioTriggers
         private void listviewSenders_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             txtboxSenderName.Text = (string)listviewSenders.SelectedValue;
-            settings.TrustedSenderList.Remove(txtboxSenderName.Text);
+            _settings.TrustedSenderList.Remove(txtboxSenderName.Text);
         }
+        #endregion
     }
 }
