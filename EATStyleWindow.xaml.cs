@@ -576,8 +576,16 @@ namespace EQAudioTriggers
                 _triggermanager.Add(newtrigger);
                 treeview.LoadOnDemandCommand = newtrigger.TreeViewOnDemandCommand;
             }
+
+            //Test out sorting.
+            CollectionViewSource groupvs = new CollectionViewSource();
+            SortDescription desc = new SortDescription("Name", ListSortDirection.Ascending);
+            groupvs.IsLiveFilteringRequested = true;
+            groupvs.SortDescriptions.Add(desc);
+            groupvs.Source = _triggermanager;
+            treeview.ItemsSource = groupvs.View;
             //Assign trigger collection to tree view
-            treeview.ItemsSource = _triggermanager;
+            //treeview.ItemsSource = _triggermanager;
         }
         private void LoadSubGroup(TriggerManager triggermanager)
         {
