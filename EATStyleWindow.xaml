@@ -141,8 +141,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <syncfusion:DropDownButton SizeForm="Large" Label="{Binding Name}" LargeIcon="Images/Oxygen-Icons.org-Oxygen-Actions-document-new.ico">
-                                        <syncfusion:DropDownMenuItem Header="Edit"/>
-                                        <syncfusion:DropDownMenuItem Header="Delete"/>
+                                        <syncfusion:DropDownMenuItem Header="Edit" Click="DropDownMenuItemEdit_Click"/>
+                                        <syncfusion:DropDownMenuItem Header="Delete" Click="DropDownMenuItemDelete_Click"/>
                                     </syncfusion:DropDownButton>
                                 </Grid>
                             </WrapPanel>

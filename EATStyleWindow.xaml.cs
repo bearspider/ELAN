@@ -2175,5 +2175,22 @@ namespace EQAudioTriggers
         {
 
         }
+
+        private void DropDownMenuItemEdit_Click(object sender, RoutedEventArgs e)
+        {
+            OverlayTextEditor ote = new OverlayTextEditor(sender as OverlayText);
+            ote.SetTheme(_selectedtheme);
+            Boolean rval = (bool)ote.ShowDialog();
+            if (rval)
+            {
+                _overlaytext.Add(ote.Overlay);
+                SaveOverlayText();
+            }
+        }
+
+        private void DropDownMenuItemDelete_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

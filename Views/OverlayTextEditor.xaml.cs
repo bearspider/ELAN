@@ -32,6 +32,11 @@ namespace EQAudioTriggers.Views
             _overlaytext = new OverlayText();
             InitializeComponent();
         }
+        public OverlayTextEditor(OverlayText overlayText)
+        {
+            _overlaytext = overlayText;
+            this.DataContext = _overlaytext;
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         public void RaisedOnPropertyChanged(string _PropertyName)
         {
