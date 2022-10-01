@@ -17,6 +17,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace EQAudioTriggers.Views
 {
@@ -28,14 +29,25 @@ namespace EQAudioTriggers.Views
         private OverlayText _overlaytext;
         public OverlayText Overlay { get { return _overlaytext; } set { _overlaytext = value; RaisedOnPropertyChanged("OverlayText"); } }
         public OverlayTextEditor()
-        {
-            _overlaytext = new OverlayText();
+        {            
             InitializeComponent();
+            _overlaytext = new OverlayText();
         }
         public OverlayTextEditor(OverlayText overlayText)
         {
+            InitializeComponent();
             _overlaytext = overlayText;
-            this.DataContext = _overlaytext;
+            textDemo.Text = _overlaytext.Name;
+            this.Width = _overlaytext.WindowWidth;
+            this.Height = _overlaytext.WindowHeight;
+            this.Left = _overlaytext.WindowX;
+            this.Top = _overlaytext.WindowY;
+            SetBackground((Color)ColorConverter.ConvertFromString(_overlaytext.Faded));
+            comboFont.Text = _overlaytext.Font;
+            sliderSize.Value = _overlaytext.Size;
+            sliderDelay.Value = _overlaytext.Delay;
+            ClrPckerBg.Brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_overlaytext.BG));
+            ClrPckerFaded.Brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_overlaytext.Faded));            
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void RaisedOnPropertyChanged(string _PropertyName)

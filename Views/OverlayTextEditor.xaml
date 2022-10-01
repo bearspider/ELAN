@@ -48,7 +48,7 @@
                 <Label Name="labelBg" Content="Background:"/>
                 <syncfusion:ColorPicker HorizontalAlignment="Right" Name="ClrPckerBg" ColorChanged="ClrPckerBg_ColorChanged">
                     <syncfusion:ColorPicker.Color>
-                        <Color>GhostWhite</Color>
+                        <Color>Transparent</Color>
                     </syncfusion:ColorPicker.Color>
                 </syncfusion:ColorPicker>
             </Grid>

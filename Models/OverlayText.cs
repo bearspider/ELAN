@@ -31,7 +31,7 @@ namespace EQAudioTriggers.Models
             _fontcolor = "Black";
             _size = 20;
             _delay = 10;
-            _bg = "Blue";
+            _bg = "Transparent";
             _faded = "Transparent";
             _windowHeight = 450;
             _windowWidth = 800;
