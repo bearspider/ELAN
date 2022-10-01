@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 using EQAudioTriggers.Models;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using Syncfusion.SfSkinManager;
 using Syncfusion.Windows.Shared;
 
 namespace EQAudioTriggers.Views
@@ -31,6 +32,7 @@ namespace EQAudioTriggers.Views
         private String _origProfileName;
         private Character _character;
         private Character _backupcharacter;
+        public string EditorTheme;
 
         public CharacterEdit()
         {
@@ -53,6 +55,10 @@ namespace EQAudioTriggers.Views
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(_PropertyName));
             }
+        }
+        public void SetTheme(string theme)
+        {
+            SfSkinManager.SetTheme(this, new Theme(theme));
         }
 
         public Character Character { get { return _character; } set { _character = value; RaisedOnPropertyChanged("Character"); } }

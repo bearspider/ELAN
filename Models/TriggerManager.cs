@@ -193,9 +193,10 @@ namespace EQAudioTriggers.Models
                 ParentNode.ClimbTree(enable);
             }
         }
-        public void EditTriggerGroup()
+        public void EditTriggerGroup(string theme)
         {
             TriggerGroupEdit tge = new TriggerGroupEdit(this.TriggerGroup);
+            tge.SetTheme(theme);
             Boolean rval = (bool)tge.ShowDialog();
             if (rval)
             {
@@ -203,9 +204,10 @@ namespace EQAudioTriggers.Models
                 TriggerGroup = tge.ReturnTriggerGroup;
             }
         }
-        public TriggerManager AddTriggerGroup()
+        public TriggerManager AddTriggerGroup(string theme)
         {
             TriggerGroupEdit tge = new TriggerGroupEdit();
+            tge.SetTheme(theme);
             Boolean rval = (bool)tge.ShowDialog();
             if (rval)
             {
@@ -227,9 +229,10 @@ namespace EQAudioTriggers.Models
             }
             return null;
         }
-        public void CreateRootTriggerGroup()
+        public void CreateRootTriggerGroup(string theme)
         {
             TriggerGroupEdit tge = new TriggerGroupEdit();
+            tge.SetTheme(theme);
             Boolean rval = (bool)tge.ShowDialog();
             if (rval)
             {
@@ -259,9 +262,10 @@ namespace EQAudioTriggers.Models
                 //Update the parent node in the DB
             }
         }
-        public EQTrigger AddTrigger(ObservableCollection<CharacterCollection> Characters)
+        public EQTrigger AddTrigger(ObservableCollection<CharacterCollection> Characters, string theme)
         {
             TriggerEdit te = new TriggerEdit(Characters);
+            te.SetTheme(theme);
             Boolean rval = (bool)te.ShowDialog();
             if(rval)
             {
@@ -294,9 +298,10 @@ namespace EQAudioTriggers.Models
             }
             return null;
         }
-        public Boolean AddTrigger(ObservableCollection<CharacterCollection> Characters, EQTrigger copytrigger)
+        public Boolean AddTrigger(ObservableCollection<CharacterCollection> Characters, EQTrigger copytrigger, string theme)
         {
             TriggerEdit te = new TriggerEdit(copytrigger, Characters);
+            te.SetTheme(theme);
             Boolean rval = (bool)te.ShowDialog();
             if (rval)
             {
@@ -338,9 +343,10 @@ namespace EQAudioTriggers.Models
             ParentNode.SubGroups.Remove(this);
            
         }
-        public void EditTrigger(ObservableCollection<CharacterCollection> charcollection)
+        public void EditTrigger(ObservableCollection<CharacterCollection> charcollection, string theme)
         {
             TriggerEdit te = new TriggerEdit(this.Trigger, charcollection);
+            te.SetTheme(theme);
             Boolean rval = (bool)te.ShowDialog();
             if (rval)
             {

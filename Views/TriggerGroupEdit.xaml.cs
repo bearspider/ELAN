@@ -1,5 +1,6 @@
 ﻿using EQAudioTriggers.Models;
 using Newtonsoft.Json;
+using Syncfusion.SfSkinManager;
 using Syncfusion.Windows.Shared;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,10 @@ namespace EQAudioTriggers.Views
             InitializeComponent();
             _triggergroup = tgp;
             _tgeditor.DataContext = _triggergroup;
+        }
+        public void SetTheme(string theme)
+        {
+            SfSkinManager.SetTheme(this, new Theme(theme));
         }
 
         public TriggerGroupProperty TriggerGroup { 

@@ -18,6 +18,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Media;
 using System.Collections.ObjectModel;
+using Syncfusion.SfSkinManager;
 
 namespace EQAudioTriggers.Views
 {
@@ -48,6 +49,10 @@ namespace EQAudioTriggers.Views
     public partial class TriggerEdit : ChromelessWindow
     {
         private EQTrigger _eqtrigger;
+        public void SetTheme(string theme)
+        {
+            SfSkinManager.SetTheme(this, new Theme(theme));
+        }
         public TriggerEdit()
         {
             InitializeComponent();

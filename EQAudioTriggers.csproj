@@ -206,6 +206,7 @@
     <Compile Include="Models\EQTrigger.cs" />
     <Compile Include="Models\GINAGroup.cs" />
     <Compile Include="Models\GINATrigger.cs" />
+    <Compile Include="Models\OverlayText.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Models\TreeViewModel.cs" />
     <Compile Include="Models\TriggerGroupProperty.cs" />
@@ -213,6 +214,12 @@
     <Compile Include="Models\TriggerShareEnum.cs" />
     <Compile Include="Views\CharacterEdit.xaml.cs">
       <DependentUpon>CharacterEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OverlayTextEditor.xaml.cs">
+      <DependentUpon>OverlayTextEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OverlayTextWindow.xaml.cs">
+      <DependentUpon>OverlayTextWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TriggerEdit.xaml.cs">
       <DependentUpon>TriggerEdit.xaml</DependentUpon>
@@ -233,6 +240,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CharacterEdit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OverlayTextEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OverlayTextWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

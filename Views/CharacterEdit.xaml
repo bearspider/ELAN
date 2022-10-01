@@ -10,8 +10,7 @@
         Icon="\Images\Oxygen-Icons.org-Oxygen-Actions-user-properties.ico"
         CornerRadius="8"
         ResizeMode="NoResize"
-        skin:SfSkinManager.VisualStyle="Office2019Black"
-        Title="Character Editor" Height="570" Width="750">
+        Title="Character Editor" Height="570" Width="750" Name="_characterEditor">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="150" />
@@ -46,6 +45,7 @@
                 <Label Grid.Row="4" Grid.Column="0" x:Name="labelCharacter" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Character Name" />
                 <TextBox Grid.Row="4" Grid.Column="1" Name="textboxCharacter" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" MinWidth="380" Text="{Binding Name}"/>
                 <CheckBox Grid.Row="6" Grid.Column="1" Name="checkboxMonitor" Content="Monitor on Startup" HorizontalAlignment="Left" IsChecked="{Binding Monitor}"/>
+                <CheckBox Grid.Row="6" Grid.Column="2" Name="checkboxDefault" Content="Default Character" IsChecked="{Binding Default}"/>
             </Grid>
         </GroupBox>
         <GroupBox Grid.Row="1" x:Name="groupColors" Margin="5" Header="Colors" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

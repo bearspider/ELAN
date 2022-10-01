@@ -36,6 +36,8 @@ using Microsoft.Win32;
 using System.IO.Compression;
 using System.Xml;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Runtime.InteropServices;
+using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
 
 namespace EQAudioTriggers
 {
@@ -47,6 +49,8 @@ namespace EQAudioTriggers
         public static Regex eqRegex = new Regex(@"\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\](?<stringToMatch>.*)", RegexOptions.Compiled);
         public static Regex shareRegex = new Regex(@".*?\{HEAP:(?<GUID>.*?)\}", RegexOptions.Compiled);
         public static Regex eqspellRegex = new Regex(@"(\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\])\s((?<character>\w+)\sbegin\s(casting|singing)\s(?<spellname>.*)\.)|(\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\])\s(?<character>\w+)\s(begins\sto\s(cast|sing)\s.*\<(?<spellname>.*)\>)", RegexOptions.Compiled);
+        public static string zoneMatchString = "You have entered";
+        public static Regex zoneRegex = new Regex(@"(\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\])\s(You\shave\sentered\s)(?<zonename>.*)\.");
         public static string backupDB = $"{workingdirectory}\\Backup";
     }
     public enum ShareInvitation
@@ -234,8 +238,11 @@ namespace EQAudioTriggers
         //parse out the "You have entered {The Plane of Knowledge}" and ignore "you have entered something where levitation doesn't work
 
         private int _totallinecount = 0;
+        private string _currentzone = "None";
         private int _systemprocs = Environment.ProcessorCount;
+        private string _defaultcharacter = "";
         private ObservableCollection<CharacterCollection> _characters = new ObservableCollection<CharacterCollection>();
+        private ObservableCollection<string> _monitoringcharacters = new ObservableCollection<string>();
         private ObservableCollection<TriggerGroupProperty> _triggergroups = new ObservableCollection<TriggerGroupProperty>();
         private ActivatedTriggerCollection _activatedtriggers = new ActivatedTriggerCollection();
         private ActiveTriggerCollection _activetriggers = new ActiveTriggerCollection();
@@ -249,6 +256,8 @@ namespace EQAudioTriggers
         private ObservableCollection<EQTrigger> _modifiedtriggers = new ObservableCollection<EQTrigger>();
         private ParallelOptions _po = new ParallelOptions();
         private List<string> _availableThemes = new List<string>();
+        private string _selectedtheme = "FluentDark";
+        private ObservableCollection<OverlayText> _overlaytext = new ObservableCollection<OverlayText>();
 
         //System Tray Icons
         private System.Windows.Forms.NotifyIcon MyNotifyIcon;
@@ -271,11 +280,18 @@ namespace EQAudioTriggers
                     {
                         StartMonitor(profile.CharacterProfile);
                     }
+                    if(profile.CharacterProfile.Default)
+                    {
+                        _defaultcharacter = profile.CharacterProfile.Name;
+                        _listviewCharacters.SelectedItem = profile;
+                    }
                 }
             }
             DataContext = this;
             //set datacontext for status bar
             txtblockStatus.DataContext = _totallinecount;
+            txtblockZone.DataContext = _currentzone;
+            LoadOverlayText();
         }
         private void LoadThemes()
         {
@@ -351,9 +367,10 @@ namespace EQAudioTriggers
         private async void StartMonitor(Character character)
         {
             #region threading
-            await Task.Run(() =>
+            await System.Threading.Tasks.Task.Run(() =>
             {
                 Console.WriteLine($"Monitoring {character.Name}");
+                _monitoringcharacters.Add(character.Name);
                 using (FileStream filestream = File.Open(character.LogFile, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     character.LastLogPosition = filestream.Seek(0, SeekOrigin.End);
@@ -378,6 +395,18 @@ namespace EQAudioTriggers
                                 Console.WriteLine($"Total Lines: {capturedlines.Count<string>()}");
                                 UpdateLineCount(capturedlines.Count<String>());
                                 Boolean triggered = false;
+                                //Only do zone monitoring for the selected character
+                                if (character.Id == _selectedcharacter)
+                                {
+                                    if (capturedLine.Contains(GlobalVariables.zoneMatchString))
+                                    {
+                                        //Find out what zone we're in
+                                        Match zone = GlobalVariables.zoneRegex.Match(capturedLine);
+                                        string zonename = zone.Groups["zonename"].Value;
+                                        //update which zone we're in on statusbar
+                                        UpdateZoneName(zonename);
+                                    }
+                                }
                                 if (capturedLine.Contains("{ELAN:"))
                                 { }
                                 else
@@ -458,6 +487,7 @@ namespace EQAudioTriggers
                                 }
                             }
                         }
+                        _monitoringcharacters.Remove(character.Name);
                         Console.WriteLine("Stopped Monitoring");
                     }
                 }
@@ -683,10 +713,39 @@ namespace EQAudioTriggers
         private void CreateCharacter()
         {
             CharacterEdit chareditor = new CharacterEdit();
+            chareditor.SetTheme(_selectedtheme);
             Boolean rval = (bool)chareditor.ShowDialog();
             if (chareditor.ReturnChar != null)
             {
                 _characters.Add(new CharacterCollection { Name = chareditor.ReturnChar.Name, CharacterProfile = chareditor.ReturnChar });
+                //If monitor at startup is checked, make sure that Monitoring is also checked
+                if(chareditor.ReturnChar.Monitor)
+                {
+                    chareditor.ReturnChar.Monitoring = true;
+                    StartMonitor(chareditor.ReturnChar);
+                }
+                else
+                {
+                    chareditor.ReturnChar.Monitoring = false;
+                }
+                //If we don't have any characters, set this one as the default
+                if(_characters.Count == 0)
+                {
+                    chareditor.ReturnChar.Default = true;
+                }
+                //We need to make sure that there is only one default character
+                if(chareditor.ReturnChar.Default)
+                {
+                    _defaultcharacter = chareditor.ReturnChar.Name;
+                    foreach (CharacterCollection cc in _characters)
+                    {
+                        if (cc.CharacterProfile.Default && cc.CharacterProfile.Name != _defaultcharacter)
+                        {
+                            cc.CharacterProfile.Default = false;
+                        }
+                    }
+                }
+
                 WriteCharacters();
             }
         }
@@ -694,8 +753,36 @@ namespace EQAudioTriggers
         {
             try
             {
-                character.CharacterProfile.EditCharacter();
+                CharacterEdit chareditor = new CharacterEdit(character.CharacterProfile);
+                chareditor.SetTheme(_selectedtheme);
+                Boolean rval = (Boolean)chareditor.ShowDialog();
+                //Update the collection name if it changed
                 character.Name = character.CharacterProfile.Name;
+                //If monitor at startup is checked, make sure that Monitoring is also checked
+                if (character.CharacterProfile.Monitor)
+                {
+                    if(!_monitoringcharacters.Contains(character.CharacterProfile.Name))
+                    {
+                        StartMonitor(character.CharacterProfile);
+                    }
+                    character.CharacterProfile.Monitoring = true;
+                }
+                else
+                {
+                    character.CharacterProfile.Monitoring = false;
+                }
+                //We need to make sure that there is only one default character
+                if (character.CharacterProfile.Default)
+                {
+                    _defaultcharacter = character.CharacterProfile.Name;
+                    foreach (CharacterCollection cc in _characters)
+                    {
+                        if (cc.CharacterProfile.Default && cc.CharacterProfile.Name != _defaultcharacter)
+                        {
+                            cc.CharacterProfile.Default = false;
+                        }
+                    }
+                }
                 WriteCharacters();
             }
             catch (Exception ex)
@@ -705,6 +792,8 @@ namespace EQAudioTriggers
         }
         private void DeleteCharacter(CharacterCollection character)
         {
+            //If we're monitoring the character, stop the monitoring before we delete it
+            character.CharacterProfile.Monitoring = false;
             _characters.Remove(character);
             WriteCharacters();
             PurgeFromTriggers(character.CharacterProfile.Id);
@@ -730,6 +819,15 @@ namespace EQAudioTriggers
             }), value);
             stopwatch.Stop();
             Console.WriteLine($"Line Update Took: {stopwatch.Elapsed.TotalSeconds} Seconds");
+        }
+
+        private void UpdateZoneName(string zonename)
+        {
+            _syncontext.Post(new SendOrPostCallback(o =>
+            {
+                _currentzone = (string)o;
+                txtblockZone.DataContext = _currentzone;
+            }), zonename);
         }
         #endregion
 
@@ -1206,7 +1304,7 @@ namespace EQAudioTriggers
             if (selecteditem == null || selecteditem.IsRootNode)
             {
                 TriggerManager newtrigger = new TriggerManager { NodeType = "group", Icon = GlobalVariables.foldericon, IsRootNode = true };
-                newtrigger.CreateRootTriggerGroup();
+                newtrigger.CreateRootTriggerGroup(_selectedtheme);
                 _triggermanager.Add(newtrigger);
                 //resort collection
                 _triggermanager = new ObservableCollection<TriggerManager>(_triggermanager.OrderBy(i => i.Name));
@@ -1215,7 +1313,7 @@ namespace EQAudioTriggers
             }
             else
             {
-                TriggerManager newmanager = selecteditem.ParentNode.AddTriggerGroup();
+                TriggerManager newmanager = selecteditem.ParentNode.AddTriggerGroup(_selectedtheme);
                 if (newmanager != null)
                 {
                     _triggergroups.Add(newmanager.TriggerGroup);
@@ -1226,7 +1324,7 @@ namespace EQAudioTriggers
         }
         private void AddToSelected_Click(object sender, RoutedEventArgs e)
         {
-            TriggerManager newmanager = ((TriggerManager)treeview.SelectedItem).AddTriggerGroup();
+            TriggerManager newmanager = ((TriggerManager)treeview.SelectedItem).AddTriggerGroup(_selectedtheme);
             if (newmanager != null)
             {
                 _triggergroups.Add(newmanager.TriggerGroup);
@@ -1244,7 +1342,7 @@ namespace EQAudioTriggers
         }
         private void EditTriggerGroup(TriggerManager tm)
         {
-            tm.EditTriggerGroup();
+            tm.EditTriggerGroup(_selectedtheme);
             WriteTriggerGroups();
         }
         private void RemoveTriggerGroup(TriggerManager tm)
@@ -1282,7 +1380,7 @@ namespace EQAudioTriggers
         #region Trigger Clicks
         private void addTrigger_Click(object sender, RoutedEventArgs e)
         {
-            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters);
+            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters,_selectedtheme);
             if (newtrigger != null)
             {
                 _triggermasterlist.Add(newtrigger);
@@ -1292,7 +1390,7 @@ namespace EQAudioTriggers
         }
         private void editTrigger_Click(object sender, RoutedEventArgs e)
         {
-            ((TriggerManager)treeview.SelectedItem).EditTrigger(_characters);
+            ((TriggerManager)treeview.SelectedItem).EditTrigger(_characters,_selectedtheme);
             WriteTriggers();
             WriteTriggerGroups();
         }
@@ -1865,13 +1963,17 @@ namespace EQAudioTriggers
         {
 
         }
+        private void comboVisualStyle_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _selectedtheme = (string)comboVisualStyle.SelectedValue;
+        }
         #endregion
 
         #region Context Menus
 
         private void ContextMenuGroupAdd_Click(object sender, RoutedEventArgs e)
         {
-            TriggerManager newmanager = ((TriggerManager)treeview.SelectedItem).AddTriggerGroup();
+            TriggerManager newmanager = ((TriggerManager)treeview.SelectedItem).AddTriggerGroup(_selectedtheme);
             if (newmanager != null)
             {
                 _triggergroups.Add(newmanager.TriggerGroup);
@@ -1905,7 +2007,7 @@ namespace EQAudioTriggers
 
         private void ContextMenuTriggerAdd_Click(object sender, RoutedEventArgs e)
         {
-            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters);
+            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters,_selectedtheme);
             if (newtrigger != null)
             {
                 _triggermasterlist.Add(newtrigger);
@@ -1916,7 +2018,7 @@ namespace EQAudioTriggers
 
         private void ContextMenuTriggerEdit_Click(object sender, RoutedEventArgs e)
         {
-            ((TriggerManager)treeview.SelectedItem).EditTrigger(_characters);
+            ((TriggerManager)treeview.SelectedItem).EditTrigger(_characters,_selectedtheme);
             WriteTriggers();
             WriteTriggerGroups();
         }
@@ -1961,7 +2063,7 @@ namespace EQAudioTriggers
             //Add the trigger to the parent node
             EQTrigger newtrigger = new EQTrigger(selecteditem.Trigger);
             newtrigger.Name += "-Copy";
-            Boolean added = parentnode.AddTrigger(_characters, newtrigger);
+            Boolean added = parentnode.AddTrigger(_characters, newtrigger,_selectedtheme);
             if (added)
             {
                 _triggermasterlist.Add(newtrigger);
@@ -2034,6 +2136,44 @@ namespace EQAudioTriggers
             _settings.TrustedSenderList.Remove(txtboxSenderName.Text);
         }
         #endregion
+        #region Overlays
+        private void buttonOverlayText_Click(object sender, RoutedEventArgs e)
+        {
+            OverlayTextEditor ote = new OverlayTextEditor();
+            ote.SetTheme(_selectedtheme);
+            Boolean rval = (bool)ote.ShowDialog();
+            if(rval)
+            {
+                _overlaytext.Add(ote.Overlay);
+                SaveOverlayText();
+            }
+        }
+        private void LoadOverlayText()
+        {            
+            //Load overlaytext.json
+            if (File.Exists($"{GlobalVariables.workingdirectory}\\overlaytext.json"))
+            {
+                using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\overlaytext.json"))
+                {
+                    string json = r.ReadToEnd();
+                    _overlaytext = JsonConvert.DeserializeObject<ObservableCollection<OverlayText>>(json);
+                }
+                
+            }
+            ribbonOverlays.ItemsSource = _overlaytext;
+        }
+        private void SaveOverlayText()
+        {
+            using (StreamWriter file = File.CreateText($"{GlobalVariables.workingdirectory}\\overlaytext.json"))
+            {
+                file.Write(JsonConvert.SerializeObject(_overlaytext, Newtonsoft.Json.Formatting.Indented));
+            }
+        }
+        #endregion
 
+        private void buttonOverlayTimer_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

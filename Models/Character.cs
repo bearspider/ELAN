@@ -27,6 +27,7 @@ namespace EQAudioTriggers.Models
         private long _lastlogposition;
         private Boolean _monitoring;
         private string _id;
+        private Boolean _default;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -49,6 +50,7 @@ namespace EQAudioTriggers.Models
             _synth.SelectVoice(_audiovoice);
             _lastlogposition = 0;
             _monitoring = _monitor;
+            _default = false;
             _id = Guid.NewGuid().ToString();
         }
 
@@ -71,10 +73,12 @@ namespace EQAudioTriggers.Models
             _synth.SelectVoice(newchar.AudioVoice);
             _lastlogposition = newchar.LastLogPosition;
             _monitoring = newchar.Monitoring;
+            _default = newchar.Default;
             _id = newchar.Id;
         }
 
         public string Id { get { return _id; } set { _id = value; NotifyPropertyChanged("Id"); } }
+        public Boolean Default { get { return _default; } set { _default = value; NotifyPropertyChanged("Default"); } }
         public Boolean Monitoring { get { return _monitoring; } set { _monitoring = value; NotifyPropertyChanged("Monitoring"); } }
         public long LastLogPosition { get { return _lastlogposition; } set { _lastlogposition = value; NotifyPropertyChanged("LastLogPostion"); } }
         public string Name { get { return _name; } set { _name = value; NotifyPropertyChanged("Name"); } }
@@ -119,6 +123,7 @@ namespace EQAudioTriggers.Models
                 _synth.Volume = AudioVolume;
                 _synth.SelectVoice(AudioVoice);
                 LastLogPosition = newchar.LastLogPosition;
+                Default = newchar.Default;
                 Monitoring = newchar.Monitoring;
             }
         }

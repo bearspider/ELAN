@@ -33,6 +33,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
@@ -42,17 +43,20 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <TextBlock Margin="5,0,0,0" Grid.Row="0" Grid.Column="0" Text="Selected Profile: " VerticalAlignment="Center" />
                         <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtblockProfile" />
-
+                        <TextBlock Margin="10,0,0,0" Grid.Row="0" Grid.Column="2" Text="Current Zone: " VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" x:Name="txtblockZone" Text="{Binding Path=., StringFormat=\{0\}}" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
-                <StackPanel Margin="0,5,10,0" Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Grid.Row="0" Grid.Column="0" x:Name="txtblockStatus" Text="{Binding Path=., StringFormat=\{0\}}" VerticalAlignment="Center" />
+                <StackPanel Margin="0,5,10,0" Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Grid.Row="0" Grid.Column="0" x:Name="txtblockStatus" Text="{Binding Path=., StringFormat=\{0\}}" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="0" Grid.Column="1" Text=" Lines Processed" VerticalAlignment="Center"/>
                 </StackPanel>
             </Grid>
@@ -119,8 +123,53 @@
                 </syncfusion:RibbonBar>
             </syncfusion:RibbonTab>
             <syncfusion:RibbonTab Caption="Overlays">
-                <syncfusion:RibbonBar x:Name="Overlays" Header="Overlays">
-
+                <syncfusion:RibbonBar x:Name="ribbonOverlayAdd" Header="Add Overlays">
+                    <syncfusion:RibbonButton Name="buttonOverlayText" Label="Add Text Overlay" IconType="Icon" SizeForm="Large" LargeIcon="Images/Oxygen-Icons.org-Oxygen-Actions-document-new.ico" Click="buttonOverlayText_Click"/>
+                    <syncfusion:RibbonButton Name="buttonOverlayTimer" Label="Add Timer Overlay" IconType="Icon" SizeForm="Large" LargeIcon="Images/Google-Noto-Emoji-Travel-Places-42608-stopwatch.ico" Click="buttonOverlayTimer_Click"/>
+                </syncfusion:RibbonBar>
+                <syncfusion:RibbonBar x:Name="ribbonOverlays" Header="Text Overlays">                    
+                    <syncfusion:RibbonBar.ItemTemplate>
+                        <DataTemplate>
+                            <WrapPanel>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <syncfusion:DropDownButton SizeForm="Large" Label="{Binding Name}" LargeIcon="Images/Oxygen-Icons.org-Oxygen-Actions-document-new.ico">
+                                        <syncfusion:DropDownMenuItem Header="Edit"/>
+                                        <syncfusion:DropDownMenuItem Header="Delete"/>
+                                    </syncfusion:DropDownButton>
+                                </Grid>
+                            </WrapPanel>
+                        </DataTemplate>
+                    </syncfusion:RibbonBar.ItemTemplate>
+                </syncfusion:RibbonBar>
+                <syncfusion:RibbonBar x:Name="ribbonOverlayTimers" Header="Timer Overlays">
+                    <syncfusion:RibbonBar.ItemTemplate>
+                        <DataTemplate>
+                            <WrapPanel>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <syncfusion:DropDownButton SizeForm="Large" Label="{Binding Name}" LargeIcon="Images/Google-Noto-Emoji-Travel-Places-42608-stopwatch.ico">
+                                        <syncfusion:DropDownMenuItem Header="Edit"/>
+                                        <syncfusion:DropDownMenuItem Header="Delete"/>
+                                    </syncfusion:DropDownButton>
+                                </Grid>
+                            </WrapPanel>
+                        </DataTemplate>
+                    </syncfusion:RibbonBar.ItemTemplate>
                 </syncfusion:RibbonBar>
             </syncfusion:RibbonTab>
             <syncfusion:Ribbon.BackStage>
@@ -176,7 +225,7 @@
                                 <Label Grid.Row="12" Grid.Column="0" Content="Maximum Log Entries"/>
                                 <syncfusion:RibbonTextBox Grid.Row="12" Grid.Column="1" Name="textboxMaxLogEntries" Text="{Binding Path=MaxLogEntry}"/>
                                 <Label Grid.Row="13" Grid.Column="0" Content="Theme"/>
-                                <syncfusion:RibbonComboBox Grid.Row="13" Grid.Column="1" Name="comboVisualStyle" ItemsSource="{Binding }" SelectedValue="{Binding Theme}"/>
+                                <syncfusion:RibbonComboBox Grid.Row="13" Grid.Column="1" Name="comboVisualStyle" ItemsSource="{Binding }" SelectedValue="{Binding Theme}" SelectionChanged="comboVisualStyle_SelectionChanged"/>
                                 <syncfusion:RibbonButton Margin="5,5,0,0" Grid.Row="14" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonGeneralSave" Click="buttonGeneralSave_Click"/>
                             </Grid>
                         </StackPanel>
