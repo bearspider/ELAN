@@ -10,9 +10,7 @@
         mc:Ignorable="d"
         Icon="\Images\Oxygen-Icons.org-Oxygen-Actions-user-properties.ico"
         CornerRadius="8"
-        ResizeMode="NoResize"
-        skin:SfSkinManager.VisualStyle="Office2019Black"
-        Title="OverlayTextEditor" Height="450" Width="800" MouseDown="ChromelessWindow_MouseDown">
+        Title="OverlayTextEditor" Height="{Binding Overlay.WindowHeight, Mode=TwoWay}" Width="{Binding Overlay.WindowWidth, Mode=TwoWay}" Left="{Binding Overlay.WindowX, Mode=TwoWay}" Top="{Binding Overlay.WindowY, Mode=TwoWay}" MouseDown="ChromelessWindow_MouseDown">
     <syncfusion:ChromelessWindow.Resources>
         <CollectionViewSource x:Key="SortedFontsCollection" Source="{Binding Source={x:Static Fonts.SystemFontFamilies}}">
             <CollectionViewSource.SortDescriptions>
@@ -24,44 +22,36 @@
         <StackPanel HorizontalAlignment="Left" Height="180" Margin="0,239,0,0" VerticalAlignment="Top" Width="302">
             <Grid>
                 <Label Name="labelFont" Content="Font:"/>
-                <ComboBox ItemsSource="{Binding Source={StaticResource SortedFontsCollection}}" HorizontalAlignment="Right" x:Name="comboFont" >
-                    <ComboBox.SelectedValue>
-                        <FontFamily>Segoe UI</FontFamily>
-                    </ComboBox.SelectedValue>
-                </ComboBox>
+                <ComboBox ItemsSource="{Binding Source={StaticResource SortedFontsCollection}}" HorizontalAlignment="Right" x:Name="comboFont" Text="{Binding Overlay.Font, Mode=TwoWay}"/>
+            </Grid>
+            <Grid>
+                <Label Content="Font Color:"/>
+                <syncfusion:ColorPicker HorizontalAlignment="Right" Name="clrPckerFont" ColorChanged="clrPckerFont_ColorChanged" Color="{Binding Overlay.FontColor, Mode=TwoWay}"/>
             </Grid>
             <Grid>
                 <Label Name="labelSize" Content="Size:"/>
             </Grid>
             <Grid>
-                <Slider HorizontalAlignment="Left" Name="sliderSize" Maximum="200" Minimum="1" Value="18" TickFrequency="1" IsSnapToTickEnabled="True" Width="250"/>
+                <Slider HorizontalAlignment="Left" Name="sliderSize" Maximum="200" Minimum="1" Value="{Binding Overlay.Size, Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True" Width="250"/>
                 <TextBox HorizontalAlignment="Right" Text="{Binding ElementName=sliderSize, Path=Value, UpdateSourceTrigger=PropertyChanged}" Width="40"/>
             </Grid>
             <Grid>
                 <Label Name="labelDelay" Content="Fade Delay:"/>
             </Grid>
             <Grid>
-                <Slider HorizontalAlignment="Left" Name="sliderDelay" Maximum="120" Minimum="1" Value="10" TickFrequency="1" IsSnapToTickEnabled="True" Width="250"/>
+                <Slider HorizontalAlignment="Left" Name="sliderDelay" Maximum="120" Minimum="1" Value="{Binding Overlay.Delay, Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True" Width="250"/>
                 <TextBox HorizontalAlignment="Right" Text="{Binding ElementName=sliderDelay, Path=Value, UpdateSourceTrigger=PropertyChanged}" Width="40"/>
             </Grid>
             <Grid>
                 <Label Name="labelBg" Content="Background:"/>
-                <syncfusion:ColorPicker HorizontalAlignment="Right" Name="ClrPckerBg" ColorChanged="ClrPckerBg_ColorChanged">
-                    <syncfusion:ColorPicker.Color>
-                        <Color>Transparent</Color>
-                    </syncfusion:ColorPicker.Color>
-                </syncfusion:ColorPicker>
+                <syncfusion:ColorPicker HorizontalAlignment="Right" Name="ClrPckerBg" ColorChanged="ClrPckerBg_ColorChanged" Color="{Binding Overlay.BG, Mode=TwoWay}"/>
             </Grid>
             <Grid>
                 <Label Name="labelFaded" Content="Faded Background:"/>
-                <syncfusion:ColorPicker HorizontalAlignment="Right" Name="ClrPckerFaded" ColorChanged="ClrPckerFaded_ColorChanged">
-                    <syncfusion:ColorPicker.Color>
-                        <Color>Transparent</Color>
-                    </syncfusion:ColorPicker.Color>
-                </syncfusion:ColorPicker>
+                <syncfusion:ColorPicker HorizontalAlignment="Right" Name="ClrPckerFaded" ColorChanged="ClrPckerFaded_ColorChanged" Color="{Binding Overlay.Faded, Mode=TwoWay}"/>
             </Grid>
         </StackPanel>
-        <TextBox x:Name="textDemo" FontSize="{Binding ElementName=sliderSize, Path=Value}" FontFamily="{Binding ElementName=comboFont, Path=SelectedItem}" HorizontalAlignment="Left"  Margin="313,126,0,0" TextWrapping="Wrap" Text="Default" VerticalAlignment="Top"/>
+        <TextBox x:Name="textDemo" FontSize="{Binding ElementName=sliderSize, Path=Value}" FontFamily="{Binding ElementName=comboFont, Path=SelectedItem}" HorizontalAlignment="Left"  Margin="313,126,0,0" TextWrapping="Wrap" Text="{Binding Overlay.Name, Mode=TwoWay}" Foreground="{Binding ElementName=clrPckerFont, Path=Color}" VerticalAlignment="Top"/>
         <Button Content="Save Text Overlay" Name="buttonSave" HorizontalAlignment="Left" Height="40" Margin="690,10,0,0" VerticalAlignment="Top" Width="100" Click="buttonSave_Click"/>
     </Grid>
 </syncfusion:ChromelessWindow>

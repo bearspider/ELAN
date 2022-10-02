@@ -6,10 +6,11 @@
         xmlns:local="clr-namespace:EQAudioTriggers.Views" 
         xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         mc:Ignorable="d"
-        Title="OverlayTimers" Name="overlays" Height="450" Width="800" AllowsTransparency="True" WindowStyle="None" Topmost="True">
+        Title="OverlayTimers" Name="overlays" Height="{Binding windowproperties.WindowHeight}" Width="{Binding windowproperties.WindowWidth}" Top="{Binding windowproperties.WindowY}" Left="{Binding windowproperties.WindowX}" Background="{Binding windowproperties.Faded}" AllowsTransparency="True" WindowStyle="None" Topmost="True">
     <Window.Resources>
         <ResourceDictionary>
             <local:TimeConverter x:Key="converter" />
+            <local:FontColorConverter x:Key="fontcolorconverter" />
             <CollectionViewSource x:Name="timerSource" x:Key='src' Source="{Binding Path=TimerBars, ElementName=overlays}">
                 <CollectionViewSource.SortDescriptions>
                     <componentModel:SortDescription PropertyName="TimerDuration"/>
@@ -29,7 +30,7 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <ProgressBar Foreground="{Binding Barcolor}" Width="500" HorizontalContentAlignment="Stretch" Name="pb"  Value="{Binding Progress.Value}" Minimum="{Binding Minimum}" Maximum="{Binding Maximum}"/>
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding ElementName=pb, Path=Value, Converter={StaticResource converter}}" FontSize="30" Foreground="{Binding Textcolor}"/>
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding ElementName=pb, Path=Value, Converter={StaticResource converter}}" FontSize="{Binding windowproperties.Size}" Foreground="{Binding Textcolor}"/>
                         <TextBlock Text="{Binding TimerDescription}" FontSize="30" Foreground="{Binding Textcolor}" HorizontalAlignment="Left"/>
                     </Grid>
                 </WrapPanel>

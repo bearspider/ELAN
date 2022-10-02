@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -28,6 +29,18 @@ namespace EQAudioTriggers.Views
         {
             TimeSpan t = TimeSpan.FromSeconds(System.Convert.ToInt32(value.ToString()));
             return t.ToString();
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class FontColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            System.Drawing.Color newcolor = ColorTranslator.FromHtml(value.ToString());
+            return newcolor;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -64,7 +77,7 @@ namespace EQAudioTriggers.Views
         {
             InitializeComponent();
             var listener = OcPropertyChangedListener.Create(timers);
-            SetProperties(windowproperties);
+            DataContext = this;
         }
         public OverlayTimerWindow(OverlayTimer overlay)
         {
@@ -72,23 +85,6 @@ namespace EQAudioTriggers.Views
             windowproperties = overlay;
             var listener = OcPropertyChangedListener.Create(timers);
             DataContext = this;
-            SetProperties(windowproperties);
-        }
-        public void SetProperties(OverlayTimer overlay)
-        {
-            windowproperties = overlay;
-            Name = overlay.Name;
-            this.Left = windowproperties.WindowX;
-            this.Top = windowproperties.WindowY;
-            this.Height = windowproperties.WindowHeight;
-            this.Width = windowproperties.WindowWidth;
-            SetBackground(windowproperties.Faded);
-        }
-        private void SetBackground(String bgcolor)
-        {
-            var windowcolor = ColorConverter.ConvertFromString(bgcolor);
-            Brush brush = new SolidColorBrush((Color)windowcolor);
-            this.Background = brush;
         }
         public void AddTimer(EQTrigger firedtrigger, Boolean type, String character, Category triggeredcategory)
         {
