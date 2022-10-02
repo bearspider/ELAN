@@ -38,6 +38,7 @@ using System.Xml;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Runtime.InteropServices;
 using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
+using Microsoft.SqlServer.Server;
 
 namespace EQAudioTriggers
 {
@@ -105,7 +106,7 @@ namespace EQAudioTriggers
             {
                 return Brushes.LimeGreen;
             }
-            else if(monitored == null)
+            else if (monitored == null)
             {
                 return Brushes.Fuchsia;
             }
@@ -211,7 +212,7 @@ namespace EQAudioTriggers
     public class RadioButtonCheckedConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {   
+        {
             if (value == null)
             {
                 return false;
@@ -258,6 +259,8 @@ namespace EQAudioTriggers
         private List<string> _availableThemes = new List<string>();
         private string _selectedtheme = "FluentDark";
         private ObservableCollection<OverlayText> _overlaytext = new ObservableCollection<OverlayText>();
+        private ObservableCollection<OverlayTextWindow> _overlaytextwindows = new ObservableCollection<OverlayTextWindow>();
+        private ObservableCollection<Category> _categories = new ObservableCollection<Category>();
 
         //System Tray Icons
         private System.Windows.Forms.NotifyIcon MyNotifyIcon;
@@ -274,13 +277,13 @@ namespace EQAudioTriggers
             ActivateLog();
             if (_characters.Count > 0)
             {
-                foreach(CharacterCollection profile in _characters)
+                foreach (CharacterCollection profile in _characters)
                 {
-                    if(profile.CharacterProfile.Monitor)
+                    if (profile.CharacterProfile.Monitor)
                     {
                         StartMonitor(profile.CharacterProfile);
                     }
-                    if(profile.CharacterProfile.Default)
+                    if (profile.CharacterProfile.Default)
                     {
                         _defaultcharacter = profile.CharacterProfile.Name;
                         _listviewCharacters.SelectedItem = profile;
@@ -317,7 +320,7 @@ namespace EQAudioTriggers
 
             //Backup all of the json files
             //Else, this is a new instance.  Set the log maintenance start as today.
-            if(!Directory.Exists(GlobalVariables.workingdirectory))
+            if (!Directory.Exists(GlobalVariables.workingdirectory))
             {
                 Directory.CreateDirectory(GlobalVariables.workingdirectory);
                 Properties.Settings.Default.LastLogMaintenance = DateTime.Now;
@@ -330,7 +333,7 @@ namespace EQAudioTriggers
                     Directory.CreateDirectory(GlobalVariables.backupDB);
                 }
                 string[] files = System.IO.Directory.GetFiles(GlobalVariables.workingdirectory, "*.json");
-                foreach(string file in files)
+                foreach (string file in files)
                 {
                     FileInfo fi = new FileInfo(file);
                     File.Copy(file, $"{GlobalVariables.workingdirectory}\\Backup\\{fi.Name}", true);
@@ -411,6 +414,8 @@ namespace EQAudioTriggers
                                 { }
                                 else
                                 {
+                                    Stopwatch triggersearch = new Stopwatch();
+                                    triggersearch.Start();
                                     Parallel.ForEach(_activetriggers.Collection, _po, (EQTrigger doc, ParallelLoopState state) =>
                                     {
                                         //Do regex match if enabled otherwise string.contains
@@ -472,11 +477,26 @@ namespace EQAudioTriggers
                                             };
                                             _activatedtriggers.Collection.Add(activatedTrigger);
 
-                                            Stopwatch firetrigger = new Stopwatch();
-                                            firetrigger.Start();
+                                            //Stopwatch firetrigger = new Stopwatch();
+                                            //firetrigger.Start();
                                             //FireTrigger(doc, character, newstring);
-                                            firetrigger.Stop();
+                                            //firetrigger.Stop();
+                                            if (doc.RadioBasicTTS && _settings.EnableSound == "true")
+                                            { character.Speak(doc.BasicTTS); }
 
+                                            //Check if there is a text overlay
+                                            if (doc.UseBasicText)
+                                            {
+                                                ////Get Category Object for this trigger
+                                                //Category category = _categories.Where<Category>(x => x.Name == doc.Category).FirstOrDefault();
+                                                ////Find which overlay text window to publish on
+                                                //OverlayTextWindow otw = _overlaytextwindows.Where<OverlayTextWindow>(x => x.Name == category.TextOverlay).FirstOrDefault();
+                                                ////Create new overlay item
+                                                //OverlayTextItem oti = new OverlayTextItem(doc, otw);
+                                                ////push overlay to text collection
+                                                //otw.Items.Add(oti);
+
+                                            }
                                             //Global Option for stopping on a first match
                                             //if (stopfirstmatch)
                                             //{
@@ -484,6 +504,8 @@ namespace EQAudioTriggers
                                             //}
                                         }
                                     });
+                                    triggersearch.Stop();
+                                    Console.WriteLine($"Took {triggersearch.Elapsed.TotalSeconds} seconds to process triggers.");
                                 }
                             }
                         }
@@ -514,7 +536,7 @@ namespace EQAudioTriggers
         private void SetCores(int percentage)
         {
             int totalcores = Convert.ToInt32(Math.Floor(_systemprocs * (percentage / 100.0)));
-            if(totalcores < 1)
+            if (totalcores < 1)
             {
                 totalcores = 1;
             }
@@ -569,8 +591,10 @@ namespace EQAudioTriggers
                 string json = r.ReadToEnd();
                 _triggergroups = JsonConvert.DeserializeObject<ObservableCollection<TriggerGroupProperty>>(json);
             }
+            //initialize active trigger list
+            _activetriggers.Refactor(_triggermasterlist);
             //Build Tree
-            foreach(TriggerGroupProperty group in _triggergroups.Where(x => String.IsNullOrEmpty(x.ParentId)))
+            foreach (TriggerGroupProperty group in _triggergroups.Where(x => String.IsNullOrEmpty(x.ParentId)))
             {
                 TriggerManager newtrigger = new TriggerManager
                 {
@@ -582,13 +606,13 @@ namespace EQAudioTriggers
                     IsActive = false,
                     TriggerGroup = group
                 };
-                if(group.SubGroups.Count > 0)
+                if (group.SubGroups.Count > 0)
                 {
                     LoadSubGroup(newtrigger);
                 }
-                if(group.Triggers.Count > 0)
+                if (group.Triggers.Count > 0)
                 {
-                    foreach(string triggerid in group.Triggers)
+                    foreach (string triggerid in group.Triggers)
                     {
                         EQTrigger eqtrigger = FindTrigger(triggerid);
                         TriggerManager newmanager = new TriggerManager
@@ -602,7 +626,7 @@ namespace EQAudioTriggers
                         };
                         newtrigger.SubGroups.Add(newmanager);
                     }
-                } 
+                }
                 _triggermanager.Add(newtrigger);
                 treeview.LoadOnDemandCommand = newtrigger.TreeViewOnDemandCommand;
             }
@@ -614,6 +638,7 @@ namespace EQAudioTriggers
             groupvs.SortDescriptions.Add(desc);
             groupvs.Source = _triggermanager;
             treeview.ItemsSource = groupvs.View;
+
             //Assign trigger collection to tree view
             //treeview.ItemsSource = _triggermanager;
         }
@@ -689,9 +714,9 @@ namespace EQAudioTriggers
         }
         private EQTrigger FindTrigger(string id)
         {
-            foreach(EQTrigger eqtrigger in _triggermasterlist)
+            foreach (EQTrigger eqtrigger in _triggermasterlist)
             {
-                if(eqtrigger.Id == id)
+                if (eqtrigger.Id == id)
                 {
                     return eqtrigger;
                 }
@@ -700,9 +725,9 @@ namespace EQAudioTriggers
         }
         private TriggerGroupProperty FindGroup(string id)
         {
-            foreach(TriggerGroupProperty tgp in _triggergroups)
+            foreach (TriggerGroupProperty tgp in _triggergroups)
             {
-                if(tgp.Id == id)
+                if (tgp.Id == id)
                 {
                     return tgp;
                 }
@@ -719,7 +744,7 @@ namespace EQAudioTriggers
             {
                 _characters.Add(new CharacterCollection { Name = chareditor.ReturnChar.Name, CharacterProfile = chareditor.ReturnChar });
                 //If monitor at startup is checked, make sure that Monitoring is also checked
-                if(chareditor.ReturnChar.Monitor)
+                if (chareditor.ReturnChar.Monitor)
                 {
                     chareditor.ReturnChar.Monitoring = true;
                     StartMonitor(chareditor.ReturnChar);
@@ -729,12 +754,12 @@ namespace EQAudioTriggers
                     chareditor.ReturnChar.Monitoring = false;
                 }
                 //If we don't have any characters, set this one as the default
-                if(_characters.Count == 0)
+                if (_characters.Count == 0)
                 {
                     chareditor.ReturnChar.Default = true;
                 }
                 //We need to make sure that there is only one default character
-                if(chareditor.ReturnChar.Default)
+                if (chareditor.ReturnChar.Default)
                 {
                     _defaultcharacter = chareditor.ReturnChar.Name;
                     foreach (CharacterCollection cc in _characters)
@@ -761,7 +786,7 @@ namespace EQAudioTriggers
                 //If monitor at startup is checked, make sure that Monitoring is also checked
                 if (character.CharacterProfile.Monitor)
                 {
-                    if(!_monitoringcharacters.Contains(character.CharacterProfile.Name))
+                    if (!_monitoringcharacters.Contains(character.CharacterProfile.Name))
                     {
                         StartMonitor(character.CharacterProfile);
                     }
@@ -828,6 +853,10 @@ namespace EQAudioTriggers
                 _currentzone = (string)o;
                 txtblockZone.DataContext = _currentzone;
             }), zonename);
+        }
+        private void MainRibbon_Closing(object sender, CancelEventArgs e)
+        {
+            Environment.Exit(Environment.ExitCode);
         }
         #endregion
 
@@ -1024,7 +1053,7 @@ namespace EQAudioTriggers
             Console.WriteLine("TreeView Item Dropped");
             //Folder where our item is going
             if (e.TargetNode != null)
-            {                
+            {
                 TriggerManager desttm = (TriggerManager)e.TargetNode.Content;
                 MessageBoxResult confirmdrop = Xceed.Wpf.Toolkit.MessageBox.Show($"Import Triggers on Group: {desttm.Name}", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (confirmdrop == MessageBoxResult.Yes)
@@ -1058,7 +1087,7 @@ namespace EQAudioTriggers
                         //if a group, delete id out of parent sub group
                         // add group id to new sub group
                         // write old parent group, new parent group, and this group to db
-                        if(rootmanager.NodeType == "group")
+                        if (rootmanager.NodeType == "group")
                         {
                             desttm.TriggerGroup.SubGroups.Add(rootmanager.TriggerGroup.Id);
                             rootmanager.TriggerGroup.ParentId = desttm.TriggerGroup.Id;
@@ -1090,9 +1119,9 @@ namespace EQAudioTriggers
                                 if (droppednode.NodeType == "trigger")
                                 {
                                     //remove ourselves from the merge tree to avoid visual issues
-                                    if(droppednode.ParentNode != null)
+                                    if (droppednode.ParentNode != null)
                                     { droppednode.ParentNode.SubGroups.Remove(droppednode); }
-                                    
+
                                     //Add the trigger ID to the parent node Triggers
                                     //write the parent node to the DB
                                     desttm.TriggerGroup.Triggers.Add(droppednode.Trigger.Id);
@@ -1134,15 +1163,15 @@ namespace EQAudioTriggers
             //Restrict the dropping on certain nodes
             string sourcetree = (e.DragSource as SfTreeView).Name;
             string desttree = (sender as SfTreeView).Name;
-            if (e.TargetNode != null )
+            if (e.TargetNode != null)
             {
                 try
                 {
                     ObservableCollection<TreeViewNode> dragsource = e.DraggingNodes;
-                    if(dragsource != null && dragsource.Count > 0)
+                    if (dragsource != null && dragsource.Count > 0)
                     {
                         TriggerManager droplocation = (e.TargetNode).Content as TriggerManager;
-                        if(droplocation.NodeType == "group")
+                        if (droplocation.NodeType == "group")
                         {
                             e.Handled = false;
                         }
@@ -1179,9 +1208,10 @@ namespace EQAudioTriggers
             if (tm.NodeType == "trigger")
             {
                 if (enable) { EnableTrigger(tm); }
-                else { 
+                else
+                {
                     DisableTrigger(tm);
-                    }
+                }
                 tm.IsActive = enable;
             }
             if (tm.NodeType == "group")
@@ -1380,7 +1410,7 @@ namespace EQAudioTriggers
         #region Trigger Clicks
         private void addTrigger_Click(object sender, RoutedEventArgs e)
         {
-            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters,_selectedtheme);
+            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters, _selectedtheme);
             if (newtrigger != null)
             {
                 _triggermasterlist.Add(newtrigger);
@@ -1390,7 +1420,7 @@ namespace EQAudioTriggers
         }
         private void editTrigger_Click(object sender, RoutedEventArgs e)
         {
-            ((TriggerManager)treeview.SelectedItem).EditTrigger(_characters,_selectedtheme);
+            ((TriggerManager)treeview.SelectedItem).EditTrigger(_characters, _selectedtheme);
             WriteTriggers();
             WriteTriggerGroups();
         }
@@ -1418,7 +1448,7 @@ namespace EQAudioTriggers
             {
                 txtblockProfile.Text = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Profile;
                 _selectedcharacter = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Id;
-                Console.WriteLine($"Changed Character: {_selectedcharacter}");                
+                Console.WriteLine($"Changed Character: {_selectedcharacter}");
             }
             UpdateCheckedItems();
         }
@@ -1548,7 +1578,7 @@ namespace EQAudioTriggers
                     }
                 }
             }
-            if(_mergemanager.Count > 0)
+            if (_mergemanager.Count > 0)
             {
                 mergetreeview.ItemsSource = _mergemanager;
                 triggerdockmanager.SetValue(Grid.ColumnSpanProperty, 1);
@@ -1775,11 +1805,12 @@ namespace EQAudioTriggers
             newtrigger.UseBasicInterrupt = (bool)jsontoken["InterruptSpeech"];
             if ((bool)jsontoken["UseTextToVoice"])
             {
-                //newtrigger.BasicTTS = "tts";
+                newtrigger.RadioBasicTTS = true;
                 newtrigger.BasicTTS = (String)jsontoken["TextToVoiceText"];
             }
             if ((bool)jsontoken["PlayMediaFile"])
             {
+                newtrigger.RadioBasicPlay = true;
                 newtrigger.BasicPlayFile = "file";
                 //set audio file
             }
@@ -1860,11 +1891,11 @@ namespace EQAudioTriggers
         }
         private void ImportTriggerGroup(TriggerManager tm)
         {
-            if(tm.SubGroups.Count > 0)
+            if (tm.SubGroups.Count > 0)
             {
-                foreach(TriggerManager subgroup in tm.SubGroups)
+                foreach (TriggerManager subgroup in tm.SubGroups)
                 {
-                    if(subgroup.NodeType == "trigger")
+                    if (subgroup.NodeType == "trigger")
                     {
                         //Ensure the child and parent information is correct
                         //Add the trigger ID to the parent node Triggers
@@ -1876,7 +1907,7 @@ namespace EQAudioTriggers
                         subgroup.Trigger.GroupId = tm.TriggerGroup.Id;
                         _triggermasterlist.Add(subgroup.Trigger);
                     }
-                    if(subgroup.NodeType == "group")
+                    if (subgroup.NodeType == "group")
                     {
                         //Ensure child and parent information is correct
                         //add the parent id to the dropped node, then import it
@@ -1889,7 +1920,7 @@ namespace EQAudioTriggers
 
                         //If we have more subgroups, keep processing
                         if (subgroup.SubGroups.Count > 0)
-                        { ImportTriggerGroup(subgroup); }                        
+                        { ImportTriggerGroup(subgroup); }
                     }
                 }
             }
@@ -2007,7 +2038,7 @@ namespace EQAudioTriggers
 
         private void ContextMenuTriggerAdd_Click(object sender, RoutedEventArgs e)
         {
-            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters,_selectedtheme);
+            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters, _selectedtheme);
             if (newtrigger != null)
             {
                 _triggermasterlist.Add(newtrigger);
@@ -2018,7 +2049,7 @@ namespace EQAudioTriggers
 
         private void ContextMenuTriggerEdit_Click(object sender, RoutedEventArgs e)
         {
-            ((TriggerManager)treeview.SelectedItem).EditTrigger(_characters,_selectedtheme);
+            ((TriggerManager)treeview.SelectedItem).EditTrigger(_characters, _selectedtheme);
             WriteTriggers();
             WriteTriggerGroups();
         }
@@ -2063,7 +2094,7 @@ namespace EQAudioTriggers
             //Add the trigger to the parent node
             EQTrigger newtrigger = new EQTrigger(selecteditem.Trigger);
             newtrigger.Name += "-Copy";
-            Boolean added = parentnode.AddTrigger(_characters, newtrigger,_selectedtheme);
+            Boolean added = parentnode.AddTrigger(_characters, newtrigger, _selectedtheme);
             if (added)
             {
                 _triggermasterlist.Add(newtrigger);
@@ -2127,7 +2158,7 @@ namespace EQAudioTriggers
         }
         private void listviewSenders_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+
         }
 
         private void listviewSenders_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -2142,14 +2173,14 @@ namespace EQAudioTriggers
             OverlayTextEditor ote = new OverlayTextEditor();
             ote.SetTheme(_selectedtheme);
             Boolean rval = (bool)ote.ShowDialog();
-            if(rval)
+            if (rval)
             {
                 _overlaytext.Add(ote.Overlay);
                 SaveOverlayText();
             }
         }
         private void LoadOverlayText()
-        {            
+        {
             //Load overlaytext.json
             if (File.Exists($"{GlobalVariables.workingdirectory}\\overlaytext.json"))
             {
@@ -2158,9 +2189,25 @@ namespace EQAudioTriggers
                     string json = r.ReadToEnd();
                     _overlaytext = JsonConvert.DeserializeObject<ObservableCollection<OverlayText>>(json);
                 }
-                
             }
             ribbonOverlays.ItemsSource = _overlaytext;
+            //Open windows
+            foreach (OverlayText overlay in _overlaytext)
+            {
+                OverlayTextWindow newWindow = new OverlayTextWindow(overlay);
+                newWindow.ShowInTaskbar = false;
+                _overlaytextwindows.Add(newWindow);
+                newWindow.Show();
+                UpdateText(newWindow, new OverlayTextItem());
+                string stop = "";
+            }
+        }
+        private void UpdateText(OverlayTextWindow otw, OverlayTextItem oti)
+        {
+            _syncontext.Post(new SendOrPostCallback(o =>
+            {
+                otw.AddItem((OverlayTextItem)o);
+            }), oti);
         }
         private void SaveOverlayText()
         {

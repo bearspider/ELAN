@@ -13,7 +13,7 @@
     xmlns:treeviewengine="clr-namespace:Syncfusion.UI.Xaml.TreeView.Engine;assembly=Syncfusion.SfTreeView.WPF"
     Title="     EQ Audio Triggers" TitleTextAlignment="Left" Icon="Images/Oxygen-Icons.org-Oxygen-Actions-speaker.ico"
     Office2010Icon="Images/Oxygen-Icons.org-Oxygen-Actions-speaker.ico"
-    skin:SfSkinManager.VisualStyle="{Binding ElementName=comboVisualStyle, Path=SelectedValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" x:Name="MainRibbon" StateChanged="Window_StateChanged">
+    skin:SfSkinManager.VisualStyle="{Binding ElementName=comboVisualStyle, Path=SelectedValue, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" x:Name="MainRibbon" StateChanged="Window_StateChanged" Closing="MainRibbon_Closing">
 
     <Window.Resources>
         <local:FontAttributeConverter x:Key="FontAttributeConverter"/>

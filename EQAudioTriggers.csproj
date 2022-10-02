@@ -200,6 +200,7 @@
     <Compile Include="Models\ActivatedTrigger.cs" />
     <Compile Include="Models\ActivatedTriggerCollection.cs" />
     <Compile Include="Models\ActiveTriggerCollection.cs" />
+    <Compile Include="Models\Category.cs" />
     <Compile Include="Models\Character.cs" />
     <Compile Include="Models\CharacterCollection.cs" />
     <Compile Include="Models\EndEarlyTrigger.cs" />
@@ -207,6 +208,7 @@
     <Compile Include="Models\GINAGroup.cs" />
     <Compile Include="Models\GINATrigger.cs" />
     <Compile Include="Models\OverlayText.cs" />
+    <Compile Include="Models\OverlayTextItem.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Models\TreeViewModel.cs" />
     <Compile Include="Models\TriggerGroupProperty.cs" />
@@ -342,6 +344,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="Listeners\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-irc-voice.ico" />

@@ -1,4 +1,4 @@
-﻿<syncfusion:ChromelessWindow x:Class="EQAudioTriggers.Views.OverlayTextWindow"
+﻿<Window x:Class="EQAudioTriggers.Views.OverlayTextWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,11 +8,18 @@
         xmlns:skin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
         mc:Ignorable="d"
         Icon="\Images\Oxygen-Icons.org-Oxygen-Actions-user-properties.ico"
-        CornerRadius="8"
         ResizeMode="NoResize"
-        skin:SfSkinManager.VisualStyle="Office2019Black"
-        Title="OverlayTextWindow" Height="450" Width="800">
-    <Grid>
-        
+        AllowsTransparency="True" Topmost="True" WindowStyle="None"
+        Title="OverlayTextWindow" Height="{Binding WindowProperties.WindowHeight}" Width="{Binding WindowProperties.WindowWidth}" Left="{Binding WindowProperties.WindowX}" Top="{Binding WindowProperties.WindowY}" Background="{Binding WindowProperties.BG}">
+    <Grid ScrollViewer.VerticalScrollBarVisibility="Disabled">
+        <ItemsControl Name="icTriggers">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,0,0,5">
+                        <TextBlock FontSize="{Binding FontSize}" Foreground="{Binding FontColor}" FontFamily="{Binding FontFamily}" Text="{Binding Trigger.BasicText}"/>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
-</syncfusion:ChromelessWindow>
+</Window>
