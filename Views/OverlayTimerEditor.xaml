@@ -1,0 +1,84 @@
+﻿<syncfusion:ChromelessWindow x:Class="EQAudioTriggers.Views.OverlayTimerEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EQAudioTriggers.Views"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:skin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" 
+        xmlns:ComponentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        mc:Ignorable="d"
+        Icon="\Images\Oxygen-Icons.org-Oxygen-Actions-user-properties.ico"
+        CornerRadius="8"
+        ResizeMode="NoResize"
+        skin:SfSkinManager.VisualStyle="Office2019Black"
+        Title="OverlayTimerEditor" Height="650" Width="800" MouseDown="ChromelessWindow_MouseDown" Background="{Binding ElementName=ClrPckerBg, Path=Color, UpdateSourceTrigger=PropertyChanged}">
+    <Window.Resources>
+        <CollectionViewSource x:Key="SortedFontsCollection" Source="{Binding Source={x:Static Fonts.SystemFontFamilies}}">
+            <CollectionViewSource.SortDescriptions>
+                <ComponentModel:SortDescription PropertyName="Source" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
+    <Grid>
+        <Button x:Name="buttonSave" Content="Save Timer Overlay" HorizontalAlignment="Left" Margin="600,10,0,0" VerticalAlignment="Top" Height="40" Width="110" Click="buttonSave_Click"/>
+        <StackPanel HorizontalAlignment="Left" Height="255" Margin="10,284,0,0" VerticalAlignment="Top" Width="294" RenderTransformOrigin="1.248,0.505">
+            <Grid>
+                <Label HorizontalAlignment="Left" x:Name="labelFont" Content="Font:"/>
+                <ComboBox IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding Source={StaticResource SortedFontsCollection}}" HorizontalAlignment="Right" x:Name="comboFont">
+                </ComboBox>
+            </Grid>
+            <Grid>
+                <Label HorizontalAlignment="Left" x:Name="labelFontSize" Content="Font Size:"/>
+            </Grid>
+            <Grid>
+                <Slider HorizontalAlignment="Left" Name="sliderSize" Maximum="200" Minimum="1" Value="18" TickFrequency="1" IsSnapToTickEnabled="True" Width="250"/>
+                <TextBox HorizontalAlignment="Right" Text="{Binding ElementName=sliderSize, Path=Value, UpdateSourceTrigger=PropertyChanged}" Width="40"/>
+            </Grid>
+            <Grid>
+                <Label HorizontalAlignment="Left" x:Name="labelBg" Content="Background:" />
+                <syncfusion:ColorPicker HorizontalAlignment="Right" Name="ClrPckerBg" SelectedBrushChanged="ClrPckerBg_SelectedBrushChanged">
+                    <syncfusion:ColorPicker.Color>
+                        <Color>GhostWhite</Color>
+                    </syncfusion:ColorPicker.Color>
+                </syncfusion:ColorPicker>
+            </Grid>
+            <Grid>
+                <Label HorizontalAlignment="Left" x:Name="labelFadedBg" Content="Faded Background:" />
+                <syncfusion:ColorPicker HorizontalAlignment="Right" Name="ClrPckerFaded" SelectedBrushChanged="ClrPckerFaded_SelectedBrushChanged" >
+                    <syncfusion:ColorPicker.Color>
+                        <Color>Transparent</Color>
+                    </syncfusion:ColorPicker.Color>
+                </syncfusion:ColorPicker>
+            </Grid>
+            <Grid>
+                <Label HorizontalAlignment="Left" x:Name="labelShowTimer" Content="Show Timer Bar:" />
+                <CheckBox IsChecked="True" VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="checkTimer"/>
+            </Grid>
+            <Grid>
+                <Label HorizontalAlignment="Left" x:Name="labelEmptyColor" Content="Empty Bar Color:" />
+                <syncfusion:ColorPicker HorizontalAlignment="Right" Name="ClrPckerEmpty" >
+                    <syncfusion:ColorPicker.Color>
+                        <Color>Blue</Color>
+                    </syncfusion:ColorPicker.Color>
+                </syncfusion:ColorPicker>
+            </Grid>
+            <Grid>
+                <Label HorizontalAlignment="Left" x:Name="labelStandardize" Content="Standardize Timer Bars:"/>
+                <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="checkStandardize"/>
+            </Grid>
+            <Grid>
+                <Label HorizontalAlignment="Left" x:Name="labelGroup" Content="Group By Character:" />
+                <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="checkGroup"/>
+            </Grid>
+            <Grid>
+                <Label HorizontalAlignment="Left" x:Name="labelSort" Content="Sort:" />
+                <ComboBox HorizontalAlignment="Right" Name="comboSort" SelectionChanged="comboSort_SelectionChanged">
+                    <ComboBoxItem Content="Order Triggered"/>
+                    <ComboBoxItem Content="Time Remaining"/>
+                </ComboBox>
+            </Grid>
+        </StackPanel>
+        <TextBox x:Name="textDemo" FontSize="{Binding ElementName=sliderSize, Path=Value}" FontFamily="{Binding ElementName=comboFont, Path=SelectedItem}" HorizontalAlignment="Left" Margin="305,198,0,0" TextWrapping="Wrap" Text="Default" VerticalAlignment="Top" />
+    </Grid>
+</syncfusion:ChromelessWindow>

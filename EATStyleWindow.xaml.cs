@@ -260,6 +260,8 @@ namespace EQAudioTriggers
         private string _selectedtheme = "FluentDark";
         private ObservableCollection<OverlayText> _overlaytext = new ObservableCollection<OverlayText>();
         private ObservableCollection<OverlayTextWindow> _overlaytextwindows = new ObservableCollection<OverlayTextWindow>();
+        private ObservableCollection<OverlayTimer> _overlaytimer = new ObservableCollection<OverlayTimer>();
+        private ObservableCollection<OverlayTimerWindow> _overlaytimerwindows = new ObservableCollection<OverlayTimerWindow>();
         private ObservableCollection<Category> _categories = new ObservableCollection<Category>();
 
         //System Tray Icons
@@ -295,6 +297,7 @@ namespace EQAudioTriggers
             txtblockStatus.DataContext = _totallinecount;
             txtblockZone.DataContext = _currentzone;
             LoadOverlayText();
+            LoadOverlayTimer();
         }
         private void LoadThemes()
         {
@@ -2179,6 +2182,17 @@ namespace EQAudioTriggers
                 SaveOverlayText();
             }
         }
+        private void buttonOverlayTimer_Click(object sender, RoutedEventArgs e)
+        {
+            OverlayTimerEditor ote = new OverlayTimerEditor();
+            ote.SetTheme(_selectedtheme);
+            Boolean rval = (bool)ote.ShowDialog();
+            if (rval)
+            {
+                _overlaytimer.Add(ote.OT);
+                SaveOverlayTimer();
+            }
+        }
         private void LoadOverlayText()
         {
             //Load overlaytext.json
@@ -2202,6 +2216,29 @@ namespace EQAudioTriggers
                 string stop = "";
             }
         }
+        private void LoadOverlayTimer()
+        {
+            //Load overlaytimer.json
+            if (File.Exists($"{GlobalVariables.workingdirectory}\\overlaytimer.json"))
+            {
+                using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\overlaytimer.json"))
+                {
+                    string json = r.ReadToEnd();
+                    _overlaytimer = JsonConvert.DeserializeObject<ObservableCollection<OverlayTimer>>(json);
+                }
+            }
+            ribbonOverlayTimers.ItemsSource = _overlaytimer;
+            //Open windows
+            foreach (OverlayTimer overlay in _overlaytimer)
+            {
+                OverlayTimerWindow newWindow = new OverlayTimerWindow(overlay);
+                newWindow.ShowInTaskbar = false;
+                _overlaytimerwindows.Add(newWindow);
+                newWindow.Show();
+                //UpdateText(newWindow, new OverlayTextItem());
+                string stop = "";
+            }
+        }
         private void UpdateText(OverlayTextWindow otw, OverlayTextItem oti)
         {
             _syncontext.Post(new SendOrPostCallback(o =>
@@ -2216,12 +2253,14 @@ namespace EQAudioTriggers
                 file.Write(JsonConvert.SerializeObject(_overlaytext, Newtonsoft.Json.Formatting.Indented));
             }
         }
-        #endregion
-
-        private void buttonOverlayTimer_Click(object sender, RoutedEventArgs e)
+        private void SaveOverlayTimer()
         {
-
+            using (StreamWriter file = File.CreateText($"{GlobalVariables.workingdirectory}\\overlaytimer.json"))
+            {
+                file.Write(JsonConvert.SerializeObject(_overlaytimer, Newtonsoft.Json.Formatting.Indented));
+            }
         }
+        #endregion
 
         private void DropDownMenuItemEdit_Click(object sender, RoutedEventArgs e)
         {
@@ -2236,6 +2275,23 @@ namespace EQAudioTriggers
         }
 
         private void DropDownMenuItemDelete_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DropDownMenuTimerEdit_Click(object sender, RoutedEventArgs e)
+        {
+            DropDownMenuItem overlayitem = sender as DropDownMenuItem;
+            OverlayTimerEditor ote = new OverlayTimerEditor((OverlayTimer)overlayitem.DataContext);
+            ote.SetTheme(_selectedtheme);
+            Boolean rval = (bool)ote.ShowDialog();
+            if (rval)
+            {
+                SaveOverlayTimer();
+            }
+        }
+
+        private void DropDownMenuTimerDelete_Click(object sender, RoutedEventArgs e)
         {
 
         }

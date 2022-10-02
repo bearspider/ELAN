@@ -163,8 +163,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <syncfusion:DropDownButton SizeForm="Large" Label="{Binding Name}" LargeIcon="Images/Google-Noto-Emoji-Travel-Places-42608-stopwatch.ico">
-                                        <syncfusion:DropDownMenuItem Header="Edit"/>
-                                        <syncfusion:DropDownMenuItem Header="Delete"/>
+                                        <syncfusion:DropDownMenuItem Header="Edit" Click="DropDownMenuTimerEdit_Click"/>
+                                        <syncfusion:DropDownMenuItem Header="Delete" Click="DropDownMenuTimerDelete_Click"/>
                                     </syncfusion:DropDownButton>
                                 </Grid>
                             </WrapPanel>

@@ -209,11 +209,13 @@
     <Compile Include="Models\GINATrigger.cs" />
     <Compile Include="Models\OverlayText.cs" />
     <Compile Include="Models\OverlayTextItem.cs" />
+    <Compile Include="Models\OverlayTimer.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Models\TreeViewModel.cs" />
     <Compile Include="Models\TriggerGroupProperty.cs" />
     <Compile Include="Models\TriggerManager.cs" />
     <Compile Include="Models\TriggerShareEnum.cs" />
+    <Compile Include="Models\TriggerTimer.cs" />
     <Compile Include="Views\CharacterEdit.xaml.cs">
       <DependentUpon>CharacterEdit.xaml</DependentUpon>
     </Compile>
@@ -222,6 +224,12 @@
     </Compile>
     <Compile Include="Views\OverlayTextWindow.xaml.cs">
       <DependentUpon>OverlayTextWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OverlayTimerEditor.xaml.cs">
+      <DependentUpon>OverlayTimerEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OverlayTimerWindow.xaml.cs">
+      <DependentUpon>OverlayTimerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TriggerEdit.xaml.cs">
       <DependentUpon>TriggerEdit.xaml</DependentUpon>
@@ -250,6 +258,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\OverlayTextWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OverlayTimerEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OverlayTimerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

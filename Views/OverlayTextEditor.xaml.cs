@@ -32,6 +32,7 @@ namespace EQAudioTriggers.Views
         {            
             InitializeComponent();
             _overlaytext = new OverlayText();
+            SetBackground((Color)ColorConverter.ConvertFromString(_overlaytext.Faded));
         }
         public OverlayTextEditor(OverlayText overlayText)
         {
@@ -105,7 +106,14 @@ namespace EQAudioTriggers.Views
         {
             if (e.ChangedButton == MouseButton.Left)
             {
-                this.DragMove();
+                try
+                {
+                    this.DragMove();
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
         }
     }
