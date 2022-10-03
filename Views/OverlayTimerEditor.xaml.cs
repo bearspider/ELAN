@@ -28,7 +28,8 @@ namespace EQAudioTriggers.Views
         public OverlayTimerEditor()
         {
             InitializeComponent();
-            _ot = new OverlayTimer();
+            OT = new OverlayTimer();
+            overlayeditor.DataContext = OT;
             DataContext = this;
             SetBackground((Color)ColorConverter.ConvertFromString(_ot.Faded));
         }
@@ -36,9 +37,10 @@ namespace EQAudioTriggers.Views
         public OverlayTimerEditor(OverlayTimer ot)
         {
             InitializeComponent();
-            _ot = ot;
+            OT = ot;
             DataContext = this;
-            SetBackground((Color)ColorConverter.ConvertFromString(_ot.Faded));
+            overlayeditor.DataContext = OT;
+            SetBackground((Color)ColorConverter.ConvertFromString(OT.Faded));
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void RaisedOnPropertyChanged(string _PropertyName)
@@ -63,24 +65,9 @@ namespace EQAudioTriggers.Views
             }
             this.Background = brush;
         }
-        public void SetTheme(string theme)
-        {
-            SfSkinManager.SetTheme(this, new Theme(theme));
-        }
         private Color InvertColor(Color mycolor)
         {
             return Color.FromArgb(mycolor.A, (byte)(255 - mycolor.R), (byte)(255 - mycolor.G), (byte)(255 - mycolor.B));
-        }
-        private void ClrPckerBg_SelectedBrushChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            //SetBackground(ClrPckerBg.Color);
-            RaisedOnPropertyChanged("Background");
-        }
-
-        private void ClrPckerFaded_SelectedBrushChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            //SetBackground(ClrPckerFaded.Color);
-            RaisedOnPropertyChanged("Faded");
         }
 
         private void ChromelessWindow_MouseDown(object sender, MouseButtonEventArgs e)
@@ -93,7 +80,7 @@ namespace EQAudioTriggers.Views
                 }
                 catch(Exception ex)
                 {
-
+                    //Need this because laptops will say it's not the primary mouse
                 }                
             }
         }
@@ -104,14 +91,20 @@ namespace EQAudioTriggers.Views
             this.Close();
         }
 
-        private void comboSort_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
         private void buttonInvert_Click(object sender, RoutedEventArgs e)
         {
             clrPckrFont.Color = InvertColor(ClrPckerBg.Color);
+        }
+
+        private void ChromelessWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            OT.WindowHeight = this.Height;
+            OT.WindowWidth = this.Width;
+        }
+
+        private void ClrPckerFaded_ColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            SetBackground(ClrPckerFaded.Color);
         }
     }
 }

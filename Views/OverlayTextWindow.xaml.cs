@@ -61,7 +61,8 @@ namespace EQAudioTriggers.Views
         {
             InitializeComponent();
             Items = new ObservableCollection<OverlayTextItem>();
-            DataContext = this;
+            icTriggers.ItemsSource = Items;
+            overlays.DataContext = WindowProperties;
         }
         public OverlayTextWindow(OverlayText windowproperties)
         {
@@ -69,6 +70,7 @@ namespace EQAudioTriggers.Views
             WindowProperties = windowproperties;
             Items = new ObservableCollection<OverlayTextItem>();
             icTriggers.ItemsSource = Items;
+            overlays.DataContext = WindowProperties;
             DataContext = this;
         }
         public void AddItem(OverlayTextItem oti)

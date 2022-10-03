@@ -466,14 +466,14 @@ namespace EQAudioTriggers
                                                 }
                                             }
                                         }
-                                        if (foundmatch)
+                                        if (foundmatch  && doc.ActiveCharacters.Contains(character.Id))
                                         {
                                             triggered = true;
                                             Match logmatch = GlobalVariables.eqRegex.Match(capturedLine);
                                             ActivatedTrigger activatedTrigger = new ActivatedTrigger
                                             {
                                                 Character = character.Profile,
-                                                MatchedText = capturedLine.TrimEnd('\r', '\n'),
+                                                MatchedText = capturedLine.Replace("\r","").Replace("\n",""),
                                                 MatchTime = DateTime.Now.ToString(),
                                                 Trigger = doc.Name,
                                                 LogTime = logmatch.Groups["eqtime"].Value.ToString()
@@ -2170,27 +2170,36 @@ namespace EQAudioTriggers
             _settings.TrustedSenderList.Remove(txtboxSenderName.Text);
         }
         #endregion
+
         #region Overlays
         private void buttonOverlayText_Click(object sender, RoutedEventArgs e)
         {
             OverlayTextEditor ote = new OverlayTextEditor();
-            ote.SetTheme(_selectedtheme);
             Boolean rval = (bool)ote.ShowDialog();
             if (rval)
             {
                 _overlaytext.Add(ote.Overlay);
                 SaveOverlayText();
+                //open window
+                OverlayTextWindow otw = new OverlayTextWindow(ote.Overlay);
+                otw.ShowInTaskbar = false;
+                _overlaytextwindows.Add(otw);
+                otw.Show();
             }
         }
         private void buttonOverlayTimer_Click(object sender, RoutedEventArgs e)
         {
             OverlayTimerEditor ote = new OverlayTimerEditor();
-            ote.SetTheme(_selectedtheme);
             Boolean rval = (bool)ote.ShowDialog();
             if (rval)
             {
                 _overlaytimer.Add(ote.OT);
                 SaveOverlayTimer();
+                //open window
+                OverlayTimerWindow otw = new OverlayTimerWindow(ote.OT);
+                otw.ShowInTaskbar = false;
+                _overlaytimerwindows.Add(otw);
+                otw.Show();
             }
         }
         private void LoadOverlayText()
@@ -2213,7 +2222,6 @@ namespace EQAudioTriggers
                 _overlaytextwindows.Add(newWindow);
                 newWindow.Show();
                 UpdateText(newWindow, new OverlayTextItem());
-                string stop = "";
             }
         }
         private void LoadOverlayTimer()
@@ -2236,7 +2244,6 @@ namespace EQAudioTriggers
                 _overlaytimerwindows.Add(newWindow);
                 newWindow.Show();
                 //UpdateText(newWindow, new OverlayTextItem());
-                string stop = "";
             }
         }
         private void UpdateText(OverlayTextWindow otw, OverlayTextItem oti)
@@ -2260,13 +2267,12 @@ namespace EQAudioTriggers
                 file.Write(JsonConvert.SerializeObject(_overlaytimer, Newtonsoft.Json.Formatting.Indented));
             }
         }
-        #endregion
-
         private void DropDownMenuItemEdit_Click(object sender, RoutedEventArgs e)
         {
             DropDownMenuItem overlayitem = sender as DropDownMenuItem;
-            OverlayTextEditor ote = new OverlayTextEditor((OverlayText)overlayitem.DataContext);
-            ote.SetTheme(_selectedtheme);
+            //find the overlay we're editing
+            OverlayTextWindow otw = _overlaytextwindows.Where<OverlayTextWindow>(x => x.WindowProperties.Name == ((OverlayText)overlayitem.DataContext).Name).FirstOrDefault();
+            OverlayTextEditor ote = new OverlayTextEditor(otw.WindowProperties);
             Boolean rval = (bool)ote.ShowDialog();
             if (rval)
             {
@@ -2276,14 +2282,23 @@ namespace EQAudioTriggers
 
         private void DropDownMenuItemDelete_Click(object sender, RoutedEventArgs e)
         {
-
+            //remove overlaytext from collection and close window
+            DropDownMenuItem overlayitem = sender as DropDownMenuItem;
+            string windowname = ((OverlayText)overlayitem.DataContext).Name;
+            OverlayTextWindow toremove = _overlaytextwindows.Where<OverlayTextWindow>(x => x.WindowProperties.Name == windowname).FirstOrDefault();
+            toremove.Close();
+            _overlaytextwindows.Remove(toremove);
+            _overlaytext.Remove((OverlayText)overlayitem.DataContext);
+            //write collection to file
+            SaveOverlayText();
         }
 
         private void DropDownMenuTimerEdit_Click(object sender, RoutedEventArgs e)
         {
             DropDownMenuItem overlayitem = sender as DropDownMenuItem;
-            OverlayTimerEditor ote = new OverlayTimerEditor((OverlayTimer)overlayitem.DataContext);
-            ote.SetTheme(_selectedtheme);
+            //find the overlay we're editing
+            OverlayTimerWindow otw = _overlaytimerwindows.Where<OverlayTimerWindow>(x => x.WindowProperties.Name == ((OverlayTimer)overlayitem.DataContext).Name).FirstOrDefault();
+            OverlayTimerEditor ote = new OverlayTimerEditor(otw.WindowProperties);
             Boolean rval = (bool)ote.ShowDialog();
             if (rval)
             {
@@ -2293,7 +2308,18 @@ namespace EQAudioTriggers
 
         private void DropDownMenuTimerDelete_Click(object sender, RoutedEventArgs e)
         {
-
+            //remove overlaytimer from collection and close window
+            DropDownMenuItem overlayitem = sender as DropDownMenuItem;
+            string windowname = ((OverlayTimer)overlayitem.DataContext).Name;
+            OverlayTimerWindow toremove = _overlaytimerwindows.Where<OverlayTimerWindow>(x => x.WindowProperties.Name == windowname).FirstOrDefault();
+            toremove.Close();
+            _overlaytimerwindows.Remove(toremove);
+            _overlaytimer.Remove((OverlayTimer)overlayitem.DataContext);
+            //write collection to file
+            SaveOverlayTimer();
         }
+        #endregion
+
+
     }
 }

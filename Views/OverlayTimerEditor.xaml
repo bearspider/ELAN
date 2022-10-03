@@ -10,7 +10,11 @@
         mc:Ignorable="d"
         Icon="\Images\Oxygen-Icons.org-Oxygen-Actions-user-properties.ico"
         CornerRadius="8"
-        Title="OverlayTimerEditor" Height="{Binding OT.WindowHeight, Mode=TwoWay}" Width="{Binding OT.WindowWidth,Mode=TwoWay}" MouseDown="ChromelessWindow_MouseDown" Left="{Binding OT.WindowX, Mode=TwoWay}" Top="{Binding OT.WindowY, Mode=TwoWay}">
+        Title="OverlayTimerEditor"
+        Name="overlayeditor"
+        Height="{Binding WindowHeight, Mode=TwoWay}" Width="{Binding WindowWidth, Mode=TwoWay}" 
+        MouseDown="ChromelessWindow_MouseDown" SizeChanged="ChromelessWindow_SizeChanged"
+        Left="{Binding WindowX, Mode=TwoWay}" Top="{Binding WindowY, Mode=TwoWay}" Topmost="True">
     <Window.Resources>
         <CollectionViewSource x:Key="SortedFontsCollection" Source="{Binding Source={x:Static Fonts.SystemFontFamilies}}">
             <CollectionViewSource.SortDescriptions>
@@ -43,26 +47,26 @@
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
             <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" x:Name="labelFont" Content="Font:" Foreground="Black"/>
-            <ComboBox Grid.Row="0" Grid.Column="1" IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding Source={StaticResource SortedFontsCollection}}" Text="{Binding OT.Font, Mode=TwoWay}" HorizontalAlignment="Left" x:Name="comboFont"/>
+            <ComboBox Grid.Row="0" Grid.Column="1" IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding Source={StaticResource SortedFontsCollection}}" Text="{Binding Font, Mode=TwoWay}" HorizontalAlignment="Left" x:Name="comboFont"/>
             <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" x:Name="labelFontSize" Content="Font Size:" Foreground="Black"/>
-            <Slider Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Name="sliderSize" Maximum="200" Minimum="1" Value="{Binding OT.Size, Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True" Width="250"/>
+            <Slider Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Name="sliderSize" Maximum="200" Minimum="1" Value="{Binding Size, Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True" Width="250"/>
             <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding ElementName=sliderSize, Path=Value, UpdateSourceTrigger=PropertyChanged}" Width="30"/>
             <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Font Color:" Foreground="Black"/>
-            <syncfusion:ColorPicker Grid.Row="2" Grid.Column="1" Name="clrPckrFont" Color="{Binding OT.FontColor, Mode=TwoWay}" HorizontalAlignment="Left"/>
+            <syncfusion:ColorPicker Grid.Row="2" Grid.Column="1" Name="clrPckrFont" Color="{Binding FontColor, Mode=TwoWay}" HorizontalAlignment="Left"/>
             <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" x:Name="labelBg" Content="Background:" Foreground="Black"/>
-            <syncfusion:ColorPicker Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Name="ClrPckerBg" SelectedBrushChanged="ClrPckerBg_SelectedBrushChanged" Color="{Binding OT.BG, Mode=TwoWay}"/>
+            <syncfusion:ColorPicker Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Name="ClrPckerBg" Color="{Binding BG, Mode=TwoWay}"/>
             <Label Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" x:Name="labelFadedBg" Content="Faded Background:" Foreground="Black"/>
-            <syncfusion:ColorPicker Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Name="ClrPckerFaded" SelectedBrushChanged="ClrPckerFaded_SelectedBrushChanged" Color="{Binding OT.Faded, Mode=TwoWay}"/>
+            <syncfusion:ColorPicker Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Name="ClrPckerFaded" ColorChanged="ClrPckerFaded_ColorChanged" Color="{Binding Faded, Mode=TwoWay}"/>
             <Label Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" x:Name="labelShowTimer" Content="Show Timer Bar:" Foreground="Black"/>
-            <CheckBox Grid.Row="5" Grid.Column="1" IsChecked="{Binding OT.Showtimer, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="checkTimer"/>
+            <CheckBox Grid.Row="5" Grid.Column="1" IsChecked="{Binding Showtimer, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="checkTimer"/>
             <Label Grid.Row="6" Grid.Column="0" HorizontalAlignment="Left" x:Name="labelEmptyColor" Content="Empty Bar Color:" Foreground="Black"/>
-            <syncfusion:ColorPicker Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" Name="ClrPckerEmpty" Color="{Binding OT.Emptycolor, Mode=TwoWay}"/>
+            <syncfusion:ColorPicker Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" Name="ClrPckerEmpty" Color="{Binding Emptycolor, Mode=TwoWay}"/>
             <Label Grid.Row="7" Grid.Column="0" HorizontalAlignment="Left" x:Name="labelStandardize" Content="Standardize Timer Bars:" Foreground="Black"/>
-            <CheckBox Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="checkStandardize" IsChecked="{Binding OT.Standardize, Mode=TwoWay}"/>
+            <CheckBox Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="checkStandardize" IsChecked="{Binding Standardize, Mode=TwoWay}"/>
             <Label Grid.Row="8" Grid.Column="0" HorizontalAlignment="Left" x:Name="labelGroup" Content="Group By Character:" Foreground="Black"/>
-            <CheckBox Grid.Row="8" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="checkGroup" IsChecked="{Binding OT.Group, Mode=TwoWay}"/>
+            <CheckBox Grid.Row="8" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="checkGroup" IsChecked="{Binding Group, Mode=TwoWay}"/>
             <Label Grid.Row="9" Grid.Column="0" HorizontalAlignment="Left" x:Name="labelSort" Content="Sort:" Foreground="Black"/>
-            <ComboBox Grid.Row="9" Grid.Column="1" HorizontalAlignment="Left" Name="comboSort" SelectionChanged="comboSort_SelectionChanged" Text="{Binding OT.Sortby, Mode=TwoWay}">
+            <ComboBox Grid.Row="9" Grid.Column="1" HorizontalAlignment="Left" Name="comboSort" Text="{Binding Sortby, Mode=TwoWay}">
                 <ComboBoxItem Content="Order Triggered"/>
                 <ComboBoxItem Content="Time Remaining"/>
             </ComboBox>
@@ -85,7 +89,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <TextBox Margin="15" Grid.Row="0" Grid.Column="0" x:Name="textDemo" FontSize="{Binding ElementName=sliderSize, Path=Value}" FontFamily="{Binding ElementName=comboFont, Path=SelectedItem}" Foreground="{Binding ElementName=clrPckrFont, Path=Color, Converter={StaticResource fontcolorconverter}, UpdateSourceTrigger=PropertyChanged}" Background="{Binding ElementName=ClrPckerBg, Path=Color, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource fontcolorconverter}}" TextWrapping="Wrap" Text="{Binding OT.Name, Mode=TwoWay}" />
+                <TextBox Margin="15" Grid.Row="0" Grid.Column="0" x:Name="textDemo" FontSize="{Binding ElementName=sliderSize, Path=Value}" FontFamily="{Binding ElementName=comboFont, Path=SelectedItem}" Foreground="{Binding ElementName=clrPckrFont, Path=Color, Converter={StaticResource fontcolorconverter}, UpdateSourceTrigger=PropertyChanged}" Background="{Binding ElementName=ClrPckerBg, Path=Color, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource fontcolorconverter}}" TextWrapping="Wrap" Text="{Binding Name, Mode=TwoWay}" />
             </Grid>
         </Grid>
     </StackPanel>

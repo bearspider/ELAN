@@ -43,16 +43,15 @@ namespace EQAudioTriggers.Views
         public ObservableCollection<TriggerTimer> TimerBars
         {
             get { return timers; }
-            set { timers = value; }
+            set { timers = value; RaisedOnPropertyChanged("TimerBars"); }
         }
-        public double fSize;
         private int id;
         public int Id
         {
             get { return id; }
-            set { id = value; }
+            set { id = value; RaisedOnPropertyChanged("Id"); }
         }
-        public OverlayTimer windowproperties { get { return _windowproperties; } set { _windowproperties = value; RaisedOnPropertyChanged("WindowProperties"); } }
+        public OverlayTimer WindowProperties { get { return _windowproperties; } set { _windowproperties = value; RaisedOnPropertyChanged("WindowProperties"); } }
         public event PropertyChangedEventHandler PropertyChanged;
         public void RaisedOnPropertyChanged(string _PropertyName)
         {
@@ -64,14 +63,20 @@ namespace EQAudioTriggers.Views
         public OverlayTimerWindow()
         {
             InitializeComponent();
+            WindowProperties = new OverlayTimer();
+            TimerBars = new ObservableCollection<TriggerTimer>();
             var listener = OcPropertyChangedListener.Create(timers);
+            overlays.DataContext = WindowProperties;
+            listviewTimers.ItemsSource = TimerBars;
             DataContext = this;
         }
         public OverlayTimerWindow(OverlayTimer overlay)
         {
             InitializeComponent();
-            windowproperties = overlay;
+            WindowProperties = overlay;
             var listener = OcPropertyChangedListener.Create(timers);
+            overlays.DataContext = WindowProperties;
+            listviewTimers.ItemsSource = TimerBars;
             DataContext = this;
         }
         public void AddTimer(EQTrigger firedtrigger, Boolean type, String character, Category triggeredcategory)

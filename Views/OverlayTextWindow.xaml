@@ -5,12 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EQAudioTriggers.Views"
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
-        xmlns:skin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+        xmlns:skin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" 
         mc:Ignorable="d"
         Icon="\Images\Oxygen-Icons.org-Oxygen-Actions-user-properties.ico"
         ResizeMode="NoResize"
         AllowsTransparency="True" Topmost="True" WindowStyle="None"
-        Title="OverlayTextWindow" Height="{Binding WindowProperties.WindowHeight}" Width="{Binding WindowProperties.WindowWidth}" Left="{Binding WindowProperties.WindowX}" Top="{Binding WindowProperties.WindowY}" Background="{Binding WindowProperties.Faded}">
+        Name="overlays"
+        Title="OverlayTextWindow" 
+        Height="{Binding WindowProperties.WindowHeight}" Width="{Binding WindowProperties.WindowWidth}" 
+        Left="{Binding WindowProperties.WindowX}" Top="{Binding WindowProperties.WindowY}" 
+        Background="{Binding WindowProperties.Faded}">
     <Window.Resources>
         <ResourceDictionary>
             <local:FontColorConverter x:Key="fontcolorconverter" />

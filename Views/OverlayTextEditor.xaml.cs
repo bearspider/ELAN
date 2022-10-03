@@ -31,15 +31,17 @@ namespace EQAudioTriggers.Views
         public OverlayTextEditor()
         {            
             InitializeComponent();
-            _overlaytext = new OverlayText();
+            Overlay = new OverlayText();
             SetBackground((Color)ColorConverter.ConvertFromString(_overlaytext.Faded));
+            overlayeditor.DataContext = Overlay;
             DataContext = this;
         }
         public OverlayTextEditor(OverlayText overlayText)
         {
             InitializeComponent();
-            _overlaytext = overlayText;
+            Overlay = overlayText;
             SetBackground((Color)ColorConverter.ConvertFromString(_overlaytext.Faded));
+            overlayeditor.DataContext = Overlay;
             DataContext = this;
         }
         public event PropertyChangedEventHandler PropertyChanged;
@@ -49,10 +51,6 @@ namespace EQAudioTriggers.Views
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(_PropertyName));
             }
-        }
-        public void SetTheme(string theme)
-        {
-            SfSkinManager.SetTheme(this, new Theme(theme));
         }
         private void SetBackground(Color bgcolor)
         {
@@ -72,10 +70,6 @@ namespace EQAudioTriggers.Views
         private Color InvertColor(Color mycolor)
         {
             return Color.FromArgb(mycolor.A, (byte)(255 - mycolor.R), (byte)(255 - mycolor.G), (byte)(255 - mycolor.B));
-        }
-        private void ClrPckerBg_ColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-
         }
 
         private void ClrPckerFaded_ColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -103,15 +97,14 @@ namespace EQAudioTriggers.Views
                 }
             }
         }
-
-        private void clrPckerFont_ColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-
-        }
-
         private void buttonInverse_Click(object sender, RoutedEventArgs e)
         {
             clrPckerFont.Color = InvertColor(ClrPckerBg.Color);
+        }
+        private void ChromelessWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Overlay.WindowHeight = this.Height;
+            Overlay.WindowWidth = this.Width;
         }
     }
 }

@@ -207,7 +207,7 @@
                                 <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Name="chkboxEnableSound" Content="Enable Sound" IsChecked="{Binding Path=EnableSound}"/>
                                 <Label Content="Master Volume" Grid.Row="1" Grid.Column="0"/>
                                 <Slider Name="sliderMaster" Value="{Binding Path=MasterVolume}" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="1" Grid.Column="1" ValueChanged="sliderMaster_ValueChanged"/>
-                                <Label Name="labelMaster" Grid.Row="1" Grid.Column="2" Foreground="AntiqueWhite"/>
+                                <Label Name="labelMaster" Grid.Row="1" Grid.Column="2"/>
                                 <syncfusion:RibbonCheckBox Grid.Row="2" Grid.Column="0" Name="chkboxEnableText" Content="Enable Text" IsChecked="{Binding Path=EnableText}"/>
                                 <syncfusion:RibbonCheckBox Grid.Row="3" Grid.Column="0" Name="chkboxEnableTimers" Content="Enable Timers" IsChecked="{Binding Path=EnableTimers}"/>
                                 <syncfusion:RibbonCheckBox Grid.Row="4" Grid.Column="0" Name="chkboxStopFirstMatch" Content="Stop Trigger Search After First Match" IsChecked="{Binding Path=StopTriggerSearch}"/>
@@ -462,10 +462,10 @@
             <ContentControl syncfusion:DockingManager.Header="Activated Triggers" syncfusion:DockingManager.State="Document">
                 <syncfusion:SfDataGrid x:Name="activatedDatagrid" AllowSorting="true" AutoGenerateColumns="False" ColumnSizer="Star" NavigationMode="Row">
                     <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:GridTextColumn MappingName="Character" Width="165"/>
+                        <syncfusion:GridTextColumn MappingName="Character"/>
                         <syncfusion:GridTextColumn MappingName="LogTime" />
-                        <syncfusion:GridTextColumn MappingName="MatchedText" Width="400"/>
-                        <syncfusion:GridTextColumn MappingName="MatchTime" Width="150"/>
+                        <syncfusion:GridTextColumn MappingName="MatchedText"/>
+                        <syncfusion:GridTextColumn MappingName="MatchTime"/>
                         <syncfusion:GridTextColumn MappingName="Trigger"/>
                     </syncfusion:SfDataGrid.Columns>
                 </syncfusion:SfDataGrid>
