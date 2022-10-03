@@ -21,7 +21,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="0,0,0,5">
-                        <TextBlock FontSize="{Binding FontSize}" Foreground="{Binding FontColor}" FontFamily="{Binding FontFamily}" Text="{Binding Trigger.BasicText}"/>
+                        <TextBlock FontSize="{Binding FontSize}" Background="{Binding BG}" Foreground="{Binding FontColor}" FontFamily="{Binding FontFamily}" Text="{Binding Trigger.BasicText}"/>
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

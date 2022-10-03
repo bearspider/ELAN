@@ -69,6 +69,10 @@ namespace EQAudioTriggers.Views
             }
             this.Background = brush;
         }
+        private Color InvertColor(Color mycolor)
+        {
+            return Color.FromArgb(mycolor.A, (byte)(255 - mycolor.R), (byte)(255 - mycolor.G), (byte)(255 - mycolor.B));
+        }
         private void ClrPckerBg_ColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
 
@@ -103,6 +107,11 @@ namespace EQAudioTriggers.Views
         private void clrPckerFont_ColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
 
+        }
+
+        private void buttonInverse_Click(object sender, RoutedEventArgs e)
+        {
+            clrPckerFont.Color = InvertColor(ClrPckerBg.Color);
         }
     }
 }

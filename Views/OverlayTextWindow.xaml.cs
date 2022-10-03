@@ -1,11 +1,9 @@
 ﻿using EQAudioTriggers.Models;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
-using Syncfusion.Windows.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -18,6 +16,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Syncfusion.Lic.util.encoders;
+using Syncfusion.Windows.Controls;
 
 namespace EQAudioTriggers.Views
 {
@@ -25,8 +25,22 @@ namespace EQAudioTriggers.Views
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            System.Drawing.Color newcolor = ColorTranslator.FromHtml(value.ToString());
-            return newcolor;
+            Brush newbrush = new SolidColorBrush((Color)value);
+            return newbrush;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class FontInverterConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            Color mycolor = (Color)value;
+            Color inverted = Color.FromArgb(mycolor.A,(byte)(255 - mycolor.R), (byte)(255 - mycolor.G), (byte)(255 - mycolor.B));
+            Brush myBrush = new SolidColorBrush((Color)inverted);
+            return myBrush;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {

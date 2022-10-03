@@ -194,6 +194,7 @@
     <Compile Include="EATStyleWindow.xaml.cs">
       <DependentUpon>EATStyleWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Functions\Functions.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EQAudioTriggers.Views;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -26,6 +27,7 @@ namespace EQAudioTriggers.Models
             WindowWidth = 800;
             WindowX = 0;
             WindowY = 0;
+            FontColor = "Black";
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyPropertyChanged(string propName)
@@ -49,6 +51,7 @@ namespace EQAudioTriggers.Models
         private double _windowwidth;
         private double _windowX;
         private double _windowY;
+        private string _fontcolor;
 
         public int Id { get { return _id; } set { _id = value; NotifyPropertyChanged("Id"); } }
         public String Name { get { return _name; } set { _name = value; NotifyPropertyChanged("Name"); } }
@@ -65,6 +68,7 @@ namespace EQAudioTriggers.Models
         public double WindowWidth { get { return _windowwidth; } set { _windowwidth = value; NotifyPropertyChanged("WindowWidth"); } }
         public double WindowX { get { return _windowX; } set { _windowX = value; NotifyPropertyChanged("WindowX"); } }
         public double WindowY { get { return _windowY; } set { _windowY = value; NotifyPropertyChanged("WindowY"); } }
+        public string FontColor { get { return _fontcolor; } set { _fontcolor = value; NotifyPropertyChanged("FontColor"); } }
         public bool Equals(OverlayTimer compareto)
         {
             bool rval = false;
@@ -84,6 +88,7 @@ namespace EQAudioTriggers.Models
                 && WindowWidth == compareto.WindowWidth
                 && WindowX == compareto.WindowX
                 && WindowY == compareto.WindowY
+                && FontColor == compareto.FontColor
                 )
             {
                 rval = true;

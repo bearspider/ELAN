@@ -67,6 +67,10 @@ namespace EQAudioTriggers.Views
         {
             SfSkinManager.SetTheme(this, new Theme(theme));
         }
+        private Color InvertColor(Color mycolor)
+        {
+            return Color.FromArgb(mycolor.A, (byte)(255 - mycolor.R), (byte)(255 - mycolor.G), (byte)(255 - mycolor.B));
+        }
         private void ClrPckerBg_SelectedBrushChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             //SetBackground(ClrPckerBg.Color);
@@ -103,6 +107,11 @@ namespace EQAudioTriggers.Views
         private void comboSort_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
+        }
+
+        private void buttonInvert_Click(object sender, RoutedEventArgs e)
+        {
+            clrPckrFont.Color = InvertColor(ClrPckerBg.Color);
         }
     }
 }

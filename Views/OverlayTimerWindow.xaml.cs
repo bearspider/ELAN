@@ -35,18 +35,6 @@ namespace EQAudioTriggers.Views
             throw new NotImplementedException();
         }
     }
-    public class FontColorConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            System.Drawing.Color newcolor = ColorTranslator.FromHtml(value.ToString());
-            return newcolor;
-        }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
     public partial class OverlayTimerWindow : Window, INotifyPropertyChanged
     {
         private ObservableCollection<TriggerTimer> timers = new ObservableCollection<TriggerTimer>();
