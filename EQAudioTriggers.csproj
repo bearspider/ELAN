@@ -75,6 +75,7 @@
     <Compile Include="Models\ActivatedTriggerCollection.cs" />
     <Compile Include="Models\ActiveTriggerCollection.cs" />
     <Compile Include="Models\Category.cs" />
+    <Compile Include="Models\CategoryWrapper.cs" />
     <Compile Include="Models\Character.cs" />
     <Compile Include="Models\CharacterCollection.cs" />
     <Compile Include="Models\EndEarlyTrigger.cs" />

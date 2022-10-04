@@ -75,7 +75,31 @@ namespace EQAudioTriggers
             throw new NotImplementedException();
         }
     }
+    /// <summary>
+    /// Convert a Boolean value to icon which will display the whether a category is DEFAULT
+    /// </summary>
+    /// <returns>When true, an icon will displayed which indicates the DEFAULT category</returns>
+    public class DefaultCategoryConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            String rString = "";
+            if ((Boolean)value)
+            {
+                rString = "Images/Paomedia-Small-N-Flat-Sign-check.ico";
+            }
+            else
+            {
+                rString = "";
+            }
+            return rString;
+        }
 
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class MonitoringColorConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -276,6 +300,7 @@ namespace EQAudioTriggers
             LoadSettings();
             LoadThemes();
             LoadCharacters();
+            LoadCategories();
             ActivateLog();
             if (_characters.Count > 0)
             {
@@ -298,6 +323,23 @@ namespace EQAudioTriggers
             txtblockZone.DataContext = _currentzone;
             LoadOverlayText();
             LoadOverlayTimer();
+        }
+        private void LoadCategories()
+        {
+            if (File.Exists($"{GlobalVariables.workingdirectory}\\categories.json"))
+            {
+                using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\categories.json"))
+                {
+                    string json = r.ReadToEnd();
+                    _categories = JsonConvert.DeserializeObject<ObservableCollection<Category>>(json);
+                }
+            }
+            else
+            {
+                _categories.Add(new Category());
+                WriteCategories();
+            }
+            categoryTabs.ItemsSource = _categories;
         }
         private void LoadThemes()
         {
@@ -701,6 +743,13 @@ namespace EQAudioTriggers
             }
             WriteTriggers();
         }
+        private void WriteCategories()
+        {
+            using (StreamWriter file = File.CreateText($"{GlobalVariables.workingdirectory}\\categories.json"))
+            {
+                file.Write(JsonConvert.SerializeObject(_categories, Newtonsoft.Json.Formatting.Indented));
+            }
+        }
         private void WriteTriggers()
         {
             using (StreamWriter file = File.CreateText($"{GlobalVariables.workingdirectory}\\triggers.json"))
@@ -910,7 +959,11 @@ namespace EQAudioTriggers
         #region Ribbon
         private void _ribbon_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            RibbonTab tab = (RibbonTab)(sender as Ribbon).SelectedItem;
+            if(tab.Caption == "Categories")
+            {
+                //dockCategory.Visibility = Visibility.Visible;
+            }            
         }
         private void BackStageExitButton_Click(object sender, RoutedEventArgs e)
         {
@@ -2318,8 +2371,23 @@ namespace EQAudioTriggers
             //write collection to file
             SaveOverlayTimer();
         }
+
         #endregion
 
+        private void ribbonCategoryAdd_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ribbonCategoryRemove_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ribbonCategoryDefault_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
 
     }
 }

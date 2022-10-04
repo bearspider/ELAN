@@ -4,6 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:EQAudioTriggers"
+    xmlns:models="clr-namespace:EQAudioTriggers.Models"
     xmlns:interactivity="http://schemas.microsoft.com/xaml/behaviors"
     mc:Ignorable="d"
     xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
@@ -25,6 +26,7 @@
         <local:MonitoringContextConverter x:Key="MonitoringContextConverter"/>
         <local:CheckboxColorConverter x:Key="CheckboxColorConverter"/>
         <local:RadioButtonCheckedConverter x:Key="RadioButtonCheckedConverter"/>
+        <local:DefaultCategoryConverter x:Key="defaultcategoryconverter"/>
     </Window.Resources>
 
     <syncfusion:RibbonWindow.StatusBar>
@@ -174,6 +176,13 @@
                             </WrapPanel>
                         </DataTemplate>
                     </syncfusion:RibbonBar.ItemTemplate>
+                </syncfusion:RibbonBar>
+            </syncfusion:RibbonTab>
+            <syncfusion:RibbonTab Name="ribbonTabCategory" Caption="Categories">
+                <syncfusion:RibbonBar Header="Actions">
+                    <syncfusion:RibbonButton Name="ribbonCategoryAdd" Label="Add" IconType="Icon"  SizeForm="Large" LargeIcon="Images/Oxygen-Icons.org-Oxygen-Actions-tab-new-background.ico" Click="ribbonCategoryAdd_Click"/>
+                    <syncfusion:RibbonButton Name="ribbonCategoryRemove" Label="Remove" IconType="Icon" SizeForm="Large" LargeIcon="Images/Oxygen-Icons.org-Oxygen-Actions-tab-close-other.ico" Click="ribbonCategoryRemove_Click"/>
+                    <syncfusion:RibbonButton Name="ribbonCategoryDefault" Label="Set As Default" IconType="Icon" SizeForm="Large" LargeIcon="Images/Paomedia-Small-N-Flat-Sign-check.ico" Click="ribbonCategoryDefault_Click"/>
                 </syncfusion:RibbonBar>
             </syncfusion:RibbonTab>
             <syncfusion:Ribbon.BackStage>
@@ -459,6 +468,198 @@
             </ListView>
         </syncfusion:DockingManager>
         <syncfusion:DockingManager Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="triggerdockmanager" UseDocumentContainer="True" ContainerMode="TDI" DockFill="True">
+            <ContentControl x:Name="dockCategory" syncfusion:DockingManager.Header="Categories" syncfusion:DockingManager.State="Document">
+                <syncfusion:TabControlExt Name="categoryTabs" TabStripPlacement="Left" RotateTextWhenVertical="True">
+                    <syncfusion:TabControlExt.ItemContainerStyle>
+                        <Style TargetType="syncfusion:TabItemExt">
+                            <Setter Property="HeaderTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="15" />
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="35"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}"/>
+                                                <Image Grid.Row="0" Grid.Column="1" Source="{Binding DefaultCategory, Converter={StaticResource defaultcategoryconverter}}"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </syncfusion:TabControlExt.ItemContainerStyle>
+                    <syncfusion:TabControlExt.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <GroupBox Header="Category Settings" Grid.Row="0">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <Label Grid.Row="0" Grid.Column="0" Content="Name"/>
+                                                <TextBox x:Name="categoryName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
+                                                <Separator Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7"/>
+                                                <Label Grid.Row="2" Grid.Column="0" Content="Text"/>
+                                                <Label Grid.Row="2" Grid.Column="1" Content="Overlay"/>
+                                                <ComboBox Grid.Row="2" Grid.Column="2"/>
+                                                <Label Grid.Row="3" Grid.Column="1" Content="Colors"/>
+                                                <RadioButton Grid.Row="3" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
+                                                <RadioButton Grid.Row="4" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
+                                                <Label Grid.Row="4" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
+                                                <syncfusion:ColorPicker Grid.Row="4" Grid.Column="4" Name="clrPckrTextFont"/>
+                                                <Separator Grid.Row="5" Grid.ColumnSpan="7"/>
+                                                <Label Grid.Row="6" Grid.Column="0" Content="Timers"/>
+                                                <Label Grid.Row="6" Grid.Column="1" Content="Overlay"/>
+                                                <ComboBox Grid.Row="6" Grid.Column="2"/>
+                                                <Label Grid.Row="7" Grid.Column="1" Content="Colors"/>
+                                                <RadioButton Grid.Row="7" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
+                                                <RadioButton Grid.Row="8" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
+                                                <Label Grid.Row="8" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
+                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="4" Name="clrPckrTimerFont"/>
+                                                <Label Grid.Row="8" Grid.Column="5" Content="Timer Bar" HorizontalAlignment="Right"/>
+                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="6" Name="clrPckrTimerBar"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <GroupBox Header="Character Overrides" Grid.Row="1">
+                                        <StackPanel>
+                                            <syncfusion:ExpanderExt Header="Character Name" Name="expanderCharacter">
+                                                    <StackPanel>
+                                                        <syncfusion:ExpanderExt Header="Text Overrides" Name="expanderTextOverrides">
+                                                        <StackPanel>
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                </Grid.RowDefinitions>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition/>
+                                                                    <ColumnDefinition/>
+                                                                    <ColumnDefinition Width="150"/>
+                                                                    <ColumnDefinition/>
+                                                                    <ColumnDefinition/>
+                                                                    <ColumnDefinition/>
+                                                                    <ColumnDefinition/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Label Grid.Row="2" Grid.Column="0" Content="Text"/>
+                                                                <Label Grid.Row="2" Grid.Column="1" Content="Overlay"/>
+                                                                <ComboBox Grid.Row="2" Grid.Column="2"/>
+                                                                <Label Grid.Row="3" Grid.Column="1" Content="Colors"/>
+                                                                <RadioButton Grid.Row="3" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
+                                                                <RadioButton Grid.Row="4" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
+                                                                <Label Grid.Row="4" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
+                                                                <syncfusion:ColorPicker Grid.Row="4" Grid.Column="4" Name="clrPckrTextFontOverride"/>
+                                                                <Separator Grid.Row="5" Grid.ColumnSpan="7"/>
+                                                                <Label Grid.Row="6" Grid.Column="0" Content="Timers"/>
+                                                                <Label Grid.Row="6" Grid.Column="1" Content="Overlay"/>
+                                                                <ComboBox Grid.Row="6" Grid.Column="2"/>
+                                                                <Label Grid.Row="7" Grid.Column="1" Content="Colors"/>
+                                                                <RadioButton Grid.Row="7" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
+                                                                <RadioButton Grid.Row="8" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
+                                                                <Label Grid.Row="8" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
+                                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="4" Name="clrPckrTimerFontOverride"/>
+                                                                <Label Grid.Row="8" Grid.Column="5" Content="Timer Bar" HorizontalAlignment="Right"/>
+                                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="6" Name="clrPckrTimerBarOverride"/>
+                                                            </Grid>
+                                                        </StackPanel>
+                                                    </syncfusion:ExpanderExt>
+                                                        <syncfusion:ExpanderExt Header="Timer Overrides" Name="expanderTimerOverrides">
+                                                        <StackPanel>
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                    <RowDefinition />
+                                                                </Grid.RowDefinitions>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition/>
+                                                                    <ColumnDefinition/>
+                                                                    <ColumnDefinition Width="150"/>
+                                                                    <ColumnDefinition/>
+                                                                    <ColumnDefinition/>
+                                                                    <ColumnDefinition/>
+                                                                    <ColumnDefinition/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Label Grid.Row="2" Grid.Column="0" Content="Text"/>
+                                                                <Label Grid.Row="2" Grid.Column="1" Content="Overlay"/>
+                                                                <ComboBox Grid.Row="2" Grid.Column="2"/>
+                                                                <Label Grid.Row="3" Grid.Column="1" Content="Colors"/>
+                                                                <RadioButton Grid.Row="3" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
+                                                                <RadioButton Grid.Row="4" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
+                                                                <Label Grid.Row="4" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
+                                                                <syncfusion:ColorPicker Grid.Row="4" Grid.Column="4" Name="clrPckrTextFontTimer"/>
+                                                                <Separator Grid.Row="5" Grid.ColumnSpan="7"/>
+                                                                <Label Grid.Row="6" Grid.Column="0" Content="Timers"/>
+                                                                <Label Grid.Row="6" Grid.Column="1" Content="Overlay"/>
+                                                                <ComboBox Grid.Row="6" Grid.Column="2"/>
+                                                                <Label Grid.Row="7" Grid.Column="1" Content="Colors"/>
+                                                                <RadioButton Grid.Row="7" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
+                                                                <RadioButton Grid.Row="8" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
+                                                                <Label Grid.Row="8" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
+                                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="4" Name="clrPckrTimerFontTimer"/>
+                                                                <Label Grid.Row="8" Grid.Column="5" Content="Timer Bar" HorizontalAlignment="Right"/>
+                                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="6" Name="clrPckrTimerBarTimer"/>
+                                                            </Grid>
+                                                        </StackPanel>
+                                                        </syncfusion:ExpanderExt>
+                                                    </StackPanel>
+                                                </syncfusion:ExpanderExt>
+                                        </StackPanel>
+                                    </GroupBox>
+                                </Grid>
+                            </StackPanel>
+                        </DataTemplate>
+                    </syncfusion:TabControlExt.ContentTemplate>
+                </syncfusion:TabControlExt>
+            </ContentControl>
             <ContentControl syncfusion:DockingManager.Header="Activated Triggers" syncfusion:DockingManager.State="Document">
                 <syncfusion:SfDataGrid x:Name="activatedDatagrid" AllowSorting="true" AutoGenerateColumns="False" ColumnSizer="Star" NavigationMode="Row">
                     <syncfusion:SfDataGrid.Columns>

@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace EQAudioTriggers.Models
 {
-    public class Category
+    public class Category : INotifyPropertyChanged
     {
-        private int _id;
+        private string _id;
         private String _name;
         private String _textOverlay;
         private String _timerOverlay;
@@ -23,10 +24,19 @@ namespace EQAudioTriggers.Models
         private Boolean _timerThis;
         //private ObservableCollection<CharacterOverride> _characteroverrides;
         private ObservableCollection<OverlayText> _availabletextoverlays;
-        //private ObservableCollection<OverlayTimer> _availabletimeroverlays;
+        private ObservableCollection<OverlayTimer> _availabletimeroverlays;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propName)
+        {
+            Console.WriteLine($"Modified: {propName}");
+            if (this.PropertyChanged != null)
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
+        }
 
         public Category()
         {
+            Id = Guid.NewGuid().ToString();
             Name = "Default";
             TextOverlay = "Default";
             TimerOverlay = "Default";
@@ -40,68 +50,68 @@ namespace EQAudioTriggers.Models
             TimerThis = true;
             //CharacterOverrides = new ObservableCollection<CharacterOverride>();
             AvailableTextOverlays = new ObservableCollection<OverlayText>();
-            //AvailableTimerOverlays = new ObservableCollection<OverlayTimer>();
+            AvailableTimerOverlays = new ObservableCollection<OverlayTimer>();
         }
 
-        public int Id
+        public string Id
         {
             get { return _id; }
-            set { _id = value; }
+            set { _id = value; NotifyPropertyChanged("Id"); }
         }
         public String Name
         {
             get { return _name; }
-            set { _name = value; }
+            set { _name = value; NotifyPropertyChanged("Name"); }
         }
         public String TextOverlay
         {
             get { return _textOverlay; }
-            set { _textOverlay = value; }
+            set { _textOverlay = value; NotifyPropertyChanged("TextOverlay"); }
         }
         public String TimerOverlay
         {
             get { return _timerOverlay; }
-            set { _timerOverlay = value; }
+            set { _timerOverlay = value; NotifyPropertyChanged("TimerOverlay"); }
         }
         public String TextFontColor
         {
             get { return _textFontColor; }
-            set { _textFontColor = value; }
+            set { _textFontColor = value; NotifyPropertyChanged("TextFontColor"); }
         }
         public String TimerFontColor
         {
             get { return _timerFontColor; }
-            set { _timerFontColor = value; }
+            set { _timerFontColor = value; NotifyPropertyChanged("TimerFontColor"); }
         }
         public String TimerBarColor
         {
             get { return _timerBarColor; }
-            set { _timerBarColor = value; }
+            set { _timerBarColor = value; NotifyPropertyChanged("TimerBarColor"); }
         }
         public Boolean DefaultCategory
         {
             get { return _defaultCategory; }
-            set { _defaultCategory = value; }
+            set { _defaultCategory = value; NotifyPropertyChanged("DefaultCategory"); }
         }
         public Boolean TextColors
         {
             get { return _textColors; }
-            set { _textColors = value; }
+            set { _textColors = value; NotifyPropertyChanged("TextColors"); }
         }
         public Boolean TextThis
         {
             get { return _textThis; }
-            set { _textThis = value; }
+            set { _textThis = value; NotifyPropertyChanged("TextThis"); }
         }
         public Boolean TimerColors
         {
             get { return _timerColors; }
-            set { _timerColors = value; }
+            set { _timerColors = value; NotifyPropertyChanged("TimerColors"); }
         }
         public Boolean TimerThis
         {
             get { return _timerThis; }
-            set { _timerThis = value; }
+            set { _timerThis = value; NotifyPropertyChanged("TimerThis"); }
         }
         //public ObservableCollection<CharacterOverride> CharacterOverrides
         //{
@@ -111,13 +121,13 @@ namespace EQAudioTriggers.Models
         public ObservableCollection<OverlayText> AvailableTextOverlays
         {
             get { return _availabletextoverlays; }
-            set { _availabletextoverlays = value; }
+            set { _availabletextoverlays = value; NotifyPropertyChanged("AvailableTextOverlays"); }
         }
-        //public ObservableCollection<OverlayTimer> AvailableTimerOverlays
-        //{
-        //    get { return _availabletimeroverlays; }
-        //    set { _availabletimeroverlays = value; }
-        //}
+        public ObservableCollection<OverlayTimer> AvailableTimerOverlays
+        {
+            get { return _availabletimeroverlays; }
+            set { _availabletimeroverlays = value; NotifyPropertyChanged("AvailableTimerOverlays"); }
+        }
         public bool Equals(Category compareto)
         {
             bool rval = false;
