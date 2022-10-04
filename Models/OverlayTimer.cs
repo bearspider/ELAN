@@ -28,6 +28,7 @@ namespace EQAudioTriggers.Models
             WindowX = 0;
             WindowY = 0;
             FontColor = "Black";
+            Id = Guid.NewGuid().ToString();
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyPropertyChanged(string propName)
@@ -36,7 +37,7 @@ namespace EQAudioTriggers.Models
             if (this.PropertyChanged != null)
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
         }
-        private int _id;
+        private string _id;
         private string _name;
         private string _font;
         private int _size;
@@ -53,7 +54,7 @@ namespace EQAudioTriggers.Models
         private double _windowY;
         private string _fontcolor;
 
-        public int Id { get { return _id; } set { _id = value; NotifyPropertyChanged("Id"); } }
+        public string Id { get { return _id; } set { _id = value; NotifyPropertyChanged("Id"); } }
         public String Name { get { return _name; } set { _name = value; NotifyPropertyChanged("Name"); } }
         public String Font { get { return _font; } set { _font = value; NotifyPropertyChanged("Font"); } }
         public int Size { get { return _size; } set { _size = value; NotifyPropertyChanged("Size"); } }

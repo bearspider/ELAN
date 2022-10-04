@@ -23,21 +23,24 @@ namespace EQAudioTriggers.Models
         private double _windowWidth;
         private double _windowX;
         private double _windowY;
+        private string _id;
 
         public OverlayText()
         {
-            _name = "default";
-            _font = "Segoe UI";
-            _fontcolor = "Black";
-            _size = 20;
-            _delay = 10;
-            _bg = "Transparent";
-            _faded = "Transparent";
-            _windowHeight = 450;
-            _windowWidth = 800;
-            _windowX = 0;
-            _windowY = 0;
+            Name = "default";
+            Font = "Segoe UI";
+            FontColor = "Black";
+            Size = 20;
+            Delay = 10;
+            BG = "Transparent";
+            Faded = "Transparent";
+            WindowHeight = 450;
+            WindowWidth = 800;
+            WindowX = 0;
+            WindowY = 0;
+            Id = Guid.NewGuid().ToString();
         }
+        public string Id { get { return _id; } set { _id = value; NotifyPropertyChanged("Id"); } }
         public string Name { get { return _name; } set { _name = value; NotifyPropertyChanged("Name"); } }
         public string Font { get { return _font; } set { _font = value; NotifyPropertyChanged("Name"); } }
         public string FontColor { get { return _fontcolor; } set { _fontcolor = value; NotifyPropertyChanged("Name"); } }

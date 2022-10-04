@@ -18,10 +18,10 @@ namespace EQAudioTriggers.Models
         private String _timerFontColor;
         private String _timerBarColor;
         private Boolean _defaultCategory;
-        private Boolean _textColors;
-        private Boolean _textThis;
-        private Boolean _timerColors;
-        private Boolean _timerThis;
+        private Boolean _textUseCharacter;
+        private Boolean _textUseColor;
+        private Boolean _timerUseCharacter;
+        private Boolean _timerUseColor;
         //private ObservableCollection<CharacterOverride> _characteroverrides;
         private ObservableCollection<OverlayText> _availabletextoverlays;
         private ObservableCollection<OverlayTimer> _availabletimeroverlays;
@@ -37,17 +37,17 @@ namespace EQAudioTriggers.Models
         public Category()
         {
             Id = Guid.NewGuid().ToString();
-            Name = "Default";
-            TextOverlay = "Default";
-            TimerOverlay = "Default";
+            CategoryName = "Default";
+            TextOverlay = "default";
+            TimerOverlay = "default";
             TextFontColor = "Yellow";
             TimerFontColor = "Gray";
             TimerBarColor = "Blue";
             DefaultCategory = false;
-            TextColors = false;
-            TextThis = true;
-            TimerColors = false;
-            TimerThis = true;
+            TextUseCharacter = false;
+            TextUseColor = true;
+            TimerUseCharacter = false;
+            TimerUseColor = true;
             //CharacterOverrides = new ObservableCollection<CharacterOverride>();
             AvailableTextOverlays = new ObservableCollection<OverlayText>();
             AvailableTimerOverlays = new ObservableCollection<OverlayTimer>();
@@ -58,7 +58,7 @@ namespace EQAudioTriggers.Models
             get { return _id; }
             set { _id = value; NotifyPropertyChanged("Id"); }
         }
-        public String Name
+        public String CategoryName
         {
             get { return _name; }
             set { _name = value; NotifyPropertyChanged("Name"); }
@@ -93,25 +93,25 @@ namespace EQAudioTriggers.Models
             get { return _defaultCategory; }
             set { _defaultCategory = value; NotifyPropertyChanged("DefaultCategory"); }
         }
-        public Boolean TextColors
+        public Boolean TextUseCharacter
         {
-            get { return _textColors; }
-            set { _textColors = value; NotifyPropertyChanged("TextColors"); }
+            get { return _textUseCharacter; }
+            set { _textUseCharacter = value; NotifyPropertyChanged("TextColors"); }
         }
-        public Boolean TextThis
+        public Boolean TextUseColor
         {
-            get { return _textThis; }
-            set { _textThis = value; NotifyPropertyChanged("TextThis"); }
+            get { return _textUseColor; }
+            set { _textUseColor = value; NotifyPropertyChanged("TextThis"); }
         }
-        public Boolean TimerColors
+        public Boolean TimerUseCharacter
         {
-            get { return _timerColors; }
-            set { _timerColors = value; NotifyPropertyChanged("TimerColors"); }
+            get { return _timerUseCharacter; }
+            set { _timerUseCharacter = value; NotifyPropertyChanged("TimerColors"); }
         }
-        public Boolean TimerThis
+        public Boolean TimerUseColor
         {
-            get { return _timerThis; }
-            set { _timerThis = value; NotifyPropertyChanged("TimerThis"); }
+            get { return _timerUseColor; }
+            set { _timerUseColor = value; NotifyPropertyChanged("TimerThis"); }
         }
         //public ObservableCollection<CharacterOverride> CharacterOverrides
         //{
@@ -133,17 +133,17 @@ namespace EQAudioTriggers.Models
             bool rval = false;
             if (
                 _id == compareto.Id
-                && _name == compareto.Name
+                && _name == compareto.CategoryName
                 && _textOverlay == compareto.TextOverlay
                 && _timerOverlay == compareto.TimerOverlay
                 && _textFontColor == compareto.TextFontColor
                 && _timerFontColor == compareto.TimerFontColor
                 && _timerBarColor == compareto.TimerBarColor
                 && _defaultCategory == compareto.DefaultCategory
-                && _textColors == compareto.TextColors
-                && _textThis == compareto.TextThis
-                && _timerColors == compareto.TimerColors
-                && _timerThis == compareto.TimerThis)
+                && _textUseCharacter == compareto.TextUseCharacter
+                && _textUseColor == compareto.TextUseColor
+                && _timerUseCharacter == compareto.TimerUseCharacter
+                && _timerUseColor == compareto.TimerUseColor)
             {
                 rval = true;
             }

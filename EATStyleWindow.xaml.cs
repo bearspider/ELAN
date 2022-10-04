@@ -255,13 +255,9 @@ namespace EQAudioTriggers
     /// <summary>
     /// Interaction logic for EATStyleWindow.xaml
     /// </summary>
-    public partial class EATStyleWindow : RibbonWindow
+    public partial class EATStyleWindow : RibbonWindow, INotifyPropertyChanged
     {
         #region Properties
-
-        //Look into zone specific triggers
-        //parse out the "You have entered {The Plane of Knowledge}" and ignore "you have entered something where levitation doesn't work
-
         private int _totallinecount = 0;
         private string _currentzone = "None";
         private int _systemprocs = Environment.ProcessorCount;
@@ -280,21 +276,37 @@ namespace EQAudioTriggers
         private Settings _settings = new Settings();
         private ObservableCollection<EQTrigger> _modifiedtriggers = new ObservableCollection<EQTrigger>();
         private ParallelOptions _po = new ParallelOptions();
-        private List<string> _availableThemes = new List<string>();
+        public List<string> _availableThemes = new List<string>();
         private string _selectedtheme = "FluentDark";
         private ObservableCollection<OverlayText> _overlaytext = new ObservableCollection<OverlayText>();
         private ObservableCollection<OverlayTextWindow> _overlaytextwindows = new ObservableCollection<OverlayTextWindow>();
         private ObservableCollection<OverlayTimer> _overlaytimer = new ObservableCollection<OverlayTimer>();
         private ObservableCollection<OverlayTimerWindow> _overlaytimerwindows = new ObservableCollection<OverlayTimerWindow>();
         private ObservableCollection<Category> _categories = new ObservableCollection<Category>();
-
+        public List<String> AvailableThemes{ get { return _availableThemes; } set { _availableThemes = value; NotifyPropertyChanged("AvailableThemes"); } }
+        public Settings Settings { get { return _settings; } set { _settings = value; NotifyPropertyChanged("Settings"); } }
+        public ObservableCollection<Category> Categories { get { return _categories; } set { _categories = value; NotifyPropertyChanged("Categories"); } }
+        public ObservableCollection<OverlayText> OverlayText { get { return _overlaytext; } set { _overlaytext = value; NotifyPropertyChanged("OverlayText"); } }
+        public ObservableCollection<OverlayTimer> OverlayTimer { get { return _overlaytimer; } set { _overlaytimer = value; NotifyPropertyChanged("OverlayTimer"); } }
+        public string CurrentZone { get { return _currentzone; } set { _currentzone = value; NotifyPropertyChanged("CurrentZone"); } }
+        public int TotalLineCount { get { return _totallinecount; } set { _totallinecount = value; NotifyPropertyChanged("TotalLineCount"); } }
+        public string SelectedCharacter { get { return _selectedcharacter; } set { _selectedcharacter = value; NotifyPropertyChanged("SelectedCharacter"); } }
         //System Tray Icons
         private System.Windows.Forms.NotifyIcon MyNotifyIcon;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propName)
+        {
+            Console.WriteLine($"Modified: {propName}");
+            if (this.PropertyChanged != null)
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
+        }
 
         #endregion
         public EATStyleWindow()
         {
-            InitializeComponent();
+            InitializeComponent();            
             _syncontext = SynchronizationContext.Current;
             LoadBase();
             LoadSettings();
@@ -316,13 +328,11 @@ namespace EQAudioTriggers
                         _listviewCharacters.SelectedItem = profile;
                     }
                 }
-            }
-            DataContext = this;
-            //set datacontext for status bar
-            txtblockStatus.DataContext = _totallinecount;
-            txtblockZone.DataContext = _currentzone;
+            }            
             LoadOverlayText();
             LoadOverlayTimer();
+            DataContext = this;
+
         }
         private void LoadCategories()
         {
@@ -336,10 +346,14 @@ namespace EQAudioTriggers
             }
             else
             {
+                Category newcategory = new Category();
+                newcategory.AvailableTextOverlays = _overlaytext;
+                newcategory.AvailableTimerOverlays = _overlaytimer;
                 _categories.Add(new Category());
                 WriteCategories();
             }
-            categoryTabs.ItemsSource = _categories;
+            //categoryTabs.ItemsSource = _categories;
+            //categoryTabs.SelectedIndex = 0;
         }
         private void LoadThemes()
         {
@@ -352,8 +366,6 @@ namespace EQAudioTriggers
             _availableThemes.Add("Office2019Colorful");
             _availableThemes.Add("Office2019Black");
             _availableThemes.Add("Office2019DarkGray");
-            comboVisualStyle.ItemsSource = _availableThemes;
-            comboVisualStyle.DataContext = _settings;
         }
         private void LoadBase()
         {
@@ -892,7 +904,6 @@ namespace EQAudioTriggers
             _syncontext.Post(new SendOrPostCallback(o =>
             {
                 _totallinecount += (int)o;
-                txtblockStatus.DataContext = _totallinecount;
             }), value);
             stopwatch.Stop();
             Console.WriteLine($"Line Update Took: {stopwatch.Elapsed.TotalSeconds} Seconds");
@@ -903,7 +914,6 @@ namespace EQAudioTriggers
             _syncontext.Post(new SendOrPostCallback(o =>
             {
                 _currentzone = (string)o;
-                txtblockZone.DataContext = _currentzone;
             }), zonename);
         }
         private void MainRibbon_Closing(object sender, CancelEventArgs e)
@@ -962,7 +972,6 @@ namespace EQAudioTriggers
             RibbonTab tab = (RibbonTab)(sender as Ribbon).SelectedItem;
             if(tab.Caption == "Categories")
             {
-                //dockCategory.Visibility = Visibility.Visible;
             }            
         }
         private void BackStageExitButton_Click(object sender, RoutedEventArgs e)
@@ -2165,41 +2174,41 @@ namespace EQAudioTriggers
         #region Backstage Functions
         private void BackstageAdvanced_GotFocus(object sender, RoutedEventArgs e)
         {
-            sliderCores.DataContext = _settings;
+            //sliderCores.DataContext = _settings;
         }
 
         private void BackstageGeneral_GotFocus(object sender, RoutedEventArgs e)
         {
-            chkboxEnableSound.DataContext = _settings;
-            chkboxEnableText.DataContext = _settings;
-            chkboxEnableTimers.DataContext = _settings;
-            chkboxStopFirstMatch.DataContext = _settings;
-            chkboxSystemTray.DataContext = _settings;
-            chkboxDisplayMatches.DataContext = _settings;
-            chkboxLogMatches.DataContext = _settings;
-            textboxMatchLog.DataContext = _settings;
-            textboxClipboard.DataContext = _settings;
-            textboxEQFolder.DataContext = _settings;
-            textboxImportedMedia.DataContext = _settings;
-            textboxDataFolder.DataContext = _settings;
-            textboxMaxLogEntries.DataContext = _settings;
-            textboxLogArchiveFolder.DataContext = _settings;
-            chkboxAutoArchive.DataContext = _settings;
-            chkboxCompressArchive.DataContext = _settings;
-            chkboxDeleteArchive.DataContext = _settings;
-            textboxDeleteArchive.DataContext = _settings;
-            sliderMaster.DataContext = _settings;
-            comboboxArchiveMethod.DataContext = _settings;
-            comboboxArchiveSchedule.DataContext = _settings;
-            listviewSenders.DataContext = _settings;
-            chkboxSharing.DataContext = _settings;
-            radioAcceptNobody.DataContext = _settings;
-            radioAcceptAnybody.DataContext = _settings;
-            radioAcceptTrusted.DataContext = _settings;
-            radioMergeAnbody.DataContext = _settings;
-            radioMergeNobody.DataContext = _settings;
-            radioMergeTrusted.DataContext = _settings;
-            textboxSharingURL.DataContext = _settings;
+            //chkboxEnableSound.DataContext = _settings;
+            //chkboxEnableText.DataContext = _settings;
+            //chkboxEnableTimers.DataContext = _settings;
+            //chkboxStopFirstMatch.DataContext = _settings;
+            //chkboxSystemTray.DataContext = _settings;
+            //chkboxDisplayMatches.DataContext = _settings;
+            //chkboxLogMatches.DataContext = _settings;
+            //textboxMatchLog.DataContext = _settings;
+            //textboxClipboard.DataContext = _settings;
+            //textboxEQFolder.DataContext = _settings;
+            //textboxImportedMedia.DataContext = _settings;
+            //textboxDataFolder.DataContext = _settings;
+            //textboxMaxLogEntries.DataContext = _settings;
+            //textboxLogArchiveFolder.DataContext = _settings;
+            //chkboxAutoArchive.DataContext = _settings;
+            //chkboxCompressArchive.DataContext = _settings;
+            //chkboxDeleteArchive.DataContext = _settings;
+            //textboxDeleteArchive.DataContext = _settings;
+            //sliderMaster.DataContext = _settings;
+            //comboboxArchiveMethod.DataContext = _settings;
+            //comboboxArchiveSchedule.DataContext = _settings;
+            //listviewSenders.DataContext = _settings;
+            //chkboxSharing.DataContext = _settings;
+            //radioAcceptNobody.DataContext = _settings;
+            //radioAcceptAnybody.DataContext = _settings;
+            //radioAcceptTrusted.DataContext = _settings;
+            //radioMergeAnbody.DataContext = _settings;
+            //radioMergeNobody.DataContext = _settings;
+            //radioMergeTrusted.DataContext = _settings;
+            //textboxSharingURL.DataContext = _settings;
         }
 
         private void buttonLogArchiveFolder_Click(object sender, RoutedEventArgs e)
@@ -2312,6 +2321,13 @@ namespace EQAudioTriggers
             {
                 file.Write(JsonConvert.SerializeObject(_overlaytext, Newtonsoft.Json.Formatting.Indented));
             }
+            //Update the categories
+            foreach(Category category in _categories)
+            {
+                category.AvailableTextOverlays = _overlaytext;
+                category.AvailableTimerOverlays = _overlaytimer;
+            }
+            WriteCategories();
         }
         private void SaveOverlayTimer()
         {
@@ -2319,6 +2335,13 @@ namespace EQAudioTriggers
             {
                 file.Write(JsonConvert.SerializeObject(_overlaytimer, Newtonsoft.Json.Formatting.Indented));
             }
+            //Update the categories
+            foreach (Category category in _categories)
+            {
+                category.AvailableTextOverlays = _overlaytext;
+                category.AvailableTimerOverlays = _overlaytimer;
+            }
+            WriteCategories();
         }
         private void DropDownMenuItemEdit_Click(object sender, RoutedEventArgs e)
         {
@@ -2376,18 +2399,45 @@ namespace EQAudioTriggers
 
         private void ribbonCategoryAdd_Click(object sender, RoutedEventArgs e)
         {
-
+            Category newcategory = new Category();
+            _categories.Add(newcategory);
         }
 
         private void ribbonCategoryRemove_Click(object sender, RoutedEventArgs e)
         {
+            Category removecategory = (Category)categoryTabs.SelectedItem;
+            if (_categories.Count == 1)
+            {
+                MessageBoxResult mbox = Xceed.Wpf.Toolkit.MessageBox.Show("Must Have At Lease One Category.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else if(removecategory.DefaultCategory)
+            {
+                MessageBoxResult mbox = Xceed.Wpf.Toolkit.MessageBox.Show("Cannot Delete Default Category.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                
+                _categories.Remove(removecategory);
+                WriteCategories();
+            }
 
         }
 
         private void ribbonCategoryDefault_Click(object sender, RoutedEventArgs e)
         {
-
+            Category selected = (Category)categoryTabs.SelectedItem;
+            Category olddefault = _categories.Where<Category>(x => x.DefaultCategory == true).FirstOrDefault();
+            if(olddefault != null)
+            {
+                olddefault.DefaultCategory = false;
+            }
+            selected.DefaultCategory = true;
+            WriteCategories();
         }
 
+        private void buttonCategorySave_Click(object sender, RoutedEventArgs e)
+        {
+            WriteCategories();
+        }
     }
 }

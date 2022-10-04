@@ -27,6 +27,15 @@
         <local:CheckboxColorConverter x:Key="CheckboxColorConverter"/>
         <local:RadioButtonCheckedConverter x:Key="RadioButtonCheckedConverter"/>
         <local:DefaultCategoryConverter x:Key="defaultcategoryconverter"/>
+
+        <CollectionViewSource x:Key="categorysource" Source="{Binding Categories}"/>
+        <CollectionViewSource x:Key="overlaytextsource" Source="{Binding OverlayText}"/>
+        <CollectionViewSource x:Key="overlaytimersource" Source="{Binding OverlayTimer}"/>
+        <CompositeCollection x:Key="categorycollection">
+            <CollectionContainer Collection="{Binding Source={StaticResource categorysource}}"/>
+            <CollectionContainer Collection="{Binding Source={StaticResource overlaytextsource}}"/>
+            <CollectionContainer Collection="{Binding Source={StaticResource overlaytimersource}}"/>
+        </CompositeCollection>
     </Window.Resources>
 
     <syncfusion:RibbonWindow.StatusBar>
@@ -54,11 +63,11 @@
                         <TextBlock Margin="5,0,0,0" Grid.Row="0" Grid.Column="0" Text="Selected Profile: " VerticalAlignment="Center" />
                         <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtblockProfile" />
                         <TextBlock Margin="10,0,0,0" Grid.Row="0" Grid.Column="2" Text="Current Zone: " VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="0" Grid.Column="3" x:Name="txtblockZone" Text="{Binding Path=., StringFormat=\{0\}}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" x:Name="txtblockZone" Text="{Binding CurrentZone, StringFormat=\{0\}}" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
                 <StackPanel Margin="0,5,10,0" Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Grid.Row="0" Grid.Column="0" x:Name="txtblockStatus" Text="{Binding Path=., StringFormat=\{0\}}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" x:Name="txtblockStatus" Text="{Binding TotalLineCount, StringFormat=\{0\}}" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="0" Grid.Column="1" Text=" Lines Processed" VerticalAlignment="Center"/>
                 </StackPanel>
             </Grid>
@@ -129,7 +138,7 @@
                     <syncfusion:RibbonButton Name="buttonOverlayText" Label="Add Text Overlay" IconType="Icon" SizeForm="Large" LargeIcon="Images/Oxygen-Icons.org-Oxygen-Actions-document-new.ico" Click="buttonOverlayText_Click"/>
                     <syncfusion:RibbonButton Name="buttonOverlayTimer" Label="Add Timer Overlay" IconType="Icon" SizeForm="Large" LargeIcon="Images/Google-Noto-Emoji-Travel-Places-42608-stopwatch.ico" Click="buttonOverlayTimer_Click"/>
                 </syncfusion:RibbonBar>
-                <syncfusion:RibbonBar x:Name="ribbonOverlays" Header="Text Overlays">                    
+                <syncfusion:RibbonBar x:Name="ribbonOverlays" Header="Text Overlays">
                     <syncfusion:RibbonBar.ItemTemplate>
                         <DataTemplate>
                             <WrapPanel>
@@ -213,32 +222,32 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Name="chkboxEnableSound" Content="Enable Sound" IsChecked="{Binding Path=EnableSound}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Name="chkboxEnableSound" Content="Enable Sound" IsChecked="{Binding Settings.EnableSound}"/>
                                 <Label Content="Master Volume" Grid.Row="1" Grid.Column="0"/>
-                                <Slider Name="sliderMaster" Value="{Binding Path=MasterVolume}" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="1" Grid.Column="1" ValueChanged="sliderMaster_ValueChanged"/>
+                                <Slider Name="sliderMaster" Value="{Binding Settings.MasterVolume}" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="1" Grid.Column="1" ValueChanged="sliderMaster_ValueChanged"/>
                                 <Label Name="labelMaster" Grid.Row="1" Grid.Column="2"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="2" Grid.Column="0" Name="chkboxEnableText" Content="Enable Text" IsChecked="{Binding Path=EnableText}"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="3" Grid.Column="0" Name="chkboxEnableTimers" Content="Enable Timers" IsChecked="{Binding Path=EnableTimers}"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="4" Grid.Column="0" Name="chkboxStopFirstMatch" Content="Stop Trigger Search After First Match" IsChecked="{Binding Path=StopTriggerSearch}"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="5" Grid.Column="0" Name="chkboxSystemTray" Content="Minimize To System Tray" IsChecked="{Binding Path=Minimize}"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="6" Grid.Column="0" Name="chkboxDisplayMatches" Content="Display Match Log" IsChecked="{Binding Path=DisplayMatchLog}"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="7" Grid.Column="0" Name="chkboxLogMatches" Content="Log Matches To File:" IsChecked="{Binding Path=LogMatchesToFile}"/>
-                                <syncfusion:RibbonTextBox Grid.Row="7" Grid.Column="1" Name="textboxMatchLog" Width="220" Text="{Binding Path=LogMatchFilename}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="2" Grid.Column="0" Name="chkboxEnableText" Content="Enable Text" IsChecked="{Binding Settings.EnableText}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="3" Grid.Column="0" Name="chkboxEnableTimers" Content="Enable Timers" IsChecked="{Binding Settings.EnableTimers}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="4" Grid.Column="0" Name="chkboxStopFirstMatch" Content="Stop Trigger Search After First Match" IsChecked="{Binding Settings.StopTriggerSearch}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="5" Grid.Column="0" Name="chkboxSystemTray" Content="Minimize To System Tray" IsChecked="{Binding Settings.Minimize}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="6" Grid.Column="0" Name="chkboxDisplayMatches" Content="Display Match Log" IsChecked="{Binding Settings.DisplayMatchLog}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="7" Grid.Column="0" Name="chkboxLogMatches" Content="Log Matches To File:" IsChecked="{Binding Settings.LogMatchesToFile}"/>
+                                <syncfusion:RibbonTextBox Grid.Row="7" Grid.Column="1" Name="textboxMatchLog" Width="220" Text="{Binding Settings.LogMatchFilename}"/>
                                 <Label Grid.Row="8" Grid.Column="0" Content="Clipboard Replacement for {C}:"/>
-                                <syncfusion:RibbonTextBox Grid.Row="8" Grid.Column="1" Name="textboxClipboard" HorizontalAlignment="Left" Width="75" Text="{Binding Path=Clipboard}"/>
+                                <syncfusion:RibbonTextBox Grid.Row="8" Grid.Column="1" Name="textboxClipboard" HorizontalAlignment="Left" Width="75" Text="{Binding Settings.Clipboard}"/>
                                 <Label Grid.Row="9" Grid.Column="0" Content="Everquest Folder:"/>
-                                <syncfusion:RibbonTextBox Grid.Row="9" Grid.Column="1" Name="textboxEQFolder" Width="220" Text="{Binding Path=EQFolder}"/>
+                                <syncfusion:RibbonTextBox Grid.Row="9" Grid.Column="1" Name="textboxEQFolder" Width="220" Text="{Binding Settings.EQFolder}"/>
                                 <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="9" Grid.Column="2" Name="buttonEQFolder" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonEQFolder_Click"/>
                                 <Label Grid.Row="10" Grid.Column="0" Content="Imported Media Folder"/>
-                                <syncfusion:RibbonTextBox Grid.Row="10" Grid.Column="1" Name="textboxImportedMedia" Width="220" Text="{Binding Path=ImportedMediaFolder}"/>
+                                <syncfusion:RibbonTextBox Grid.Row="10" Grid.Column="1" Name="textboxImportedMedia" Width="220" Text="{Binding Settings.ImportedMediaFolder}"/>
                                 <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="10" Grid.Column="2" Name="buttonMediaFolder" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonMediaFolder_Click"/>
                                 <Label Grid.Row="11" Grid.Column="0" Content="EQ Audio Triggers Data Folder"/>
-                                <syncfusion:RibbonTextBox Grid.Row="11" Grid.Column="1" Name="textboxDataFolder" Width="220" Text="{Binding Path=DataFolder}"/>
+                                <syncfusion:RibbonTextBox Grid.Row="11" Grid.Column="1" Name="textboxDataFolder" Width="220" Text="{Binding Settings.DataFolder}"/>
                                 <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="11" Grid.Column="2" Name="buttonDataFolder" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonDataFolder_Click"/>
                                 <Label Grid.Row="12" Grid.Column="0" Content="Maximum Log Entries"/>
-                                <syncfusion:RibbonTextBox Grid.Row="12" Grid.Column="1" Name="textboxMaxLogEntries" Text="{Binding Path=MaxLogEntry}"/>
+                                <syncfusion:RibbonTextBox Grid.Row="12" Grid.Column="1" Name="textboxMaxLogEntries" Text="{Binding Settings.MaxLogEntry}"/>
                                 <Label Grid.Row="13" Grid.Column="0" Content="Theme"/>
-                                <syncfusion:RibbonComboBox Grid.Row="13" Grid.Column="1" Name="comboVisualStyle" ItemsSource="{Binding }" SelectedValue="{Binding Theme}" SelectionChanged="comboVisualStyle_SelectionChanged"/>
+                                <syncfusion:RibbonComboBox Grid.Row="13" Grid.Column="1" Name="comboVisualStyle" ItemsSource="{Binding Path=AvailableThemes}" SelectedValue="{Binding Settings.Theme}" SelectionChanged="comboVisualStyle_SelectionChanged"/>
                                 <syncfusion:RibbonButton Margin="5,5,0,0" Grid.Row="14" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonGeneralSave" Click="buttonGeneralSave_Click"/>
                             </Grid>
                         </StackPanel>
@@ -258,7 +267,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <syncfusion:RibbonCheckBox Margin="5" Grid.Row="0" Grid.Column="0" Content="Enable Sharing" Name="chkboxSharing" IsChecked="{Binding SharingEnabled}"/>
+                                <syncfusion:RibbonCheckBox Margin="5" Grid.Row="0" Grid.Column="0" Content="Enable Sharing" Name="chkboxSharing" IsChecked="{Binding Settings.SharingEnabled}"/>
                                 <GroupBox Margin="5" Grid.Row="1" Header="Accept Share Invitations From">
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -269,26 +278,26 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <syncfusion:RibbonRadioButton Name="radioAcceptNobody" GroupName="Accept" Content="Nobody" IsChecked="{Binding AcceptInvitationsFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Nobody}}"/>
-                                        <syncfusion:RibbonRadioButton Grid.Row="1" Name="radioAcceptTrusted" GroupName="Accept" Content="Trusted List" IsChecked="{Binding AcceptInvitationsFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Trusted}}"/>
-                                        <syncfusion:RibbonRadioButton Grid.Row="2" Name="radioAcceptAnybody" GroupName="Accept" Content="Anybody" IsChecked="{Binding AcceptInvitationsFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Anybody}}"/>
+                                        <syncfusion:RibbonRadioButton Name="radioAcceptNobody" GroupName="Accept" Content="Nobody" IsChecked="{Binding Settings.AcceptInvitationsFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Nobody}}"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="1" Name="radioAcceptTrusted" GroupName="Accept" Content="Trusted List" IsChecked="{Binding Settings.AcceptInvitationsFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Trusted}}"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="2" Name="radioAcceptAnybody" GroupName="Accept" Content="Anybody" IsChecked="{Binding Settings.AcceptInvitationsFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Anybody}}"/>
                                     </Grid>
                                 </GroupBox>
-                            <GroupBox Margin="5" Grid.Row="2" Grid.Column="0" Header="Automatic Merge From">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto "/>
-                                        <RowDefinition Height="auto "/>
-                                        <RowDefinition Height="auto "/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="auto"/>
-                                    </Grid.ColumnDefinitions>
-                                        <syncfusion:RibbonRadioButton Grid.Row="0" Name="radioMergeNobody" GroupName="Merge" Content="Nobody" IsChecked="{Binding MergeFrom, Mode=TwoWay,Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Nobody}}"/>
-                                        <syncfusion:RibbonRadioButton Grid.Row="1" Name="radioMergeTrusted" GroupName="Merge" Content="Trusted List" IsChecked="{Binding MergeFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Trusted}}"/>
-                                        <syncfusion:RibbonRadioButton Grid.Row="2" Name="radioMergeAnbody" GroupName="Merge" Content="Anybody" IsChecked="{Binding MergeFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Anybody}}"/>
-                                </Grid>
-                            </GroupBox>
+                                <GroupBox Margin="5" Grid.Row="2" Grid.Column="0" Header="Automatic Merge From">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto "/>
+                                            <RowDefinition Height="auto "/>
+                                            <RowDefinition Height="auto "/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <syncfusion:RibbonRadioButton Grid.Row="0" Name="radioMergeNobody" GroupName="Merge" Content="Nobody" IsChecked="{Binding Settings.MergeFrom, Mode=TwoWay,Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Nobody}}"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="1" Name="radioMergeTrusted" GroupName="Merge" Content="Trusted List" IsChecked="{Binding Settings.MergeFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Trusted}}"/>
+                                        <syncfusion:RibbonRadioButton Grid.Row="2" Name="radioMergeAnbody" GroupName="Merge" Content="Anybody" IsChecked="{Binding Settings.MergeFrom, Mode=TwoWay, Converter={StaticResource RadioButtonCheckedConverter}, ConverterParameter={x:Static local:ShareInvitation.Anybody}}"/>
+                                    </Grid>
+                                </GroupBox>
                                 <GroupBox Margin="5" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Header="Trusted Sender List">
                                     <Grid Margin="7">
                                         <Grid.RowDefinitions>
@@ -308,7 +317,7 @@
                                         <Label Grid.Row="0" Grid.Column="0" Content="Name:"/>
                                         <syncfusion:RibbonTextBox Grid.Row="0" Grid.Column="1" Width="100" Name="txtboxSenderName"/>
                                         <syncfusion:RibbonButton Grid.Row="0" Grid.Column="2" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-list-add.ico" Name="buttonAddSender" Label="Add" Click="buttonAddSender_Click"/>
-                                        <ListView ItemsSource="{Binding TrustedSenderList}" Margin="5" Grid.Row="1" Grid.RowSpan="5" Grid.ColumnSpan="3" Name="listviewSenders" Height="125" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" SelectionChanged="listviewSenders_SelectionChanged" MouseDoubleClick="listviewSenders_MouseDoubleClick"/>
+                                        <ListView ItemsSource="{Binding Settings.TrustedSenderList}" Margin="5" Grid.Row="1" Grid.RowSpan="5" Grid.ColumnSpan="3" Name="listviewSenders" Height="125" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" SelectionChanged="listviewSenders_SelectionChanged" MouseDoubleClick="listviewSenders_MouseDoubleClick"/>
                                         <syncfusion:RibbonButton Grid.Row="6" Grid.Column="0" Label="Remove" Name="buttonRemoveSender" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-list-remove.ico" Click="buttonRemoveSender_Click"/>
                                     </Grid>
                                 </GroupBox>
@@ -335,14 +344,14 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Row="0" Grid.Column="0" Content="Log Archive Folder"/>
-                                <syncfusion:RibbonTextBox Name="textboxLogArchiveFolder" Grid.Row="0" Grid.Column="1" Width="280" Text="{Binding Path=LogArchiveFolder}"/>
+                                <syncfusion:RibbonTextBox Name="textboxLogArchiveFolder" Grid.Row="0" Grid.Column="1" Width="280" Text="{Binding Settings.LogArchiveFolder}"/>
                                 <syncfusion:RibbonButton Margin="5,0,0,0" Grid.Row="0" Grid.Column="2" Name="buttonLogArchiveFolder" Width="20" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-open-folder.ico" Label="" Click="buttonLogArchiveFolder_Click"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="1" Grid.Column="0" Name="chkboxAutoArchive" Content="Automatically Archive Logs" IsChecked="{Binding Path=AutoArchive}"/>
-                                <syncfusion:RibbonCheckBox Grid.Row="2" Grid.Column="0" Name="chkboxCompressArchive" Content="Compress Archived Log Files" IsChecked="{Binding Path=CompressArchive}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="1" Grid.Column="0" Name="chkboxAutoArchive" Content="Automatically Archive Logs" IsChecked="{Binding Settings.AutoArchive}"/>
+                                <syncfusion:RibbonCheckBox Grid.Row="2" Grid.Column="0" Name="chkboxCompressArchive" Content="Compress Archived Log Files" IsChecked="{Binding Settings.CompressArchive}"/>
                                 <Label Grid.Row="3" Grid.Column="0" Content="Archive Method"/>
-                                <syncfusion:RibbonComboBox Grid.Row="3" Grid.Column="1" Name="comboboxArchiveMethod" ItemsSource="{Binding ArchiveMethodList}" SelectedValue="{Binding ArchiveMethod}"/>
+                                <syncfusion:RibbonComboBox Grid.Row="3" Grid.Column="1" Name="comboboxArchiveMethod" ItemsSource="{Binding Settings.ArchiveMethodList}" SelectedValue="{Binding Settings.ArchiveMethod}"/>
                                 <Label Grid.Row="4" Grid.Column="0" Content="Archive Schedule"/>
-                                <syncfusion:RibbonComboBox Grid.Row="4" Grid.Column="1" Name="comboboxArchiveSchedule" ItemsSource="{Binding ArchiveScheduleList}" SelectedValue="{Binding ArchiveSchedule}"/>
+                                <syncfusion:RibbonComboBox Grid.Row="4" Grid.Column="1" Name="comboboxArchiveSchedule" ItemsSource="{Binding Settings.ArchiveScheduleList}" SelectedValue="{Binding Settings.ArchiveSchedule}"/>
                                 <Grid Grid.Row="5" Grid.ColumnSpan="3">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -352,8 +361,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Name="chkboxDeleteArchive" Content="Delete Archived Log Files Over " IsChecked="{Binding Path=AutoDelete}"/>
-                                    <syncfusion:RibbonTextBox Grid.Row="0" Grid.Column="1"  Name="textboxDeleteArchive" Width="80" Text="{Binding Path=DeleteArchives}"/>
+                                    <syncfusion:RibbonCheckBox Grid.Row="0" Grid.Column="0" Name="chkboxDeleteArchive" Content="Delete Archived Log Files Over " IsChecked="{Binding Settings.AutoDelete}"/>
+                                    <syncfusion:RibbonTextBox Grid.Row="0" Grid.Column="1"  Name="textboxDeleteArchive" Width="80" Text="{Binding Settings.DeleteArchives}"/>
                                     <Label Grid.Row="0" Grid.Column="2" Content="Days Old."/>
                                 </Grid>
                                 <syncfusion:RibbonButton Margin="5,5,0,0" Grid.Row="6" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonLogSave" Click="buttonGeneralSave_Click"/>
@@ -374,15 +383,15 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Label Content="Percentage of Cores to Utilize" Grid.Row="0" Grid.Column="0"/>
-                                <Slider x:Name="sliderCores" Value="{Binding Path=CorePercentage}" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="0" Grid.Column="1" ValueChanged="sliderCores_ValueChanged"/>
-                                <Label Name="labelCores" Grid.Row="0" Grid.Column="2" Foreground="AntiqueWhite"/>
+                                <Slider x:Name="sliderCores" Value="{Binding Settings.CorePercentage}" Maximum="100" Minimum="0" Interval="1" IsSnapToTickEnabled="True" Grid.Row="0" Grid.Column="1" ValueChanged="sliderCores_ValueChanged"/>
+                                <Label Name="labelCores" Grid.Row="0" Grid.Column="2"/>
                                 <Label Content="Sharing Service URL" Grid.Row="1" Grid.Column="0"/>
-                                <syncfusion:RibbonTextBox Name="textboxSharingURL" Grid.Row="1" Grid.Column="1" Text="{Binding Path=ShareServiceURI}"/>
+                                <syncfusion:RibbonTextBox Name="textboxSharingURL" Grid.Row="1" Grid.Column="1" Text="{Binding Settings.ShareServiceURI}"/>
                                 <syncfusion:RibbonButton Margin="5,5,0,0" Grid.Row="2" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonAdvancedSave" Click="buttonGeneralSave_Click"/>
                             </Grid>
                         </StackPanel>
                     </syncfusion:BackstageTabItem>
-                    <syncfusion:BackstageTabItem Header="Categories"></syncfusion:BackstageTabItem>
+                    <!--<syncfusion:BackstageTabItem Header="Categories"></syncfusion:BackstageTabItem>-->
                     <syncfusion:BackstageTabItem Header="About">
                         <StackPanel Margin="30">
                             <Grid>
@@ -469,7 +478,7 @@
         </syncfusion:DockingManager>
         <syncfusion:DockingManager Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="triggerdockmanager" UseDocumentContainer="True" ContainerMode="TDI" DockFill="True">
             <ContentControl x:Name="dockCategory" syncfusion:DockingManager.Header="Categories" syncfusion:DockingManager.State="Document">
-                <syncfusion:TabControlExt Name="categoryTabs" TabStripPlacement="Left" RotateTextWhenVertical="True">
+                <syncfusion:TabControlExt Name="categoryTabs" ItemsSource="{Binding Categories}" TabStripPlacement="Left" RotateTextWhenVertical="True" TabScrollButtonVisibility="Auto" TabScrollStyle="Normal">
                     <syncfusion:TabControlExt.ItemContainerStyle>
                         <Style TargetType="syncfusion:TabItemExt">
                             <Setter Property="HeaderTemplate">
@@ -478,14 +487,14 @@
                                         <StackPanel>
                                             <Grid>
                                                 <Grid.RowDefinitions>
-                                                    <RowDefinition Height="15" />
+                                                    <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="35"/>
+                                                    <ColumnDefinition Width="15"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}"/>
-                                                <Image Grid.Row="0" Grid.Column="1" Source="{Binding DefaultCategory, Converter={StaticResource defaultcategoryconverter}}"/>
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding CategoryName}"/>
+                                                <Image Margin="2" Grid.Row="0" Grid.Column="1" Source="{Binding DefaultCategory, Converter={StaticResource defaultcategoryconverter}}"/>
                                             </Grid>
                                         </StackPanel>
                                     </DataTemplate>
@@ -495,17 +504,19 @@
                     </syncfusion:TabControlExt.ItemContainerStyle>
                     <syncfusion:TabControlExt.ContentTemplate>
                         <DataTemplate>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                             <StackPanel>
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition />
                                         <RowDefinition />
+                                        <RowDefinition />
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="800"/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
-                                    <GroupBox Header="Category Settings" Grid.Row="0">
+                                    <GroupBox Header="Category Settings" Grid.Row="0" Grid.Column="0">
                                         <StackPanel>
                                             <Grid>
                                                 <Grid.RowDefinitions>
@@ -521,44 +532,66 @@
                                                     <RowDefinition />
                                                 </Grid.RowDefinitions>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition Width="auto"/>
                                                     <ColumnDefinition Width="150"/>
                                                     <ColumnDefinition/>
                                                     <ColumnDefinition/>
                                                     <ColumnDefinition/>
                                                     <ColumnDefinition/>
                                                 </Grid.ColumnDefinitions>
-                                                <Label Grid.Row="0" Grid.Column="0" Content="Name"/>
-                                                <TextBox x:Name="categoryName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
-                                                <Separator Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7"/>
-                                                <Label Grid.Row="2" Grid.Column="0" Content="Text"/>
-                                                <Label Grid.Row="2" Grid.Column="1" Content="Overlay"/>
-                                                <ComboBox Grid.Row="2" Grid.Column="2"/>
-                                                <Label Grid.Row="3" Grid.Column="1" Content="Colors"/>
-                                                <RadioButton Grid.Row="3" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
-                                                <RadioButton Grid.Row="4" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
-                                                <Label Grid.Row="4" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
-                                                <syncfusion:ColorPicker Grid.Row="4" Grid.Column="4" Name="clrPckrTextFont"/>
-                                                <Separator Grid.Row="5" Grid.ColumnSpan="7"/>
-                                                <Label Grid.Row="6" Grid.Column="0" Content="Timers"/>
-                                                <Label Grid.Row="6" Grid.Column="1" Content="Overlay"/>
-                                                <ComboBox Grid.Row="6" Grid.Column="2"/>
-                                                <Label Grid.Row="7" Grid.Column="1" Content="Colors"/>
-                                                <RadioButton Grid.Row="7" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
-                                                <RadioButton Grid.Row="8" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
-                                                <Label Grid.Row="8" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
-                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="4" Name="clrPckrTimerFont"/>
-                                                <Label Grid.Row="8" Grid.Column="5" Content="Timer Bar" HorizontalAlignment="Right"/>
-                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="6" Name="clrPckrTimerBar"/>
-                                            </Grid>
+                                                <Label Margin="0,5,0,5" Grid.Row="0" Grid.Column="0" Content="Name" FontWeight="ExtraBold" HorizontalAlignment="Right"/>
+                                                <TextBox Margin="0,5,0,5" x:Name="categoryName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding CategoryName, Mode=TwoWay}"/>
+                                                <Separator Margin="5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7"/>
+                                                <Label Grid.Row="2" Grid.Column="0" Content="Text" FontWeight="ExtraBold" HorizontalAlignment="Right"/>
+                                                <Label Grid.Row="2" Grid.Column="1" Content="Overlay:" FontWeight="Bold"/>
+                                                    <ComboBox Grid.Row="2" Grid.Column="2" ItemsSource="{Binding CategoryName}" DisplayMemberPath="Name"/>
+                                                <Label Grid.Row="3" Grid.Column="1" Content="Colors:" FontWeight="Bold"/>
+                                                    <RadioButton Grid.Row="3" Grid.Column="2" GroupName="textColor" Content="Use Character Colors" IsChecked="{Binding TextUseCharacter, Mode=TwoWay}"/>
+                                                    <RadioButton Grid.Row="4" Grid.Column="2" GroupName="textColor" Content="Use These Colors" IsChecked="{Binding TextUseColor, Mode=TwoWay}"/>
+                                                <Grid Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition />
+                                                        <RowDefinition />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition Width="auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Label Grid.Row="0" Grid.Column="0" Content="Font:" HorizontalAlignment="Left"/>
+                                                    <syncfusion:ColorPicker Grid.Row="0" Grid.Column="1" Name="clrPckrTextFont" Color="{Binding TextFontColor,Mode=TwoWay}"/>
+                                                </Grid>
+                                                <Separator Margin="5" Grid.Row="5" Grid.ColumnSpan="7"/>
+                                                <Label Grid.Row="6" Grid.Column="0" Content="Timers" FontWeight="ExtraBold" HorizontalAlignment="Right"/>
+                                                <Label Grid.Row="6" Grid.Column="1" Content="Overlay:" FontWeight="Bold"/>
+                                                    <ComboBox Grid.Row="6" Grid.Column="2" ItemsSource="{Binding AvailableTimerOverlays, Mode=TwoWay}" DisplayMemberPath="Name"/>
+                                                <Label Grid.Row="7" Grid.Column="1" Content="Colors:" FontWeight="Bold"/>
+                                                    <RadioButton Grid.Row="7" Grid.Column="2" GroupName="timerColor" Content="Use Character Colors" IsChecked="{Binding TimerUseCharacter, Mode=TwoWay}"/>
+                                                    <RadioButton Grid.Row="8" Grid.Column="2" GroupName="timerColor" Content="Use These Colors" IsChecked="{Binding TimerUseColor, Mode=TwoWay}"/>
+                                                <Grid Grid.Row="8" Grid.Column="3" Grid.ColumnSpan="4">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition />
+                                                        <RowDefinition />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                    <Label Grid.Row="0" Grid.Column="0" Content="Font:" HorizontalAlignment="Right"/>
+                                                        <syncfusion:ColorPicker Grid.Row="0" Grid.Column="1" Name="clrPckrTimerFont" Color="{Binding TimerFontColor,Mode=TwoWay}"/>
+                                                    <Label Grid.Row="0" Grid.Column="2" Content="Timer Bar:" HorizontalAlignment="Right"/>
+                                                        <syncfusion:ColorPicker Grid.Row="0" Grid.Column="3" Name="clrPckrTimerBar" Color="{Binding TimerBarColor,Mode=TwoWay}"/>
+                                                </Grid>
+                                                </Grid>
                                         </StackPanel>
                                     </GroupBox>
-                                    <GroupBox Header="Character Overrides" Grid.Row="1">
+                                    <GroupBox Header="Character Overrides" Grid.Row="1" Grid.Column="0">
                                         <StackPanel>
-                                            <syncfusion:ExpanderExt Header="Character Name" Name="expanderCharacter">
-                                                    <StackPanel>
-                                                        <syncfusion:ExpanderExt Header="Text Overrides" Name="expanderTextOverrides">
+                                            <syncfusion:ExpanderExt Header="{Binding Id}" Name="expanderCharacter">
+                                                <StackPanel>
+                                                    <syncfusion:ExpanderExt Header="Text Overrides" Name="expanderTextOverrides">
                                                         <StackPanel>
                                                             <Grid>
                                                                 <Grid.RowDefinitions>
@@ -582,29 +615,49 @@
                                                                     <ColumnDefinition/>
                                                                     <ColumnDefinition/>
                                                                 </Grid.ColumnDefinitions>
-                                                                <Label Grid.Row="2" Grid.Column="0" Content="Text"/>
-                                                                <Label Grid.Row="2" Grid.Column="1" Content="Overlay"/>
-                                                                <ComboBox Grid.Row="2" Grid.Column="2"/>
-                                                                <Label Grid.Row="3" Grid.Column="1" Content="Colors"/>
+                                                                    <Label Grid.Row="2" Grid.Column="0" Content="Text" FontWeight="ExtraBold"  HorizontalAlignment="Right"/>
+                                                                <Label Grid.Row="2" Grid.Column="1" Content="Overlay:" FontWeight="Bold"/>
+                                                                    <ComboBox Grid.Row="2" Grid.Column="2" ItemsSource="{Binding AvailableTextOverlays, Mode=TwoWay}" DisplayMemberPath="Name"/>
+                                                                <Label Grid.Row="3" Grid.Column="1" Content="Colors:" FontWeight="Bold"/>
                                                                 <RadioButton Grid.Row="3" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
                                                                 <RadioButton Grid.Row="4" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
-                                                                <Label Grid.Row="4" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
-                                                                <syncfusion:ColorPicker Grid.Row="4" Grid.Column="4" Name="clrPckrTextFontOverride"/>
-                                                                <Separator Grid.Row="5" Grid.ColumnSpan="7"/>
-                                                                <Label Grid.Row="6" Grid.Column="0" Content="Timers"/>
-                                                                <Label Grid.Row="6" Grid.Column="1" Content="Overlay"/>
-                                                                <ComboBox Grid.Row="6" Grid.Column="2"/>
-                                                                <Label Grid.Row="7" Grid.Column="1" Content="Colors"/>
+                                                                <Grid Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2">
+                                                                    <Grid.RowDefinitions>
+                                                                            <RowDefinition />
+                                                                        </Grid.RowDefinitions>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Label Grid.Row="0" Grid.Column="0" Content="Font:" HorizontalAlignment="Right"/>
+                                                                    <syncfusion:ColorPicker Grid.Row="0" Grid.Column="1" Name="clrPckrTextFontOverride"/>
+                                                                </Grid>
+                                                                <Separator Margin="5" Grid.Row="5" Grid.ColumnSpan="7"/>
+                                                                    <Label Grid.Row="6" Grid.Column="0" Content="Timers" FontWeight="ExtraBold" HorizontalAlignment="Right"/>
+                                                                <Label Grid.Row="6" Grid.Column="1" Content="Overlay:" FontWeight="Bold"/>
+                                                                    <ComboBox Grid.Row="6" Grid.Column="2" ItemsSource="{Binding AvailableTimerOverlays, Mode=TwoWay}" DisplayMemberPath="Name"/>
+                                                                <Label Grid.Row="7" Grid.Column="1" Content="Colors:" FontWeight="Bold"/>
                                                                 <RadioButton Grid.Row="7" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
                                                                 <RadioButton Grid.Row="8" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
-                                                                <Label Grid.Row="8" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
-                                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="4" Name="clrPckrTimerFontOverride"/>
-                                                                <Label Grid.Row="8" Grid.Column="5" Content="Timer Bar" HorizontalAlignment="Right"/>
-                                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="6" Name="clrPckrTimerBarOverride"/>
+                                                                <Grid Grid.Row="8" Grid.Column="3" Grid.ColumnSpan="4">
+                                                                    <Grid.RowDefinitions>
+                                                                            <RowDefinition />
+                                                                        </Grid.RowDefinitions>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                    <Label Grid.Row="0" Grid.Column="0" Content="Font:" HorizontalAlignment="Right"/>
+                                                                    <syncfusion:ColorPicker Grid.Row="0" Grid.Column="1" Name="clrPckrTimerFontOverride"/>
+                                                                    <Label Grid.Row="0" Grid.Column="2" Content="Timer Bar:" HorizontalAlignment="Right"/>
+                                                                    <syncfusion:ColorPicker Grid.Row="0" Grid.Column="3" Name="clrPckrTimerBarOverride"/>
+                                                                </Grid>
                                                             </Grid>
                                                         </StackPanel>
                                                     </syncfusion:ExpanderExt>
-                                                        <syncfusion:ExpanderExt Header="Timer Overrides" Name="expanderTimerOverrides">
+                                                    <syncfusion:ExpanderExt Header="Timer Overrides" Name="expanderTimerOverrides">
                                                         <StackPanel>
                                                             <Grid>
                                                                 <Grid.RowDefinitions>
@@ -628,34 +681,56 @@
                                                                     <ColumnDefinition/>
                                                                     <ColumnDefinition/>
                                                                 </Grid.ColumnDefinitions>
-                                                                <Label Grid.Row="2" Grid.Column="0" Content="Text"/>
-                                                                <Label Grid.Row="2" Grid.Column="1" Content="Overlay"/>
-                                                                <ComboBox Grid.Row="2" Grid.Column="2"/>
-                                                                <Label Grid.Row="3" Grid.Column="1" Content="Colors"/>
+                                                                <Label Grid.Row="2" Grid.Column="0" Content="Text" FontWeight="ExtraBold" HorizontalAlignment="Right"/>
+                                                                <Label Grid.Row="2" Grid.Column="1" Content="Overlay:" FontWeight="Bold"/>
+                                                                    <ComboBox Grid.Row="2" Grid.Column="2" ItemsSource="{Binding AvailableTextOverlays, Mode=TwoWay}" DisplayMemberPath="Name"/>
+                                                                <Label Grid.Row="3" Grid.Column="1" Content="Colors:" FontWeight="Bold"/>
                                                                 <RadioButton Grid.Row="3" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
                                                                 <RadioButton Grid.Row="4" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
-                                                                <Label Grid.Row="4" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
-                                                                <syncfusion:ColorPicker Grid.Row="4" Grid.Column="4" Name="clrPckrTextFontTimer"/>
-                                                                <Separator Grid.Row="5" Grid.ColumnSpan="7"/>
-                                                                <Label Grid.Row="6" Grid.Column="0" Content="Timers"/>
-                                                                <Label Grid.Row="6" Grid.Column="1" Content="Overlay"/>
-                                                                <ComboBox Grid.Row="6" Grid.Column="2"/>
-                                                                <Label Grid.Row="7" Grid.Column="1" Content="Colors"/>
+                                                                <Grid Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2">
+                                                                    <Grid.RowDefinitions>
+                                                                        <RowDefinition />
+                                                                    </Grid.RowDefinitions>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Label Grid.Row="0" Grid.Column="0" Content="Font:" HorizontalAlignment="Right"/>
+                                                                    <syncfusion:ColorPicker Grid.Row="0" Grid.Column="1" Name="clrPckrTextFontTimer"/>
+                                                                </Grid>
+                                                                <Separator Margin="5" Grid.Row="5" Grid.ColumnSpan="7"/>
+                                                                <Label Grid.Row="6" Grid.Column="0" Content="Timers" FontWeight="ExtraBold" HorizontalAlignment="Right"/>
+                                                                <Label Grid.Row="6" Grid.Column="1" Content="Overlay:" FontWeight="Bold"/>
+                                                                    <ComboBox Grid.Row="6" Grid.Column="2" ItemsSource="{Binding AvailableTimerOverlays, Mode=TwoWay}" DisplayMemberPath="Name"/>
+                                                                <Label Grid.Row="7" Grid.Column="1" Content="Colors:" FontWeight="Bold"/>
                                                                 <RadioButton Grid.Row="7" Grid.Column="2" GroupName="textColor" Content="Use Character Colors"/>
                                                                 <RadioButton Grid.Row="8" Grid.Column="2" GroupName="textColor" Content="Use These Colors"/>
-                                                                <Label Grid.Row="8" Grid.Column="3" Content="Font" HorizontalAlignment="Right"/>
-                                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="4" Name="clrPckrTimerFontTimer"/>
-                                                                <Label Grid.Row="8" Grid.Column="5" Content="Timer Bar" HorizontalAlignment="Right"/>
-                                                                <syncfusion:ColorPicker Grid.Row="8" Grid.Column="6" Name="clrPckrTimerBarTimer"/>
+                                                                <Grid Grid.Row="8" Grid.Column="3" Grid.ColumnSpan="4">
+                                                                    <Grid.RowDefinitions>
+                                                                        <RowDefinition />
+                                                                    </Grid.RowDefinitions>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Label Grid.Row="0" Grid.Column="0" Content="Font:" HorizontalAlignment="Right"/>
+                                                                    <syncfusion:ColorPicker Grid.Row="0" Grid.Column="1" Name="clrPckrTimerFontTimer"/>
+                                                                    <Label Grid.Row="0" Grid.Column="2" Content="Timer Bar:" HorizontalAlignment="Right"/>
+                                                                    <syncfusion:ColorPicker Grid.Row="0" Grid.Column="3" Name="clrPckrTimerBarTimer"/>
+                                                                </Grid>
                                                             </Grid>
                                                         </StackPanel>
-                                                        </syncfusion:ExpanderExt>
-                                                    </StackPanel>
-                                                </syncfusion:ExpanderExt>
+                                                    </syncfusion:ExpanderExt>
+                                                </StackPanel>
+                                            </syncfusion:ExpanderExt>
                                         </StackPanel>
                                     </GroupBox>
-                                </Grid>
+                                        <syncfusion:ButtonAdv HorizontalAlignment="Right" Width="120" Grid.Row="2" Grid.Column="0" Label="Save" SmallIcon="Images\Oxygen-Icons.org-Oxygen-Actions-document-save.ico" Name="buttonCategorySave" Click="buttonCategorySave_Click"/>
+                                    </Grid>
                             </StackPanel>
+                            </ScrollViewer>
                         </DataTemplate>
                     </syncfusion:TabControlExt.ContentTemplate>
                 </syncfusion:TabControlExt>
