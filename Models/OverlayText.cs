@@ -24,6 +24,8 @@ namespace EQAudioTriggers.Models
         private double _windowX;
         private double _windowY;
         private string _id;
+        private Boolean _isoverride;
+        private string _overrideid;
 
         public OverlayText()
         {
@@ -39,8 +41,12 @@ namespace EQAudioTriggers.Models
             WindowX = 0;
             WindowY = 0;
             Id = Guid.NewGuid().ToString();
+            IsOverride = false;
+            OverrideId = "";
         }
         public string Id { get { return _id; } set { _id = value; NotifyPropertyChanged("Id"); } }
+        public Boolean IsOverride { get { return _isoverride; } set { _isoverride = value; NotifyPropertyChanged("IsOverride"); } }
+        public string OverrideId { get { return _overrideid; } set { _overrideid = value; NotifyPropertyChanged("OverrideId"); } }
         public string Name { get { return _name; } set { _name = value; NotifyPropertyChanged("Name"); } }
         public string Font { get { return _font; } set { _font = value; NotifyPropertyChanged("Name"); } }
         public string FontColor { get { return _fontcolor; } set { _fontcolor = value; NotifyPropertyChanged("Name"); } }

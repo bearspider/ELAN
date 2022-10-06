@@ -28,6 +28,8 @@ namespace EQAudioTriggers.Models
             WindowX = 0;
             WindowY = 0;
             FontColor = "Black";
+            IsOverride = false;
+            OverrideId = "";
             Id = Guid.NewGuid().ToString();
         }
         public event PropertyChangedEventHandler PropertyChanged;
@@ -53,8 +55,12 @@ namespace EQAudioTriggers.Models
         private double _windowX;
         private double _windowY;
         private string _fontcolor;
+        private Boolean _isoverride;
+        private string _overrideid;
 
         public string Id { get { return _id; } set { _id = value; NotifyPropertyChanged("Id"); } }
+        public Boolean IsOverride { get { return _isoverride; } set { _isoverride = value; NotifyPropertyChanged("IsOverride"); } }
+        public string OverrideId { get { return _overrideid; } set { _overrideid = value; NotifyPropertyChanged("OverrideId"); } }
         public String Name { get { return _name; } set { _name = value; NotifyPropertyChanged("Name"); } }
         public String Font { get { return _font; } set { _font = value; NotifyPropertyChanged("Font"); } }
         public int Size { get { return _size; } set { _size = value; NotifyPropertyChanged("Size"); } }
@@ -90,6 +96,8 @@ namespace EQAudioTriggers.Models
                 && WindowX == compareto.WindowX
                 && WindowY == compareto.WindowY
                 && FontColor == compareto.FontColor
+                && IsOverride == compareto.IsOverride
+                && OverrideId == compareto.OverrideId
                 )
             {
                 rval = true;

@@ -39,6 +39,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Runtime.InteropServices;
 using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
 using Microsoft.SqlServer.Server;
+using Syncfusion.Data.Extensions;
 
 namespace EQAudioTriggers
 {
@@ -273,6 +274,7 @@ namespace EQAudioTriggers
         private readonly SynchronizationContext _syncontext;
         private ObservableCollection<EQTrigger> _triggermasterlist = new ObservableCollection<EQTrigger>();
         private string _selectedcharacter = "";
+        private Character _selectedprofile = new Character();
         private Settings _settings = new Settings();
         private ObservableCollection<EQTrigger> _modifiedtriggers = new ObservableCollection<EQTrigger>();
         private ParallelOptions _po = new ParallelOptions();
@@ -283,14 +285,19 @@ namespace EQAudioTriggers
         private ObservableCollection<OverlayTimer> _overlaytimer = new ObservableCollection<OverlayTimer>();
         private ObservableCollection<OverlayTimerWindow> _overlaytimerwindows = new ObservableCollection<OverlayTimerWindow>();
         private ObservableCollection<Category> _categories = new ObservableCollection<Category>();
+        private ObservableCollection<CharacterOverride> _characteroverrides = new ObservableCollection<CharacterOverride>();
+        private CharacterOverride _selectedoverride = new CharacterOverride();
         public List<String> AvailableThemes{ get { return _availableThemes; } set { _availableThemes = value; NotifyPropertyChanged("AvailableThemes"); } }
         public Settings Settings { get { return _settings; } set { _settings = value; NotifyPropertyChanged("Settings"); } }
         public ObservableCollection<Category> Categories { get { return _categories; } set { _categories = value; NotifyPropertyChanged("Categories"); } }
         public ObservableCollection<OverlayText> OverlayText { get { return _overlaytext; } set { _overlaytext = value; NotifyPropertyChanged("OverlayText"); } }
         public ObservableCollection<OverlayTimer> OverlayTimer { get { return _overlaytimer; } set { _overlaytimer = value; NotifyPropertyChanged("OverlayTimer"); } }
+        public ObservableCollection<CharacterOverride> CharacterOverrides { get { return _characteroverrides; } set { _characteroverrides = value; NotifyPropertyChanged("CharacterOverride"); } }
+        public CharacterOverride SelectedOverride { get { return _selectedoverride; } set { _selectedoverride = value; NotifyPropertyChanged("SelectedOverride"); } }
         public string CurrentZone { get { return _currentzone; } set { _currentzone = value; NotifyPropertyChanged("CurrentZone"); } }
         public int TotalLineCount { get { return _totallinecount; } set { _totallinecount = value; NotifyPropertyChanged("TotalLineCount"); } }
         public string SelectedCharacter { get { return _selectedcharacter; } set { _selectedcharacter = value; NotifyPropertyChanged("SelectedCharacter"); } }
+        public Character SelectedProfile { get { return _selectedprofile; } set { _selectedprofile = value; NotifyPropertyChanged("SelectedProfile"); } }
         //System Tray Icons
         private System.Windows.Forms.NotifyIcon MyNotifyIcon;
 
@@ -313,6 +320,7 @@ namespace EQAudioTriggers
             LoadThemes();
             LoadCharacters();
             LoadCategories();
+            LoadOverrides();
             ActivateLog();
             if (_characters.Count > 0)
             {
@@ -332,7 +340,6 @@ namespace EQAudioTriggers
             LoadOverlayText();
             LoadOverlayTimer();
             DataContext = this;
-
         }
         private void LoadCategories()
         {
@@ -619,6 +626,21 @@ namespace EQAudioTriggers
             charactervs.Source = _characters;
             _listviewCharacters.ItemsSource = charactervs.View;
         }
+        private void LoadOverrides()
+        {
+            //If this is the initial load, create a default character override
+            if (!File.Exists($"{GlobalVariables.workingdirectory}\\characteroverrides.json"))
+            {
+                WriteCharacterOverrides();
+            }
+            using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\characteroverrides.json"))
+            {
+                string json = r.ReadToEnd();
+                _characteroverrides = JsonConvert.DeserializeObject<ObservableCollection<CharacterOverride>>(json);
+            }
+            //initialize the selected override with defaults
+            SelectedOverride = new CharacterOverride();
+        }
         private void ActivateLog()
         {
             activatedDatagrid.ItemsSource = _activatedtriggers.Collection;
@@ -774,6 +796,13 @@ namespace EQAudioTriggers
             using (StreamWriter file = File.CreateText($"{GlobalVariables.workingdirectory}\\triggergroups.json"))
             {
                 file.Write(JsonConvert.SerializeObject(_triggergroups, Newtonsoft.Json.Formatting.Indented));
+            }
+        }
+        private void WriteCharacterOverrides()
+        {
+            using (StreamWriter file = File.CreateText($"{GlobalVariables.workingdirectory}\\characteroverrides.json"))
+            {
+                file.Write(JsonConvert.SerializeObject(_characteroverrides, Newtonsoft.Json.Formatting.Indented));
             }
         }
         private EQTrigger FindTrigger(string id)
@@ -1511,8 +1540,10 @@ namespace EQAudioTriggers
             }
             else
             {
-                txtblockProfile.Text = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Profile;
                 _selectedcharacter = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Id;
+                _selectedprofile = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile;
+                //set override collections for editing
+                SelectedOverride = CharacterOverrides.Where<CharacterOverride>(x => x.ProfileId == _selectedcharacter).FirstOrDefault(); 
                 Console.WriteLine($"Changed Character: {_selectedcharacter}");
             }
             UpdateCheckedItems();
@@ -2438,6 +2469,18 @@ namespace EQAudioTriggers
         private void buttonCategorySave_Click(object sender, RoutedEventArgs e)
         {
             WriteCategories();
+        }
+
+        private void categoryTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            TabControlExt selectedtab = (sender as TabControlExt);
+            Category selectedcategory = (Category)selectedtab.SelectedItem;
+            CharacterOverride findoverride = CharacterOverrides.Where(x => x.ProfileId == SelectedCharacter && x.CategoryId == selectedcategory.Id).FirstOrDefault();
+            if(findoverride != null)
+            {
+                SelectedOverride = findoverride;
+            }
+            string stop = "";
         }
     }
 }

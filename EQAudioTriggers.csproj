@@ -78,6 +78,7 @@
     <Compile Include="Models\CategoryWrapper.cs" />
     <Compile Include="Models\Character.cs" />
     <Compile Include="Models\CharacterCollection.cs" />
+    <Compile Include="Models\CharacterOverride.cs" />
     <Compile Include="Models\EndEarlyTrigger.cs" />
     <Compile Include="Models\EQTrigger.cs" />
     <Compile Include="Models\GINAGroup.cs" />
