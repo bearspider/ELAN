@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EQAudioTriggers.Models
 {
@@ -38,7 +34,7 @@ namespace EQAudioTriggers.Models
         private string _modified;
         private Boolean _usefastcheck;
         private ObservableCollection<EndEarlyTrigger> _earlyenders;
-        
+
         public GINATrigger()
         {
             Name = "";

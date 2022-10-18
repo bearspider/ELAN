@@ -1,45 +1,32 @@
-﻿using Syncfusion.Windows.Tools.Controls;
-using Syncfusion.Windows.Shared;
+﻿using EQAudioTriggers.Models;
+using EQAudioTriggers.Views;
+using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Syncfusion.Data.Extensions;
+using Syncfusion.UI.Xaml.TreeView;
+using Syncfusion.UI.Xaml.TreeView.Engine;
+using Syncfusion.Windows.Tools.Controls;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Syncfusion.SfSkinManager;
-using System.Runtime.Remoting;
-using EQAudioTriggers.Models;
-using System.Collections.ObjectModel;
-using Syncfusion.UI.Xaml.TreeView;
-using System.Net.NetworkInformation;
-using Newtonsoft.Json;
-using System.IO;
-using System.Collections.Specialized;
-using Newtonsoft.Json.Linq;
-using System.Windows.Forms.PropertyGridInternal;
-using Syncfusion.UI.Xaml.TreeView.Engine;
-using System.Windows.Threading;
-using System.Globalization;
-using EQAudioTriggers.Views;
-using System.ComponentModel;
-using System.Threading;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using Microsoft.Win32;
-using System.IO.Compression;
 using System.Xml;
-using Microsoft.WindowsAPICodePack.Dialogs;
-using System.Runtime.InteropServices;
-using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
-using Microsoft.SqlServer.Server;
-using Syncfusion.Data.Extensions;
 
 namespace EQAudioTriggers
 {
@@ -288,7 +275,7 @@ namespace EQAudioTriggers
         private ObservableCollection<Category> _categories = new ObservableCollection<Category>();
         private ObservableCollection<CharacterOverride> _characteroverrides = new ObservableCollection<CharacterOverride>();
         private CharacterOverride _selectedoverride = new CharacterOverride();
-        public List<String> AvailableThemes{ get { return _availableThemes; } set { _availableThemes = value; NotifyPropertyChanged("AvailableThemes"); } }
+        public List<String> AvailableThemes { get { return _availableThemes; } set { _availableThemes = value; NotifyPropertyChanged("AvailableThemes"); } }
         public Settings Settings { get { return _settings; } set { _settings = value; NotifyPropertyChanged("Settings"); } }
         public ObservableCollection<Category> Categories { get { return _categories; } set { _categories = value; NotifyPropertyChanged("Categories"); } }
         public ObservableCollection<OverlayText> OverlayText { get { return _overlaytext; } set { _overlaytext = value; NotifyPropertyChanged("OverlayText"); } }
@@ -314,7 +301,7 @@ namespace EQAudioTriggers
         #endregion
         public EATStyleWindow()
         {
-            InitializeComponent();            
+            InitializeComponent();
             _syncontext = SynchronizationContext.Current;
             LoadBase();
             LoadSettings();
@@ -337,7 +324,7 @@ namespace EQAudioTriggers
                         _listviewCharacters.SelectedItem = profile;
                     }
                 }
-            }            
+            }
             LoadOverlayText();
             LoadOverlayTimer();
             DataContext = this;
@@ -1006,9 +993,9 @@ namespace EQAudioTriggers
         private void _ribbon_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             RibbonTab tab = (RibbonTab)(sender as Ribbon).SelectedItem;
-            if(tab.Caption == "Categories")
+            if (tab.Caption == "Categories")
             {
-            }            
+            }
         }
         private void BackStageExitButton_Click(object sender, RoutedEventArgs e)
         {
@@ -1550,7 +1537,7 @@ namespace EQAudioTriggers
                 _selectedcharacter = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Id;
                 _selectedprofile = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile;
                 //set override collections for editing
-                SelectedOverride = CharacterOverrides.Where<CharacterOverride>(x => x.ProfileId == _selectedcharacter).FirstOrDefault(); 
+                SelectedOverride = CharacterOverrides.Where<CharacterOverride>(x => x.ProfileId == _selectedcharacter).FirstOrDefault();
                 Console.WriteLine($"Changed Character: {_selectedcharacter}");
             }
             UpdateCheckedItems();
@@ -2351,7 +2338,7 @@ namespace EQAudioTriggers
                 file.Write(JsonConvert.SerializeObject(_overlaytext, Newtonsoft.Json.Formatting.Indented));
             }
             //Update the categories
-            foreach(Category category in _categories)
+            foreach (Category category in _categories)
             {
                 category.AvailableTextOverlays = _overlaytext;
                 category.AvailableTimerOverlays = _overlaytimer;
@@ -2439,13 +2426,13 @@ namespace EQAudioTriggers
             {
                 MessageBoxResult mbox = Xceed.Wpf.Toolkit.MessageBox.Show("Must Have At Lease One Category.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            else if(removecategory.DefaultCategory)
+            else if (removecategory.DefaultCategory)
             {
                 MessageBoxResult mbox = Xceed.Wpf.Toolkit.MessageBox.Show("Cannot Delete Default Category.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
-                
+
                 _categories.Remove(removecategory);
                 WriteCategories();
             }
@@ -2456,7 +2443,7 @@ namespace EQAudioTriggers
         {
             Category selected = (Category)categoryTabs.SelectedItem;
             Category olddefault = _categories.Where<Category>(x => x.DefaultCategory == true).FirstOrDefault();
-            if(olddefault != null)
+            if (olddefault != null)
             {
                 olddefault.DefaultCategory = false;
             }
@@ -2474,7 +2461,7 @@ namespace EQAudioTriggers
             TabControlExt selectedtab = (sender as TabControlExt);
             Category selectedcategory = (Category)selectedtab.SelectedItem;
             CharacterOverride findoverride = CharacterOverrides.Where(x => x.ProfileId == SelectedCharacter && x.CategoryId == selectedcategory.Id).FirstOrDefault();
-            if(findoverride != null)
+            if (findoverride != null)
             {
                 SelectedOverride = findoverride;
             }

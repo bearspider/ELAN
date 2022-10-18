@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EQAudioTriggers.Models
 {
@@ -30,6 +26,6 @@ namespace EQAudioTriggers.Models
             Console.Write("Changing ActivatedTrigger Collection");
         }
 
-            public ObservableCollection<ActivatedTrigger> Collection { get { return _collection; } set { _collection = value; } }
+        public ObservableCollection<ActivatedTrigger> Collection { get { return _collection; } set { _collection = value; } }
     }
 }

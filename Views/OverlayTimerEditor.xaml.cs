@@ -1,27 +1,17 @@
 ﻿using EQAudioTriggers.Models;
-using Syncfusion.SfSkinManager;
 using Syncfusion.Windows.Shared;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace EQAudioTriggers.Views
 {
     /// <summary>
     /// Interaction logic for OverlayTimerEditor.xaml
     /// </summary>
-    public partial class OverlayTimerEditor : ChromelessWindow,INotifyPropertyChanged
+    public partial class OverlayTimerEditor : ChromelessWindow, INotifyPropertyChanged
     {
         private OverlayTimer _ot;
         public OverlayTimer OT { get { return _ot; } set { _ot = value; RaisedOnPropertyChanged("OT"); } }
@@ -78,10 +68,10 @@ namespace EQAudioTriggers.Views
                 {
                     this.DragMove();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     //Need this because laptops will say it's not the primary mouse
-                }                
+                }
             }
         }
 

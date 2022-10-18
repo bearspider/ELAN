@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -22,7 +18,7 @@ namespace EQAudioTriggers.Models
         public string Textcolor { get { return _textcolor; } set { _textcolor = value; NotifyPropertyChanged("Textcolor"); } }
         public string TriggerId { get { return _triggerid; } set { _triggerid = value; NotifyPropertyChanged("TriggerId"); } }
         public string Id { get { return _id; } set { _id = value; NotifyPropertyChanged("id"); } }
-        
+
         private DateTime TriggeredTime;
         private string _character;
         private DispatcherTimer _windowtimer;

@@ -1,21 +1,7 @@
 ﻿using EQAudioTriggers.Models;
-using Newtonsoft.Json;
 using Syncfusion.SfSkinManager;
 using Syncfusion.Windows.Shared;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace EQAudioTriggers.Views
 {
@@ -44,9 +30,10 @@ namespace EQAudioTriggers.Views
             SfSkinManager.SetTheme(this, new Theme(theme));
         }
 
-        public TriggerGroupProperty TriggerGroup { 
-            get { return _triggergroup; } 
-            set { _triggergroup = value; } 
+        public TriggerGroupProperty TriggerGroup
+        {
+            get { return _triggergroup; }
+            set { _triggergroup = value; }
         }
         public TriggerGroupProperty ReturnTriggerGroup { get; set; }
 

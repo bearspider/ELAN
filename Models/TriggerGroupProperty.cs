@@ -1,16 +1,11 @@
 ﻿using Syncfusion.Windows.Shared;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EQAudioTriggers.Models
 {
-    public class TriggerGroupProperty : NotificationObject,INotifyPropertyChanged
+    public class TriggerGroupProperty : NotificationObject, INotifyPropertyChanged
     {
         private string _name;
         private string _id;
@@ -83,7 +78,7 @@ namespace EQAudioTriggers.Models
                 _comments = value;
                 RaisedOnPropertyChanged("Comments");
             }
-        }        
+        }
         public Boolean DefaultEnabled
         {
             get { return _defaultenabled; }

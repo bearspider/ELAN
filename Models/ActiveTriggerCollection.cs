@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EQAudioTriggers.Models
 {
@@ -47,6 +44,6 @@ namespace EQAudioTriggers.Models
         {
             Collection = new ObservableCollection<EQTrigger>(masterlist.Where(i => i.ActiveCharacters.Count > 0));
             Console.WriteLine($"Updating Active List: Curent Subscribed [{Collection.Count}]");
-        }        
+        }
     }
 }

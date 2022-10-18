@@ -1,24 +1,12 @@
 ﻿using EQAudioTriggers.Models;
-using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Syncfusion.Lic.util.encoders;
-using Syncfusion.Windows.Controls;
-using System.Windows.Threading;
 
 namespace EQAudioTriggers.Views
 {
@@ -39,7 +27,7 @@ namespace EQAudioTriggers.Views
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             Color mycolor = (Color)value;
-            Color inverted = Color.FromArgb(mycolor.A,(byte)(255 - mycolor.R), (byte)(255 - mycolor.G), (byte)(255 - mycolor.B));
+            Color inverted = Color.FromArgb(mycolor.A, (byte)(255 - mycolor.R), (byte)(255 - mycolor.G), (byte)(255 - mycolor.B));
             Brush myBrush = new SolidColorBrush((Color)inverted);
             return myBrush;
         }
@@ -51,7 +39,7 @@ namespace EQAudioTriggers.Views
     /// <summary>
     /// Interaction logic for OverlayTextWindow.xaml
     /// </summary>
-    public partial class OverlayTextWindow : Window,INotifyPropertyChanged
+    public partial class OverlayTextWindow : Window, INotifyPropertyChanged
     {
         private OverlayText _windowproperties;
         public OverlayText WindowProperties { get { return _windowproperties; } set { _windowproperties = value; RaisedOnPropertyChanged("WindowProperties"); } }
@@ -81,7 +69,7 @@ namespace EQAudioTriggers.Views
             //Start async process
             await (Task.Delay(new TimeSpan(0, 0, WindowProperties.Delay)));
             //remove trigger
-            Triggers.Remove(trigger);            
+            Triggers.Remove(trigger);
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void RaisedOnPropertyChanged(string _PropertyName)

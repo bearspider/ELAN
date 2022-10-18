@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using EQAudioTriggers.Views;
+using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Threading;
-using System.Windows;
 using System.Windows.Controls;
-using System.Diagnostics;
-using EQAudioTriggers.Views;
+using System.Windows.Threading;
 
 namespace EQAudioTriggers.Models
 {

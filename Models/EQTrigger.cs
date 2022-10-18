@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Data;
 
 namespace EQAudioTriggers.Models
 {
@@ -81,7 +76,7 @@ namespace EQAudioTriggers.Models
             _activecharacters = new ObservableCollection<string>();
             _endearlytriggers = new ObservableCollection<EndEarlyTrigger>();
             _path = "";
-            _timertype = "No Timer";        
+            _timertype = "No Timer";
             _useregex = false;
             _fastcheck = false;
             _category = "";
@@ -171,7 +166,7 @@ namespace EQAudioTriggers.Models
             _endingseconds = copyfrom.EndingSeconds;
             _useendingtext = copyfrom.UseEndingText;
             _useendingclipboard = copyfrom.UseEndingClipboard;
-             _endingtext = copyfrom.EndingText;
+            _endingtext = copyfrom.EndingText;
             _endingclipboard = copyfrom.EndingClipboard;
             _radioendingnosound = copyfrom.RadioEndingNoSound;
             _radioendingtts = copyfrom.RadioEndingTTS;
@@ -500,7 +495,9 @@ namespace EQAudioTriggers.Models
         public string TimerType
         {
             get { return _timertype; }
-            set { _timertype = value;
+            set
+            {
+                _timertype = value;
                 RaisedOnPropertyChanged("TimerType");
             }
         }
@@ -521,12 +518,12 @@ namespace EQAudioTriggers.Models
         public string BasicTTS
         {
             get { return _basictts; }
-            set { _basictts = value;RaisedOnPropertyChanged("BasicTTS"); }
+            set { _basictts = value; RaisedOnPropertyChanged("BasicTTS"); }
         }
         public Boolean RadioBasicNoSound
         {
             get { return _radiobasicnosound; }
-            set 
+            set
             {
                 _radiobasicnosound = value;
                 RaisedOnPropertyChanged("RadioBasicNoSound");
@@ -535,7 +532,7 @@ namespace EQAudioTriggers.Models
         public Boolean RadioBasicTTS
         {
             get { return _radiobasictts; }
-            set 
+            set
             {
                 _radiobasictts = value;
                 RaisedOnPropertyChanged("RadioBasicTTS");
@@ -544,7 +541,7 @@ namespace EQAudioTriggers.Models
         public Boolean RadioBasicPlay
         {
             get { return _radiobasicplay; }
-            set 
+            set
             {
                 _radiobasicplay = value;
                 RaisedOnPropertyChanged("RadioBasicPlay");

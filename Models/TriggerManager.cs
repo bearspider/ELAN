@@ -1,23 +1,14 @@
 ﻿using EQAudioTriggers.Command;
 using EQAudioTriggers.Views;
-using Newtonsoft.Json;
-using Syncfusion.UI.Xaml.Grid.ScrollAxis;
 using Syncfusion.UI.Xaml.TreeView;
 using Syncfusion.UI.Xaml.TreeView.Engine;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace EQAudioTriggers.Models
@@ -161,14 +152,14 @@ namespace EQAudioTriggers.Models
             //get the active count of the sub nodes, this will be used in a couple spots
             int totalsubs = this.SubGroups.Count;
             int activecount = 0;
-            Boolean partial = false; 
+            Boolean partial = false;
             foreach (TriggerManager sub in this.SubGroups)
             {
                 if (sub.IsActive == true)
                 {
                     activecount++;
                 }
-                if(sub.IsActive == null)
+                if (sub.IsActive == null)
                 {
                     partial = true;
                 }
@@ -267,7 +258,7 @@ namespace EQAudioTriggers.Models
             TriggerEdit te = new TriggerEdit(Characters);
             te.SetTheme(theme);
             Boolean rval = (bool)te.ShowDialog();
-            if(rval)
+            if (rval)
             {
                 //build the new trigger manager
                 TriggerManager tm = new TriggerManager
@@ -341,7 +332,7 @@ namespace EQAudioTriggers.Models
 
             //Remove this triggermanager from parent node
             ParentNode.SubGroups.Remove(this);
-           
+
         }
         public void EditTrigger(ObservableCollection<CharacterCollection> charcollection, string theme)
         {
@@ -360,7 +351,7 @@ namespace EQAudioTriggers.Models
         public event PropertyChangedEventHandler PropertyChanged;
         public void RaisedOnPropertyChanged(string _PropertyName)
         {
-            if(PropertyChanged != null)
+            if (PropertyChanged != null)
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(_PropertyName));
             }
@@ -376,7 +367,7 @@ namespace EQAudioTriggers.Models
             treevs.IsLiveFilteringRequested = true;
             treevs.GroupDescriptions.Add(pgd);
             treevs.SortDescriptions.Add(groupDesc);
-            treevs.SortDescriptions.Add(desc);            
+            treevs.SortDescriptions.Add(desc);
             treevs.Source = tm.SubGroups;
 
             //Populating child items for the node in on-demand

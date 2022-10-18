@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EQAudioTriggers.Models
 {
@@ -104,8 +101,8 @@ namespace EQAudioTriggers.Models
             _archiveschedulelist.Add("Quarterly");
             _archiveschedulelist.Add("Annually");
         }
-        public List<String> ArchiveMethodList { get { return _archivemethodlist; } set {_archivemethodlist = value; } }
-        public List<String> ArchiveScheduleList { get { return _archiveschedulelist; } set {_archiveschedulelist = value; } }
+        public List<String> ArchiveMethodList { get { return _archivemethodlist; } set { _archivemethodlist = value; } }
+        public List<String> ArchiveScheduleList { get { return _archiveschedulelist; } set { _archiveschedulelist = value; } }
         public string MasterVolume { get { return _mastervolume; } set { _mastervolume = value; NotifyPropertyChanged("MasterVolume"); } }
         public string ApplicationUpdate { get { return _applicationupdate; } set { _applicationupdate = value; NotifyPropertyChanged("ApplicationUpdate"); } }
         public string EnableSound { get { return _enablesound; } set { _enablesound = value; NotifyPropertyChanged("EnableSound"); } }

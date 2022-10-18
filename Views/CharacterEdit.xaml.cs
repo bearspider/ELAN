@@ -1,32 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Speech.Synthesis;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using EQAudioTriggers.Models;
+﻿using EQAudioTriggers.Models;
 using Microsoft.Win32;
-using Newtonsoft.Json;
 using Syncfusion.SfSkinManager;
 using Syncfusion.Windows.Shared;
+using System;
+using System.ComponentModel;
+using System.Speech.Synthesis;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace EQAudioTriggers.Views
 {
     /// <summary>
     /// Interaction logic for CharacterEdit.xaml
     /// </summary>
-    public partial class CharacterEdit : ChromelessWindow,INotifyPropertyChanged
+    public partial class CharacterEdit : ChromelessWindow, INotifyPropertyChanged
     {
         SpeechSynthesizer voicesynth = new SpeechSynthesizer();
         private String _origProfileName;
@@ -42,7 +30,7 @@ namespace EQAudioTriggers.Views
             this.DataContext = _character;
         }
         public CharacterEdit(Character character)
-        {           
+        {
             InitializeComponent();
             InitializeForm();
             _character = character;
@@ -116,7 +104,7 @@ namespace EQAudioTriggers.Views
             Boolean returnchar = true;
             this.ReturnChar = null;
 
-            if(returnchar)
+            if (returnchar)
             {
                 this.DialogResult = true;
                 this.ReturnChar = _character;

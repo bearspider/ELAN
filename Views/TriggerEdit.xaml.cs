@@ -1,24 +1,14 @@
-﻿using Syncfusion.Windows.Shared;
+﻿using EQAudioTriggers.Models;
+using Microsoft.Win32;
+using Syncfusion.SfSkinManager;
+using Syncfusion.Windows.Shared;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Media;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using EQAudioTriggers.Models;
-using System.Globalization;
-using Microsoft.Win32;
-using System.IO;
-using System.Media;
-using System.Collections.ObjectModel;
-using Syncfusion.SfSkinManager;
 
 namespace EQAudioTriggers.Views
 {
@@ -120,7 +110,7 @@ namespace EQAudioTriggers.Views
         private void buttonBasicSoundFile_Click(object sender, RoutedEventArgs e)
         {
             string soundfile = GetSoundFile();
-            if(!string.IsNullOrEmpty(soundfile))
+            if (!string.IsNullOrEmpty(soundfile))
             {
                 _eqtrigger.BasicPlayFile = soundfile;
             }
@@ -128,11 +118,11 @@ namespace EQAudioTriggers.Views
 
         private void buttonBasicTest_Click(object sender, RoutedEventArgs e)
         {
-            if((bool)radioBasicTTS.IsChecked && !string.IsNullOrEmpty(textboxBasicTTS.Text))
+            if ((bool)radioBasicTTS.IsChecked && !string.IsNullOrEmpty(textboxBasicTTS.Text))
             {
                 ((CharacterCollection)comboBasicTest.SelectedItem).CharacterProfile.Speak(textboxBasicTTS.Text);
             }
-            if((bool)radioBasicPlay.IsChecked && !string.IsNullOrEmpty(textboxBasicSoundFile.Text))
+            if ((bool)radioBasicPlay.IsChecked && !string.IsNullOrEmpty(textboxBasicSoundFile.Text))
             {
                 PlaySoundFile(textboxBasicSoundFile.Text);
             }

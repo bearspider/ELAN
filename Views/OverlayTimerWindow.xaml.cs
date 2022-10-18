@@ -4,19 +4,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace EQAudioTriggers.Views
 {
@@ -82,7 +74,7 @@ namespace EQAudioTriggers.Views
         {
             //type: true = count up, false = count down
             Boolean direction = true;
-            if(firedtrigger.TimerType == "Count Down")
+            if (firedtrigger.TimerType == "Count Down")
             {
                 direction = false;
             }
