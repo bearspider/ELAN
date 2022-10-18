@@ -131,8 +131,8 @@
             </syncfusion:RibbonTab>
             <syncfusion:RibbonTab Caption="Overlays">
                 <syncfusion:RibbonBar x:Name="ribbonOverlayAdd" Header="Add Overlays">
-                    <syncfusion:RibbonButton Name="buttonOverlayText" Label="Add Text Overlay" IconType="Icon" SizeForm="Large" LargeIcon="Images/Oxygen-Icons.org-Oxygen-Actions-document-new.ico" Click="buttonOverlayText_Click"/>
-                    <syncfusion:RibbonButton Name="buttonOverlayTimer" Label="Add Timer Overlay" IconType="Icon" SizeForm="Large" LargeIcon="Images/Google-Noto-Emoji-Travel-Places-42608-stopwatch.ico" Click="buttonOverlayTimer_Click"/>
+                    <syncfusion:RibbonButton Margin="1" Name="buttonOverlayText" Label="Add Text Overlay" IconType="Icon" SizeForm="Large" LargeIcon="Images/Oxygen-Icons.org-Oxygen-Actions-insert-text.ico" Click="buttonOverlayText_Click"/>
+                    <syncfusion:RibbonButton Margin="1" Name="buttonOverlayTimer" Label="Add Timer Overlay" IconType="Icon" SizeForm="Large" LargeIcon="Images/Flat-Icons.com-Square-Alarm-clock.ico" Click="buttonOverlayTimer_Click"/>
                 </syncfusion:RibbonBar>
                 <syncfusion:RibbonBar x:Name="ribbonOverlays" Header="Text Overlays">
                     <syncfusion:RibbonBar.ItemTemplate>
@@ -147,7 +147,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <syncfusion:DropDownButtonAdv SizeMode="Large" Label="{Binding Name}" LargeIcon="Images/Oxygen-Icons.org-Oxygen-Actions-document-new.ico">
+                                    <syncfusion:DropDownButtonAdv Margin="1" SizeMode="Large" Label="{Binding Name}" LargeIcon="Images/Oxygen-Icons.org-Oxygen-Apps-fontforge.ico">
                                         <StackPanel>
                                             <syncfusion:DropDownMenuItem Header="Edit" Click="DropDownMenuItemEdit_Click"/>
                                             <syncfusion:DropDownMenuItem Header="Delete" Click="DropDownMenuItemDelete_Click"/>
@@ -171,7 +171,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <syncfusion:DropDownButtonAdv SizeMode="Large" Label="{Binding Name}" LargeIcon="Images/Google-Noto-Emoji-Travel-Places-42608-stopwatch.ico">
+                                    <syncfusion:DropDownButtonAdv Margin="1" SizeMode="Large" Label="{Binding Name}" LargeIcon="Images/Google-Noto-Emoji-Travel-Places-42608-stopwatch.ico">
                                         <StackPanel>
                                             <syncfusion:DropDownMenuItem Header="Edit" Click="DropDownMenuTimerEdit_Click"/>
                                             <syncfusion:DropDownMenuItem Header="Delete" Click="DropDownMenuTimerDelete_Click"/>

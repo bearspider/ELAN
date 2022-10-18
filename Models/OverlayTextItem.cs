@@ -43,16 +43,16 @@ namespace EQAudioTriggers.Models
         }
         public OverlayTextItem()
         {
-            Trigger = new EQTrigger();
-            Dispatcher = new DispatcherTimer()
+            _trigger = new EQTrigger();
+            _dispatcher = new DispatcherTimer()
             {
                 Interval = new TimeSpan(0, 0, 1)//hours,minutes,seconds
             };
-            FontSize = 20;
-            FontColor = "black";
-            FontFamily = "Seqoe UI";
-            Duration = 10;
-            Progress = new ProgressBar()
+            _fontsize = 20;
+            _fontcolor = "black";
+            _fontfamily = "Seqoe UI";
+            _duration = 10;
+            _progress = new ProgressBar()
             {
                 Minimum = 0,
                 Maximum = 1
@@ -66,6 +66,23 @@ namespace EQAudioTriggers.Models
             FontFamily = otw.WindowProperties.Font;
             FontColor = otw.WindowProperties.FontColor;
             Duration = otw.WindowProperties.Delay;
+        }
+        public OverlayTextItem(EQTrigger trigger)
+        {
+            _trigger = trigger;
+            _dispatcher = new DispatcherTimer()
+            {
+                Interval = new TimeSpan(0, 0, 1)//hours,minutes,seconds
+            };
+            _fontsize = 20;
+            _fontcolor = "black";
+            _fontfamily = "Seqoe UI";
+            _duration = 10;
+            _progress = new ProgressBar()
+            {
+                Minimum = 0,
+                Maximum = 1
+            };
         }
         public double Minimum
         {

@@ -489,10 +489,10 @@ namespace EQAudioTriggers
                                         {
                                             if (doc.FastCheck)
                                             {
-                                                //if (capturedLine.ToUpper().Contains(doc.Digest.ToUpper()))
-                                                //{
-                                                //    foundmatch = true;
-                                                //}
+                                                if (capturedLine.ToUpper().Contains(doc.Digest.ToUpper()))
+                                                {
+                                                    foundmatch = true;
+                                                }
                                             }
                                             else
                                             {
@@ -501,9 +501,7 @@ namespace EQAudioTriggers
                                         }
                                         else
                                         {
-                                            String ucaselog = capturedLine.ToUpper();
-                                            String ucasetrigger = doc.SearchText.ToUpper();
-                                            foundmatch = ucaselog.Contains(ucasetrigger);
+                                            foundmatch = capturedLine.ToUpper().Contains(doc.SearchText.ToUpper());
                                         }
                                         if (doc.EndEarlyTriggers.Count > 0)
                                         {
@@ -516,9 +514,7 @@ namespace EQAudioTriggers
                                                 }
                                                 else
                                                 {
-                                                    String ucaselog = capturedLine.ToUpper();
-                                                    String ucasetrigger = earlyend.SearchText.ToUpper();
-                                                    endearly = ucaselog.Contains(ucasetrigger);
+                                                    endearly = capturedLine.ToUpper().Contains(earlyend.SearchText.ToUpper());
                                                 }
                                                 //TO DO: Probably implement extra stuff on a early end trigger
                                                 if (endearly)
@@ -559,13 +555,18 @@ namespace EQAudioTriggers
                                                 //OverlayTextItem oti = new OverlayTextItem(doc, otw);
                                                 ////push overlay to text collection
                                                 //otw.Items.Add(oti);
-
+                                                App.Current.Dispatcher.Invoke((Action)delegate
+                                                {
+                                                    _overlaytextwindows[0].AddTrigger(doc);
+                                                    //_overlaytextwindows[0].AddItem(new OverlayTextItem(doc));
+                                                    //_overlaytextwindows[0].Items.Add(new OverlayTextItem(doc));
+                                                });                                                
                                             }
                                             //Global Option for stopping on a first match
-                                            //if (stopfirstmatch)
-                                            //{
-                                            //    state.Break();
-                                            //}
+                                            if (Settings.StopTriggerSearch == "true")
+                                            {
+                                                state.Break();
+                                            }
                                         }
                                     });
                                     triggersearch.Stop();

@@ -339,5 +339,17 @@
       <Version>4.3.0</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-select-rectangular.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Apps-accessories-text-editor.ico" />
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Apps-fontforge.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Aha-Soft-Desktop-Halloween-Death.ico" />
+    <Resource Include="Images\Flat-Icons.com-Square-Alarm-clock.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Oxygen-Icons.org-Oxygen-Actions-insert-text.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
