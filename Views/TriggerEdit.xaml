@@ -11,7 +11,7 @@
         ResizeMode="NoResize"
         skin:SfSkinManager.VisualStyle="Office2019Black"
         Icon="/Images/Oxygen-Icons.org-Oxygen-Actions-document-edit.ico"
-        Title="Trigger Editor" Height="750" Width="700" Name="triggereditor">
+        Title="Trigger Editor" Height="770" Width="700" Name="triggereditor">
     <Window.Resources>
         <local:InverterConverter x:Key="InverterConverter"/>
     </Window.Resources>

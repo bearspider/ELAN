@@ -54,6 +54,7 @@ namespace EQAudioTriggers
         public static string zoneMatchString = "You have entered";
         public static Regex zoneRegex = new Regex(@"(\[(?<eqtime>\w+\s\w+\s+\d+\s\d+:\d+:\d+\s\d+)\])\s(You\shave\sentered\s)(?<zonename>.*)\.");
         public static string backupDB = $"{workingdirectory}\\Backup";
+        public static string zonelev = "You have entered an area where levitation effects do not function";
     }
     public enum ShareInvitation
     {
@@ -465,7 +466,7 @@ namespace EQAudioTriggers
                                 //Only do zone monitoring for the selected character
                                 if (character.Id == _selectedcharacter)
                                 {
-                                    if (capturedLine.Contains(GlobalVariables.zoneMatchString))
+                                    if (capturedLine.Contains(GlobalVariables.zoneMatchString) && !capturedLine.Contains(GlobalVariables.zonelev))
                                     {
                                         //Find out what zone we're in
                                         Match zone = GlobalVariables.zoneRegex.Match(capturedLine);
@@ -523,44 +524,49 @@ namespace EQAudioTriggers
                                                 }
                                             }
                                         }
-                                        if (foundmatch  && doc.ActiveCharacters.Contains(character.Id))
+                                        if (foundmatch && doc.ActiveCharacters.Contains(character.Id))
                                         {
                                             triggered = true;
                                             Match logmatch = GlobalVariables.eqRegex.Match(capturedLine);
                                             ActivatedTrigger activatedTrigger = new ActivatedTrigger
                                             {
                                                 Character = character.Profile,
-                                                MatchedText = capturedLine.Replace("\r","").Replace("\n",""),
+                                                MatchedText = capturedLine.Replace("\r", "").Replace("\n", ""),
                                                 MatchTime = DateTime.Now.ToString(),
                                                 Trigger = doc.Name,
                                                 LogTime = logmatch.Groups["eqtime"].Value.ToString()
                                             };
                                             _activatedtriggers.Collection.Add(activatedTrigger);
 
-                                            //Stopwatch firetrigger = new Stopwatch();
-                                            //firetrigger.Start();
-                                            //FireTrigger(doc, character, newstring);
-                                            //firetrigger.Stop();
                                             if (doc.RadioBasicTTS && _settings.EnableSound == "true")
                                             { character.Speak(doc.BasicTTS); }
+
+                                            ////Get Category Object for this trigger
+                                            //Category category = _categories.Where<Category>(x => x.Name == doc.Category).FirstOrDefault();
 
                                             //Check if there is a text overlay
                                             if (doc.UseBasicText)
                                             {
-                                                ////Get Category Object for this trigger
-                                                //Category category = _categories.Where<Category>(x => x.Name == doc.Category).FirstOrDefault();
+
                                                 ////Find which overlay text window to publish on
                                                 //OverlayTextWindow otw = _overlaytextwindows.Where<OverlayTextWindow>(x => x.Name == category.TextOverlay).FirstOrDefault();
-                                                ////Create new overlay item
-                                                //OverlayTextItem oti = new OverlayTextItem(doc, otw);
-                                                ////push overlay to text collection
-                                                //otw.Items.Add(oti);
+                                                OverlayTextWindow otw = _overlaytextwindows[0];
                                                 App.Current.Dispatcher.Invoke((Action)delegate
                                                 {
-                                                    _overlaytextwindows[0].AddTrigger(doc);
-                                                    //_overlaytextwindows[0].AddItem(new OverlayTextItem(doc));
-                                                    //_overlaytextwindows[0].Items.Add(new OverlayTextItem(doc));
-                                                });                                                
+                                                    otw.AddTrigger(doc);
+                                                });
+                                            }
+
+                                            //Check if there is a timer overlay
+                                            if (doc.TimerType != "No Timer")
+                                            {
+                                                //Find which overlay timer window to publish on
+                                                //OverlayTimerWindow otw = _overlaytimerwindows.Where<OverlayTimerWindow>(x => x.Name == category.TimerOverlay).FirstOrDefault();
+                                                OverlayTimerWindow otw = _overlaytimerwindows[0];
+                                                App.Current.Dispatcher.Invoke((Action)delegate
+                                                {
+                                                    otw.AddTimer(doc, character, _categories[0]);
+                                                });
                                             }
                                             //Global Option for stopping on a first match
                                             if (Settings.StopTriggerSearch == "true")
@@ -933,7 +939,7 @@ namespace EQAudioTriggers
             stopwatch.Start();
             _syncontext.Post(new SendOrPostCallback(o =>
             {
-                _totallinecount += (int)o;
+                TotalLineCount += (int)o;
             }), value);
             stopwatch.Stop();
             Console.WriteLine($"Line Update Took: {stopwatch.Elapsed.TotalSeconds} Seconds");
@@ -943,7 +949,7 @@ namespace EQAudioTriggers
         {
             _syncontext.Post(new SendOrPostCallback(o =>
             {
-                _currentzone = (string)o;
+                CurrentZone = (string)o;
             }), zonename);
         }
         private void MainRibbon_Closing(object sender, CancelEventArgs e)
@@ -2315,7 +2321,6 @@ namespace EQAudioTriggers
                 newWindow.ShowInTaskbar = false;
                 _overlaytextwindows.Add(newWindow);
                 newWindow.Show();
-                UpdateText(newWindow, new OverlayTextItem());
             }
         }
         private void LoadOverlayTimer()
@@ -2337,15 +2342,7 @@ namespace EQAudioTriggers
                 newWindow.ShowInTaskbar = false;
                 _overlaytimerwindows.Add(newWindow);
                 newWindow.Show();
-                //UpdateText(newWindow, new OverlayTextItem());
             }
-        }
-        private void UpdateText(OverlayTextWindow otw, OverlayTextItem oti)
-        {
-            _syncontext.Post(new SendOrPostCallback(o =>
-            {
-                otw.AddItem((OverlayTextItem)o);
-            }), oti);
         }
         private void SaveOverlayText()
         {

@@ -37,13 +37,13 @@ namespace EQAudioTriggers.Views
     }
     public partial class OverlayTimerWindow : Window, INotifyPropertyChanged
     {
-        private ObservableCollection<TriggerTimer> timers = new ObservableCollection<TriggerTimer>();
+        private ObservableCollection<TriggerTimer> _timers = new ObservableCollection<TriggerTimer>();
         private OverlayTimer _windowproperties = new OverlayTimer();
 
         public ObservableCollection<TriggerTimer> TimerBars
         {
-            get { return timers; }
-            set { timers = value; RaisedOnPropertyChanged("TimerBars"); }
+            get { return _timers; }
+            set { _timers = value; RaisedOnPropertyChanged("TimerBars"); }
         }
         private int id;
         public int Id
@@ -65,28 +65,33 @@ namespace EQAudioTriggers.Views
             InitializeComponent();
             WindowProperties = new OverlayTimer();
             TimerBars = new ObservableCollection<TriggerTimer>();
-            var listener = OcPropertyChangedListener.Create(timers);
-            overlays.DataContext = WindowProperties;
+            var listener = OcPropertyChangedListener.Create(_timers);
             listviewTimers.ItemsSource = TimerBars;
             DataContext = this;
         }
         public OverlayTimerWindow(OverlayTimer overlay)
         {
             InitializeComponent();
-            WindowProperties = overlay;
-            var listener = OcPropertyChangedListener.Create(timers);
-            overlays.DataContext = WindowProperties;
+            _windowproperties = overlay;
+            _timers = new ObservableCollection<TriggerTimer>();
+            var listener = OcPropertyChangedListener.Create(_timers);
             listviewTimers.ItemsSource = TimerBars;
             DataContext = this;
         }
-        public void AddTimer(EQTrigger firedtrigger, Boolean type, String character, Category triggeredcategory)
+        public void AddTimer(EQTrigger firedtrigger, Character character, Category triggeredcategory)
         {
+            //type: true = count up, false = count down
+            Boolean direction = true;
+            if(firedtrigger.TimerType == "Count Down")
+            {
+                direction = false;
+            }
             TriggerTimer newTimer = new TriggerTimer();
             newTimer.TriggerId = firedtrigger.Id;
             newTimer.Id = firedtrigger.Id;
-            newTimer.Character = character;
+            newTimer.Character = character.Name;
             newTimer.SetProgress(0, firedtrigger.TimerSeconds);
-            newTimer.SetTimer(firedtrigger.TimerName, firedtrigger.TimerSeconds, type);
+            newTimer.SetTimer(firedtrigger.TimerName, firedtrigger.TimerSeconds, direction);
             newTimer.PropertyChanged += Listener_PropertyChanged;
             newTimer.StartTimer();
             newTimer.Barcolor = triggeredcategory.TimerBarColor;

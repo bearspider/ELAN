@@ -89,6 +89,7 @@ namespace EQAudioTriggers.Models
         }
         public void SetTimer(String description, int duration, Boolean count)
         {
+            //count: true = count up, false = count down
             TimerDescription = description;
             TimerDuration = duration;
             if (count)
