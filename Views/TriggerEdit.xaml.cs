@@ -243,6 +243,7 @@ namespace EQAudioTriggers.Views
                         datagridEarly.IsEnabled = false;
                         _eqtrigger.EndEarlyTriggers.Clear();
                         comboTriggered.IsEnabled = false;
+                        textboxTimerName.IsEnabled = false;
                         break;
                     case "Timer(Count Down)":
                         labelTimerName.IsEnabled = true;
@@ -256,6 +257,7 @@ namespace EQAudioTriggers.Views
                         tabEnding.IsEnabled = true;
                         tabEnded.IsEnabled = true;
                         comboTriggered.IsEnabled = true;
+                        textboxTimerName.IsEnabled = true;
                         break;
                     case "Stopwatch(Count Up)":
                         labelTimerName.IsEnabled = true;
@@ -269,6 +271,7 @@ namespace EQAudioTriggers.Views
                         tabEnding.IsEnabled = true;
                         tabEnded.IsEnabled = true;
                         comboTriggered.IsEnabled = true;
+                        textboxTimerName.IsEnabled = true;
                         break;
                     case "Repeating Timer":
                         labelTimerName.IsEnabled = true;
@@ -282,6 +285,7 @@ namespace EQAudioTriggers.Views
                         tabEnding.IsEnabled = true;
                         tabEnded.IsEnabled = true;
                         comboTriggered.IsEnabled = true;
+                        textboxTimerName.IsEnabled = true;
                         break;
                 }
             }

@@ -939,6 +939,14 @@ namespace EQAudioTriggers
                 CurrentZone = (string)o;
             }), zonename);
         }
+
+        private void UpdateProfileName(Character profile)
+        {
+            _syncontext.Post(new SendOrPostCallback(o =>
+            {
+                SelectedProfile = (Character)o;
+            }), profile);
+        }
         private void MainRibbon_Closing(object sender, CancelEventArgs e)
         {
             Environment.Exit(Environment.ExitCode);
@@ -1534,8 +1542,8 @@ namespace EQAudioTriggers
             }
             else
             {
-                _selectedcharacter = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Id;
-                _selectedprofile = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile;
+                SelectedCharacter = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile.Id;
+                SelectedProfile = ((CharacterCollection)((ListView)e.Source).SelectedItem).CharacterProfile;
                 //set override collections for editing
                 SelectedOverride = CharacterOverrides.Where<CharacterOverride>(x => x.ProfileId == _selectedcharacter).FirstOrDefault();
                 Console.WriteLine($"Changed Character: {_selectedcharacter}");

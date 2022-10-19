@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -70,7 +71,7 @@ namespace EQAudioTriggers.Views
             listviewTimers.ItemsSource = TimerBars;
             DataContext = this;
         }
-        public void AddTimer(EQTrigger firedtrigger, Character character, Category triggeredcategory)
+        public async void AddTimer(EQTrigger firedtrigger, Character character, Category triggeredcategory)
         {
             //type: true = count up, false = count down
             Boolean direction = true;
@@ -84,11 +85,14 @@ namespace EQAudioTriggers.Views
             newTimer.Character = character.Name;
             newTimer.SetProgress(0, firedtrigger.TimerSeconds);
             newTimer.SetTimer(firedtrigger.TimerName, firedtrigger.TimerSeconds, direction);
-            newTimer.PropertyChanged += Listener_PropertyChanged;
-            newTimer.StartTimer();
+            newTimer.PropertyChanged += Listener_PropertyChanged;            
             newTimer.Barcolor = triggeredcategory.TimerBarColor;
             newTimer.Textcolor = triggeredcategory.TimerFontColor;
             TimerBars.Add(newTimer);
+            await Task.Run(() =>
+            {
+                newTimer.WindowTimer.Start();
+            });            
         }
         public void ContainsTimer(EQTrigger firedtrigger, Boolean remove)
         {
