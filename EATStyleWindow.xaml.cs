@@ -2318,7 +2318,7 @@ namespace EQAudioTriggers
                 newWindow.Show();
             }
         }
-        private void LoadOverlayTimer()
+        private async void LoadOverlayTimer()
         {
             //Load overlaytimer.json
             if (File.Exists($"{GlobalVariables.workingdirectory}\\overlaytimer.json"))

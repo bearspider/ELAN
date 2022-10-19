@@ -1,14 +1,18 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using System.Timers;
+using System.Reflection;
+using System.Windows;
 
 namespace EQAudioTriggers.Models
 {
     public class TriggerTimer : INotifyPropertyChanged
     {
         public string Character { get { return _character; } set { _character = value; NotifyPropertyChanged("Character"); } }
-        public DispatcherTimer WindowTimer;
+        //public DispatcherTimer WindowTimer;
         public String TimerDescription { get { return _timerdescription; } set { _timerdescription = value; NotifyPropertyChanged("TimerDescription"); } }
         public int TimerDuration { get { return _timerduration; } set { _timerduration = value; NotifyPropertyChanged("TimerDuration"); } }
         public ProgressBar Progress { get { return _progress; } set { _progress = value; NotifyPropertyChanged("Progress"); } }
@@ -18,10 +22,12 @@ namespace EQAudioTriggers.Models
         public string Textcolor { get { return _textcolor; } set { _textcolor = value; NotifyPropertyChanged("Textcolor"); } }
         public string TriggerId { get { return _triggerid; } set { _triggerid = value; NotifyPropertyChanged("TriggerId"); } }
         public string Id { get { return _id; } set { _id = value; NotifyPropertyChanged("id"); } }
+        public System.Timers.Timer WindowTimer { get { return _windowtimer; } set { _windowtimer = value; NotifyPropertyChanged("Windowtimer"); } }
+        public DateTime TriggeredTime { get { return _triggeredtime; } set { _triggeredtime = value; NotifyPropertyChanged("TriggeredTime"); } }
 
-        private DateTime TriggeredTime;
+        private DateTime _triggeredtime;
         private string _character;
-        private DispatcherTimer _windowtimer;
+        private System.Timers.Timer _windowtimer;
         private string _timerdescription;
         private int _timerduration;
         private ProgressBar _progress;
@@ -35,25 +41,44 @@ namespace EQAudioTriggers.Models
 
         public TriggerTimer()
         {
-            WindowTimer = new DispatcherTimer()
-            {
-                Interval = new TimeSpan(0, 0, 1)//hours,minutes,seconds
-            };
-            TriggeredTime = DateTime.Now;
-            TimerDescription = "New Timer";
-            TimerDuration = 0;
-            Direction = false;
-            Character = "";
-            Barcolor = "";
-            Textcolor = "";
-            TriggerId = "";
-            Id = "";
-            Progress = new ProgressBar()
+            _windowtimer = new System.Timers.Timer();
+            _windowtimer.Interval = 1000; //interval every 1 second
+            _windowtimer.Elapsed += _windowtimer_Elapsed;
+            _triggeredtime = DateTime.Now;
+            _timerdescription = "New Timer";
+            _timerduration = 0;
+            _direction = false;
+            _character = "";
+            _barcolor = "";
+            _textcolor = "";
+            _triggerid = "";
+            _id = "";
+            _progress = new ProgressBar()
             {
                 Minimum = 0,
                 Maximum = 1
             };
         }
+
+        private void _windowtimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            Console.WriteLine("Tick down");
+        }
+        private void Tick()
+        {
+            TimeSpan elapsed = TriggeredTime - DateTime.Now;
+            if (Direction)
+            {
+                Console.WriteLine(Convert.ToInt32(Math.Abs(elapsed.TotalSeconds)));
+                Progress.Value = Convert.ToInt32(Math.Abs(elapsed.TotalSeconds));
+            }
+            else
+            {
+                Progress.Value = Convert.ToInt32(elapsed.TotalSeconds) + TimerDuration;
+
+            }
+        }
+
         public double Minimum
         {
             get { return Progress.Minimum; }
@@ -97,7 +122,7 @@ namespace EQAudioTriggers.Models
                 Progress.Value = duration;
             }
             Direction = count;
-            WindowTimer.Tick += DispatcherTimer_Tick;
+            
         }
         public void StartTimer()
         {
