@@ -62,51 +62,27 @@ namespace EQAudioTriggers.Models
 
         private void _windowtimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Console.WriteLine("Tick down");
-        }
-        private void Tick()
-        {
-            TimeSpan elapsed = TriggeredTime - DateTime.Now;
-            if (Direction)
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
             {
-                Console.WriteLine(Convert.ToInt32(Math.Abs(elapsed.TotalSeconds)));
-                Progress.Value = Convert.ToInt32(Math.Abs(elapsed.TotalSeconds));
-            }
-            else
-            {
-                Progress.Value = Convert.ToInt32(elapsed.TotalSeconds) + TimerDuration;
-
-            }
-        }
-
-        public double Minimum
-        {
-            get { return Progress.Minimum; }
-        }
-        public double Maximum
-        {
-            get { return Progress.Maximum; }
-        }
-        public double GetProgress()
-        {
-            return Progress.Value;
-        }
-        private void DispatcherTimer_Tick(object sender, EventArgs e)
-        {
-            TimeSpan elapsed = TriggeredTime - DateTime.Now;
-
-            if (Direction)
-            {
-                Console.WriteLine(Convert.ToInt32(Math.Abs(elapsed.TotalSeconds)));
-                Progress.Value = Convert.ToInt32(Math.Abs(elapsed.TotalSeconds));
-            }
-            else
-            {
-                Progress.Value = Convert.ToInt32(elapsed.TotalSeconds) + TimerDuration;
-
-            }
-
-            NotifyPropertyChanged("Value");
+                TimeSpan elapsed = TriggeredTime - DateTime.Now;
+                if (Direction)
+                {
+                    Console.WriteLine(Convert.ToInt32(Math.Abs(elapsed.TotalSeconds)));
+                    Progress.Value = Convert.ToInt32(Math.Abs(elapsed.TotalSeconds));
+                    if(Progress.Value == Progress.Maximum)
+                    {
+                        WindowTimer.Stop();
+                    }
+                }
+                else
+                {
+                    Progress.Value = Convert.ToInt32(elapsed.TotalSeconds) + TimerDuration;
+                    if(Progress.Value == 0)
+                    {
+                        WindowTimer.Stop();
+                    }
+                }
+            }));
         }
         public void SetTimer(String description, int duration, Boolean count)
         {

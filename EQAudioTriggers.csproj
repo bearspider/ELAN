@@ -75,7 +75,6 @@
     <Compile Include="Models\ActivatedTriggerCollection.cs" />
     <Compile Include="Models\ActiveTriggerCollection.cs" />
     <Compile Include="Models\Category.cs" />
-    <Compile Include="Models\CategoryWrapper.cs" />
     <Compile Include="Models\Character.cs" />
     <Compile Include="Models\CharacterCollection.cs" />
     <Compile Include="Models\CharacterOverride.cs" />
@@ -84,7 +83,6 @@
     <Compile Include="Models\GINAGroup.cs" />
     <Compile Include="Models\GINATrigger.cs" />
     <Compile Include="Models\OverlayText.cs" />
-    <Compile Include="Models\OverlayTextItem.cs" />
     <Compile Include="Models\OverlayTimer.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Models\TreeViewModel.cs" />

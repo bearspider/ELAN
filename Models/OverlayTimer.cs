@@ -16,7 +16,7 @@ namespace EQAudioTriggers.Models
             Emptycolor = "Gray";
             Standardize = false;
             Group = false;
-            Sortby = "Time Remaining";
+            Sortby = "Order Triggered";
             WindowHeight = 450;
             WindowWidth = 800;
             WindowX = 0;

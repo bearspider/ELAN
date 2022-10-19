@@ -89,10 +89,9 @@ namespace EQAudioTriggers.Views
             newTimer.Barcolor = triggeredcategory.TimerBarColor;
             newTimer.Textcolor = triggeredcategory.TimerFontColor;
             TimerBars.Add(newTimer);
-            await Task.Run(() =>
-            {
-                newTimer.WindowTimer.Start();
-            });            
+            newTimer.WindowTimer.Start();
+            await (Task.Delay(new TimeSpan(0, 0, firedtrigger.TimerSeconds)));
+            TimerBars.Remove(newTimer);
         }
         public void ContainsTimer(EQTrigger firedtrigger, Boolean remove)
         {

@@ -83,7 +83,7 @@
         <syncfusion:Ribbon Grid.Row="0" Grid.ColumnSpan="3" x:Name="_ribbon" 
                            HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="_ribbon_SelectionChanged"
                            syncfusion:Ribbon.IsAutoSizeFormEnabled="True" >
-            <syncfusion:RibbonTab Caption="Home">
+            <syncfusion:RibbonTab Name="ribbonTabHome" Caption="Home">
                 <syncfusion:RibbonBar x:Name="characterribbon" Header="Characters">
                     <syncfusion:RibbonButton Label="Add" x:Name="addUser"  IconType="Icon" SizeForm="Large" LargeIcon="/Images/Oxygen-Icons.org-Oxygen-Actions-list-add-user.ico" Click="addUser_Click"/>
                     <syncfusion:RibbonButton Label="Edit" x:Name="editUser" IconType="Icon" SmallIcon="/Images/Oxygen-Icons.org-Oxygen-Actions-user-properties.ico" Click="editUser_Click"/>
@@ -472,7 +472,10 @@
                 </ListView.ItemTemplate>
             </ListView>
         </syncfusion:DockingManager>
-        <syncfusion:DockingManager Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="triggerdockmanager" UseDocumentContainer="True" ContainerMode="TDI" DockFill="True">
+        <syncfusion:DockingManager Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="triggerdockmanager" 
+                                   UseDocumentContainer="True" ContainerMode="TDI" DockFill="True"
+                                   ActiveWindowChanged="triggerdockmanager_ActiveWindowChanged"
+                                   >
             <ContentControl x:Name="dockCategory" syncfusion:DockingManager.Header="Categories" syncfusion:DockingManager.State="Document">
                 <syncfusion:TabControlExt Name="categoryTabs" ItemsSource="{Binding Categories}" TabStripPlacement="Left" RotateTextWhenVertical="True" TabScrollButtonVisibility="Auto" TabScrollStyle="Normal" SelectionChanged="categoryTabs_SelectionChanged">
                     <syncfusion:TabControlExt.ItemContainerStyle>
@@ -705,7 +708,7 @@
                     </syncfusion:TabControlExt.ContentTemplate>
                 </syncfusion:TabControlExt>
             </ContentControl>
-            <ContentControl syncfusion:DockingManager.Header="Activated Triggers" syncfusion:DockingManager.State="Document">
+            <ContentControl x:Name="dockActivated" syncfusion:DockingManager.Header="Activated Triggers" syncfusion:DockingManager.State="Document">
                 <syncfusion:SfDataGrid x:Name="activatedDatagrid" AllowSorting="true" AutoGenerateColumns="False" ColumnSizer="Star" NavigationMode="Row">
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:GridTextColumn MappingName="Character"/>
@@ -716,7 +719,7 @@
                     </syncfusion:SfDataGrid.Columns>
                 </syncfusion:SfDataGrid>
             </ContentControl>
-            <ContentControl syncfusion:DockingManager.Header ="Triggers" syncfusion:DockingManager.State="Document">
+            <ContentControl x:Name="dockTriggers" syncfusion:DockingManager.Header ="Triggers" syncfusion:DockingManager.State="Document">
                 <syncfusion:SfTreeView Name="treeview" syncfusion:DockingManager.Header="Triggers" syncfusion:DockingManager.State="Document"
                                            NotificationSubscriptionMode="CollectionChange"
                                            ExpandActionTrigger="Node"

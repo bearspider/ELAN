@@ -266,7 +266,7 @@ namespace EQAudioTriggers
         private Settings _settings = new Settings();
         private ObservableCollection<EQTrigger> _modifiedtriggers = new ObservableCollection<EQTrigger>();
         private ParallelOptions _po = new ParallelOptions();
-        public List<string> _availableThemes = new List<string>();
+        private List<string> _availableThemes = new List<string>();
         private string _selectedtheme = "FluentDark";
         private ObservableCollection<OverlayText> _overlaytext = new ObservableCollection<OverlayText>();
         private ObservableCollection<OverlayTextWindow> _overlaytextwindows = new ObservableCollection<OverlayTextWindow>();
@@ -275,6 +275,8 @@ namespace EQAudioTriggers
         private ObservableCollection<Category> _categories = new ObservableCollection<Category>();
         private ObservableCollection<CharacterOverride> _characteroverrides = new ObservableCollection<CharacterOverride>();
         private CharacterOverride _selectedoverride = new CharacterOverride();
+        private Boolean _dockchanger = false;
+        
         public List<String> AvailableThemes { get { return _availableThemes; } set { _availableThemes = value; NotifyPropertyChanged("AvailableThemes"); } }
         public Settings Settings { get { return _settings; } set { _settings = value; NotifyPropertyChanged("Settings"); } }
         public ObservableCollection<Category> Categories { get { return _categories; } set { _categories = value; NotifyPropertyChanged("Categories"); } }
@@ -286,6 +288,8 @@ namespace EQAudioTriggers
         public int TotalLineCount { get { return _totallinecount; } set { _totallinecount = value; NotifyPropertyChanged("TotalLineCount"); } }
         public string SelectedCharacter { get { return _selectedcharacter; } set { _selectedcharacter = value; NotifyPropertyChanged("SelectedCharacter"); } }
         public Character SelectedProfile { get { return _selectedprofile; } set { _selectedprofile = value; NotifyPropertyChanged("SelectedProfile"); } }
+        public ObservableCollection<CharacterCollection> Characters { get { return _characters; } set { _characters = value; NotifyPropertyChanged("Characters"); } }
+        
         //System Tray Icons
         private System.Windows.Forms.NotifyIcon MyNotifyIcon;
 
@@ -306,11 +310,10 @@ namespace EQAudioTriggers
             LoadBase();
             LoadSettings();
             LoadThemes();
-            LoadCharacters();
-            LoadCategories();
+            LoadCharacters();            
             LoadOverrides();
             ActivateLog();
-            if (_characters.Count > 0)
+            if (Characters.Count > 0)
             {
                 foreach (CharacterCollection profile in _characters)
                 {
@@ -327,6 +330,7 @@ namespace EQAudioTriggers
             }
             LoadOverlayText();
             LoadOverlayTimer();
+            LoadCategories();
             DataContext = this;
         }
         private void LoadCategories()
@@ -336,31 +340,29 @@ namespace EQAudioTriggers
                 using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\categories.json"))
                 {
                     string json = r.ReadToEnd();
-                    _categories = JsonConvert.DeserializeObject<ObservableCollection<Category>>(json);
+                    Categories = JsonConvert.DeserializeObject<ObservableCollection<Category>>(json);
                 }
             }
             else
             {
                 Category newcategory = new Category();
-                newcategory.AvailableTextOverlays = _overlaytext;
-                newcategory.AvailableTimerOverlays = _overlaytimer;
-                _categories.Add(new Category());
+                newcategory.AvailableTextOverlays = OverlayText;
+                newcategory.AvailableTimerOverlays = OverlayTimer;
+                Categories.Add(new Category());
                 WriteCategories();
             }
-            //categoryTabs.ItemsSource = _categories;
-            //categoryTabs.SelectedIndex = 0;
         }
         private void LoadThemes()
         {
-            _availableThemes.Add("MaterialDark");
-            _availableThemes.Add("MaterialLight");
-            _availableThemes.Add("FluentLight");
-            _availableThemes.Add("FluentDark");
-            _availableThemes.Add("MaterialLightBlue");
-            _availableThemes.Add("MaterialDarkBlue");
-            _availableThemes.Add("Office2019Colorful");
-            _availableThemes.Add("Office2019Black");
-            _availableThemes.Add("Office2019DarkGray");
+            AvailableThemes.Add("MaterialDark");
+            AvailableThemes.Add("MaterialLight");
+            AvailableThemes.Add("FluentLight");
+            AvailableThemes.Add("FluentDark");
+            AvailableThemes.Add("MaterialLightBlue");
+            AvailableThemes.Add("MaterialDarkBlue");
+            AvailableThemes.Add("Office2019Colorful");
+            AvailableThemes.Add("Office2019Black");
+            AvailableThemes.Add("Office2019DarkGray");
         }
         private void LoadBase()
         {
@@ -582,12 +584,12 @@ namespace EQAudioTriggers
                 using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\settings.json"))
                 {
                     string json = r.ReadToEnd();
-                    _settings = JsonConvert.DeserializeObject<Settings>(json);
+                    Settings = JsonConvert.DeserializeObject<Settings>(json);
                 }
             }
             else
             {
-                _settings.DefaultSettings();
+                Settings.DefaultSettings();
                 WriteSettings();
             }
         }
@@ -610,7 +612,7 @@ namespace EQAudioTriggers
             using (StreamReader r = new StreamReader($"{GlobalVariables.workingdirectory}\\characters.json"))
             {
                 string json = r.ReadToEnd();
-                _characters = JsonConvert.DeserializeObject<ObservableCollection<CharacterCollection>>(json);
+                Characters = JsonConvert.DeserializeObject<ObservableCollection<CharacterCollection>>(json);
             }
             LoadTriggers();
             CollectionViewSource charactervs = new CollectionViewSource();
@@ -1001,8 +1003,38 @@ namespace EQAudioTriggers
         private void _ribbon_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             RibbonTab tab = (RibbonTab)(sender as Ribbon).SelectedItem;
-            if (tab.Caption == "Categories")
+            if (tab != null && triggerdockmanager != null)
             {
+                switch(tab.Caption)
+                {
+                    case "Categories":
+                        triggerdockmanager.ActivateWindow("dockCategory");
+                        _dockchanger = false;
+                        break;
+                    case "Sharing":
+                        if (!_dockchanger)
+                        {
+                            triggerdockmanager.ActivateWindow("dockTriggers");
+                        }
+                        _dockchanger = false;
+                        break;
+                    case "Overlays":
+                        if (!_dockchanger)
+                        {
+                            triggerdockmanager.ActivateWindow("dockTriggers");
+                        }
+                        _dockchanger = false;
+                        break;
+                    case "Home":
+                        if (!_dockchanger)
+                        {
+                            triggerdockmanager.ActivateWindow("dockTriggers");
+                        }
+                        _dockchanger = false;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         private void BackStageExitButton_Click(object sender, RoutedEventArgs e)
@@ -2307,6 +2339,12 @@ namespace EQAudioTriggers
                     string json = r.ReadToEnd();
                     _overlaytext = JsonConvert.DeserializeObject<ObservableCollection<OverlayText>>(json);
                 }
+                //Must have one timer and one text overlay
+                if (_overlaytext.Count == 0)
+                {
+                    _overlaytext.Add(new OverlayText());
+                    SaveOverlayText();
+                }
             }
             ribbonOverlays.ItemsSource = _overlaytext;
             //Open windows
@@ -2318,7 +2356,7 @@ namespace EQAudioTriggers
                 newWindow.Show();
             }
         }
-        private async void LoadOverlayTimer()
+        private void LoadOverlayTimer()
         {
             //Load overlaytimer.json
             if (File.Exists($"{GlobalVariables.workingdirectory}\\overlaytimer.json"))
@@ -2327,6 +2365,11 @@ namespace EQAudioTriggers
                 {
                     string json = r.ReadToEnd();
                     _overlaytimer = JsonConvert.DeserializeObject<ObservableCollection<OverlayTimer>>(json);
+                }
+                if (_overlaytimer.Count == 0)
+                {
+                    _overlaytimer.Add(new OverlayTimer());
+                    SaveOverlayTimer();
                 }
             }
             ribbonOverlayTimers.ItemsSource = _overlaytimer;
@@ -2421,6 +2464,7 @@ namespace EQAudioTriggers
 
         #endregion
 
+        #region Category
         private void ribbonCategoryAdd_Click(object sender, RoutedEventArgs e)
         {
             Category newcategory = new Category();
@@ -2474,6 +2518,28 @@ namespace EQAudioTriggers
                 SelectedOverride = findoverride;
             }
             string stop = "";
+        }
+        #endregion
+
+        private void triggerdockmanager_ActiveWindowChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            switch (((DockingManager)d).ActiveWindow.Name)
+            {
+                case "dockCategory":
+                    _dockchanger = true;
+                    ribbonTabCategory.IsChecked = true;
+                    break;
+                case "dockTriggers":
+                    _dockchanger = true;
+                    ribbonTabHome.IsChecked = true;
+                    break;
+                case "dockActivated":
+                    _dockchanger = true;
+                    ribbonTabHome.IsChecked = true;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

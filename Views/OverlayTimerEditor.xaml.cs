@@ -18,17 +18,15 @@ namespace EQAudioTriggers.Views
         public OverlayTimerEditor()
         {
             InitializeComponent();
-            OT = new OverlayTimer();
+            _ot = new OverlayTimer();
             overlayeditor.DataContext = OT;
-            DataContext = this;
             SetBackground((Color)ColorConverter.ConvertFromString(_ot.Faded));
         }
 
         public OverlayTimerEditor(OverlayTimer ot)
         {
             InitializeComponent();
-            OT = ot;
-            DataContext = this;
+            _ot = ot;
             overlayeditor.DataContext = OT;
             SetBackground((Color)ColorConverter.ConvertFromString(OT.Faded));
         }
