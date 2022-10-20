@@ -40,6 +40,11 @@ namespace EQAudioTriggers.Views
     public partial class TriggerEdit : ChromelessWindow
     {
         private EQTrigger _eqtrigger;
+        private ObservableCollection<Category> _categories;
+        private ObservableCollection<CharacterCollection> _characters;
+        public ObservableCollection<CharacterCollection > Characters { get { return _characters; } set { _characters = value; } }
+        public ObservableCollection<Category> Categories { get { return _categories; } set { _categories = value; } }
+        public EQTrigger EQTrigger { get { return _eqtrigger; } set { _eqtrigger = value; } }
         public void SetTheme(string theme)
         {
             SfSkinManager.SetTheme(this, new Theme(theme));
@@ -48,13 +53,13 @@ namespace EQAudioTriggers.Views
         {
             InitializeComponent();
             _eqtrigger = new EQTrigger();
-            triggereditor.DataContext = _eqtrigger;
+            DataContext = this;
         }
         public TriggerEdit(EQTrigger oldtrigger)
         {
             InitializeComponent();
             _eqtrigger = oldtrigger;
-            triggereditor.DataContext = _eqtrigger;
+            DataContext = this;
         }
 
         public TriggerEdit(ObservableCollection<CharacterCollection> characters, ObservableCollection<Category> categories)
@@ -63,18 +68,17 @@ namespace EQAudioTriggers.Views
             _eqtrigger = new EQTrigger();
             Category defaultcategory = categories.Where(x => x.DefaultCategory == true).FirstOrDefault();
             _eqtrigger.Category = defaultcategory.CategoryName;
-            triggereditor.DataContext = _eqtrigger;
+            DataContext = this;
             comboEndedTest.ItemsSource = comboEndingTest.ItemsSource = comboBasicTest.ItemsSource = characters;
-            comboCategory.ItemsSource = categories;
         }
 
         public TriggerEdit(EQTrigger oldtrigger, ObservableCollection<CharacterCollection> characters, ObservableCollection<Category> categories)
         {
             InitializeComponent();
             _eqtrigger = oldtrigger;
-            triggereditor.DataContext = _eqtrigger;
-            comboEndedTest.ItemsSource = comboEndingTest.ItemsSource = comboBasicTest.ItemsSource = characters;
-            comboCategory.ItemsSource = categories;
+            _categories = categories;
+            _characters = characters;
+            DataContext = this;
         }
 
         public EQTrigger ReturnTrigger { get; set; }
@@ -87,7 +91,6 @@ namespace EQAudioTriggers.Views
         private void buttonTimerSave_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
-            _eqtrigger.Category = ((Category)comboCategory.SelectedItem).CategoryName;
             _eqtrigger.TimerTriggered = comboTriggered.Text;
             ReturnTrigger = _eqtrigger;
             this.Close();
