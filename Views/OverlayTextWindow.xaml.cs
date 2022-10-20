@@ -43,33 +43,34 @@ namespace EQAudioTriggers.Views
     {
         private OverlayText _windowproperties;
         public OverlayText WindowProperties { get { return _windowproperties; } set { _windowproperties = value; RaisedOnPropertyChanged("WindowProperties"); } }
-        private ObservableCollection<EQTrigger> _triggers;
-        public ObservableCollection<EQTrigger> Triggers { get { return _triggers; } set { _triggers = value; RaisedOnPropertyChanged("Triggers"); } }
+        private ObservableCollection<OverlayTextItem> _overlays;
+        public ObservableCollection<OverlayTextItem> Overlays { get { return _overlays; } set { _overlays = value; RaisedOnPropertyChanged("Overlays"); } }
 
         public OverlayTextWindow()
         {
             InitializeComponent();
-            _triggers = new ObservableCollection<EQTrigger>();
+            _overlays = new ObservableCollection<OverlayTextItem>();
             _windowproperties = new OverlayText();
-            icTriggers.ItemsSource = Triggers;
+            icTriggers.ItemsSource = Overlays;
             DataContext = this;
         }
         public OverlayTextWindow(OverlayText windowproperties)
         {
             InitializeComponent();
             _windowproperties = windowproperties;
-            _triggers = new ObservableCollection<EQTrigger>();
-            icTriggers.ItemsSource = Triggers;
+            _overlays = new ObservableCollection<OverlayTextItem>();
+            icTriggers.ItemsSource = Overlays;
             DataContext = this;
         }
-        public async void AddTrigger(EQTrigger trigger)
+        public async void AddOverlay(OverlayTextItem newoverlay)
         {
-            Triggers.Add(trigger);
+
+            Overlays.Add(newoverlay);
             RaisedOnPropertyChanged("TriggerAdd");
             //Start async process
             await (Task.Delay(new TimeSpan(0, 0, WindowProperties.Delay)));
             //remove trigger
-            Triggers.Remove(trigger);
+            Overlays.Remove(newoverlay);
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void RaisedOnPropertyChanged(string _PropertyName)

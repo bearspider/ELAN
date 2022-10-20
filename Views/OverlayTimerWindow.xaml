@@ -33,7 +33,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <ProgressBar Foreground="{Binding Barcolor}" Width="500" HorizontalContentAlignment="Stretch" Name="pb"  Value="{Binding Progress.Value}" Minimum="{Binding Minimum}" Maximum="{Binding Maximum}"/>
+                        <ProgressBar Foreground="{Binding Barcolor}" Width="500" HorizontalContentAlignment="Stretch" Name="pb"  Value="{Binding Progress.Value}" Minimum="{Binding Progress.Minimum}" Maximum="{Binding Progress.Maximum}"/>
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding ElementName=pb, Path=Value, Converter={StaticResource converter}}" FontSize="{Binding WindowProperties.Size}" Foreground="{Binding Textcolor}"/>
                         <TextBlock Text="{Binding TimerDescription}" FontSize="30" Foreground="{Binding Textcolor}" HorizontalAlignment="Left"/>
                     </Grid>

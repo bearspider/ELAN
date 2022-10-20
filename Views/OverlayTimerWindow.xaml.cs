@@ -71,7 +71,7 @@ namespace EQAudioTriggers.Views
             listviewTimers.ItemsSource = TimerBars;
             DataContext = this;
         }
-        public async void AddTimer(EQTrigger firedtrigger, Character character, Category triggeredcategory)
+        public async void AddTimer(EQTrigger firedtrigger, Character character, OverlayTimerItem oti)
         {
             //type: true = count up, false = count down
             Boolean direction = true;
@@ -83,11 +83,12 @@ namespace EQAudioTriggers.Views
             newTimer.TriggerId = firedtrigger.Id;
             newTimer.Id = firedtrigger.Id;
             newTimer.Character = character.Name;
+            newTimer.TimerDescription = oti.Text;
             newTimer.SetProgress(0, firedtrigger.TimerSeconds);
             newTimer.SetTimer(firedtrigger.TimerName, firedtrigger.TimerSeconds, direction);
             newTimer.PropertyChanged += Listener_PropertyChanged;            
-            newTimer.Barcolor = triggeredcategory.TimerBarColor;
-            newTimer.Textcolor = triggeredcategory.TimerFontColor;
+            newTimer.Barcolor = oti.BarColor;
+            newTimer.Textcolor = oti.FontColor;
             TimerBars.Add(newTimer);
             newTimer.WindowTimer.Start();
             await (Task.Delay(new TimeSpan(0, 0, firedtrigger.TimerSeconds)));

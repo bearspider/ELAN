@@ -253,9 +253,9 @@ namespace EQAudioTriggers.Models
                 //Update the parent node in the DB
             }
         }
-        public EQTrigger AddTrigger(ObservableCollection<CharacterCollection> Characters, string theme)
+        public EQTrigger AddTrigger(ObservableCollection<CharacterCollection> Characters, ObservableCollection<Category> Categories, string theme)
         {
-            TriggerEdit te = new TriggerEdit(Characters);
+            TriggerEdit te = new TriggerEdit(Characters, Categories);
             te.SetTheme(theme);
             Boolean rval = (bool)te.ShowDialog();
             if (rval)
@@ -289,9 +289,9 @@ namespace EQAudioTriggers.Models
             }
             return null;
         }
-        public Boolean AddTrigger(ObservableCollection<CharacterCollection> Characters, EQTrigger copytrigger, string theme)
+        public Boolean AddTrigger(ObservableCollection<CharacterCollection> Characters, EQTrigger copytrigger, ObservableCollection<Category> Categories, string theme)
         {
-            TriggerEdit te = new TriggerEdit(copytrigger, Characters);
+            TriggerEdit te = new TriggerEdit(copytrigger, Characters, Categories);
             te.SetTheme(theme);
             Boolean rval = (bool)te.ShowDialog();
             if (rval)
@@ -334,13 +334,16 @@ namespace EQAudioTriggers.Models
             ParentNode.SubGroups.Remove(this);
 
         }
-        public void EditTrigger(ObservableCollection<CharacterCollection> charcollection, string theme)
+        public void EditTrigger(ObservableCollection<CharacterCollection> charcollection, ObservableCollection<Category> categories, string theme)
         {
-            TriggerEdit te = new TriggerEdit(this.Trigger, charcollection);
+            //Do a deep copy to edit from, so if we cancel then just garbage collect it
+            EQTrigger triggercopy = this.Trigger.DeepCopy();
+            TriggerEdit te = new TriggerEdit(triggercopy, charcollection, categories);
             te.SetTheme(theme);
             Boolean rval = (bool)te.ShowDialog();
             if (rval)
             {
+                this.Trigger = triggercopy;
                 //See if the name changed, if it did, update the triggermanager
                 if (_name != te.ReturnTrigger.Name)
                 {

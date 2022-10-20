@@ -22,12 +22,11 @@
         <ItemsControl Name="icTriggers" 
                       FontSize="{Binding Path=WindowProperties.Size, RelativeSource={RelativeSource AncestorType={x:Type local:OverlayTextWindow}}}"
                       FontFamily="{Binding Path=WindowProperties.Font, RelativeSource={RelativeSource AncestorType={x:Type local:OverlayTextWindow}}}"
-                      Foreground="{Binding Path=WindowProperties.FontColor, RelativeSource={RelativeSource AncestorType={x:Type local:OverlayTextWindow}}}"
                       Background="{Binding Path=WindowProperties.BG, RelativeSource={RelativeSource AncestorType={x:Type local:OverlayTextWindow}}}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="0,0,0,5">
-                        <TextBlock Text="{Binding BasicText}"/>
+                        <TextBlock Text="{Binding Text}" Foreground="{Binding FontColor}"/>
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

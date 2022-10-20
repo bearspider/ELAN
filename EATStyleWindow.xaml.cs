@@ -275,7 +275,6 @@ namespace EQAudioTriggers
         private ObservableCollection<Category> _categories = new ObservableCollection<Category>();
         private ObservableCollection<CharacterOverride> _characteroverrides = new ObservableCollection<CharacterOverride>();
         private CharacterOverride _selectedoverride = new CharacterOverride();
-        private Boolean _dockchanger = false;
         
         public List<String> AvailableThemes { get { return _availableThemes; } set { _availableThemes = value; NotifyPropertyChanged("AvailableThemes"); } }
         public Settings Settings { get { return _settings; } set { _settings = value; NotifyPropertyChanged("Settings"); } }
@@ -346,8 +345,6 @@ namespace EQAudioTriggers
             else
             {
                 Category newcategory = new Category();
-                newcategory.AvailableTextOverlays = OverlayText;
-                newcategory.AvailableTimerOverlays = OverlayTimer;
                 Categories.Add(new Category());
                 WriteCategories();
             }
@@ -530,31 +527,55 @@ namespace EQAudioTriggers
                                             if (doc.RadioBasicTTS && _settings.EnableSound == "true")
                                             { character.Speak(doc.BasicTTS); }
 
-                                            ////Get Category Object for this trigger
-                                            //Category category = _categories.Where<Category>(x => x.Name == doc.Category).FirstOrDefault();
+                                            //Get Category Object for this trigger
+                                            Category category = _categories.Where<Category>(x => x.CategoryName == doc.Category).FirstOrDefault();
 
                                             //Check if there is a text overlay
                                             if (doc.UseBasicText)
                                             {
-
-                                                ////Find which overlay text window to publish on
-                                                //OverlayTextWindow otw = _overlaytextwindows.Where<OverlayTextWindow>(x => x.Name == category.TextOverlay).FirstOrDefault();
-                                                OverlayTextWindow otw = _overlaytextwindows[0];
+                                                //Find which overlay text window to publish on
                                                 App.Current.Dispatcher.Invoke((Action)delegate
                                                 {
-                                                    otw.AddTrigger(doc);
-                                                });
+                                                    OverlayTextWindow otw = _overlaytextwindows.Where<OverlayTextWindow>(x => x.WindowProperties.Name == category.TextOverlay).FirstOrDefault();
+                                                    //Build overlay item
+                                                    OverlayTextItem oti = new OverlayTextItem();
+                                                    oti.Text = doc.BasicText;
+                                                    //Determine which colors to use
+                                                    if (category.TextUseCharacter)
+                                                    {
+                                                        oti.FontColor = character.TextFontColor;
+                                                    }
+                                                    if (category.TextUseColor)
+                                                    {
+                                                        oti.FontColor = category.TextFontColor;
+                                                    }
+                                                    //TODO: Add search for character override
+                                                    otw.AddOverlay(oti);
+                                                });                                               
                                             }
 
                                             //Check if there is a timer overlay
                                             if (doc.TimerType != "No Timer")
                                             {
-                                                //Find which overlay timer window to publish on
-                                                //OverlayTimerWindow otw = _overlaytimerwindows.Where<OverlayTimerWindow>(x => x.Name == category.TimerOverlay).FirstOrDefault();
-                                                OverlayTimerWindow otw = _overlaytimerwindows[0];
                                                 App.Current.Dispatcher.Invoke((Action)delegate
                                                 {
-                                                    otw.AddTimer(doc, character, _categories[0]);
+                                                    //Find which overlay timer window to publish on
+                                                    OverlayTimerWindow otw = _overlaytimerwindows.Where<OverlayTimerWindow>(x => x.WindowProperties.Name == category.TimerOverlay).FirstOrDefault();
+                                                    OverlayTimerItem oti = new OverlayTimerItem();
+                                                    oti.Text = doc.TimerName;
+                                                    //Determine which colors to use
+                                                    if(category.TimerUseCharacter)
+                                                    {
+                                                        oti.FontColor = character.TimerFontColor;
+                                                        oti.BarColor = character.TimerBarColor;
+                                                    }
+                                                    if(category.TimerUseColor)
+                                                    {
+                                                        oti.FontColor = category.TimerFontColor;
+                                                        oti.BarColor = category.TimerBarColor;
+                                                    }
+                                                    //TODO: Add search for character override
+                                                    otw.AddTimer(doc,character,oti);
                                                 });
                                             }
                                             //Global Option for stopping on a first match
@@ -956,6 +977,23 @@ namespace EQAudioTriggers
         #endregion
 
         #region DockingManager Actions
+        private void triggerdockmanager_ActiveWindowChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            switch (((DockingManager)d).ActiveWindow.Name)
+            {
+                case "dockCategory":
+                    ribbonTabCategory.IsChecked = true;
+                    break;
+                case "dockTriggers":
+                    ribbonTabHome.IsChecked = true;
+                    break;
+                case "dockActivated":
+                    ribbonTabHome.IsChecked = true;
+                    break;
+                default:
+                    break;
+            }
+        }
         private void dockingmanager_CloseAllTabs(object sender, CloseTabEventArgs e)
         {
 
@@ -1009,34 +1047,21 @@ namespace EQAudioTriggers
                 {
                     case "Categories":
                         triggerdockmanager.ActivateWindow("dockCategory");
-                        _dockchanger = false;
                         break;
                     case "Sharing":
-                        if (!_dockchanger)
-                        {
-                            triggerdockmanager.ActivateWindow("dockTriggers");
-                        }
-                        _dockchanger = false;
+                        triggerdockmanager.ActivateWindow("dockTriggers");                      
                         break;
                     case "Overlays":
-                        if (!_dockchanger)
-                        {
-                            triggerdockmanager.ActivateWindow("dockTriggers");
-                        }
-                        _dockchanger = false;
+                        triggerdockmanager.ActivateWindow("dockTriggers");
                         break;
                     case "Home":
-                        if (!_dockchanger)
-                        {
-                            triggerdockmanager.ActivateWindow("dockTriggers");
-                        }
-                        _dockchanger = false;
+                        triggerdockmanager.ActivateWindow("dockTriggers");
                         break;
                     default:
                         break;
                 }
             }
-        }
+       }
         private void BackStageExitButton_Click(object sender, RoutedEventArgs e)
         {
             Environment.Exit(Environment.ExitCode);
@@ -1538,7 +1563,7 @@ namespace EQAudioTriggers
         #region Trigger Clicks
         private void addTrigger_Click(object sender, RoutedEventArgs e)
         {
-            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters, _selectedtheme);
+            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(Characters, Categories, _selectedtheme);
             if (newtrigger != null)
             {
                 _triggermasterlist.Add(newtrigger);
@@ -1548,7 +1573,10 @@ namespace EQAudioTriggers
         }
         private void editTrigger_Click(object sender, RoutedEventArgs e)
         {
-            ((TriggerManager)treeview.SelectedItem).EditTrigger(_characters, _selectedtheme);
+            TriggerManager edittrigger = ((TriggerManager)treeview.SelectedItem);
+            edittrigger.EditTrigger(Characters, Categories, _selectedtheme);
+            _triggermasterlist.Remove(_triggermasterlist.FirstOrDefault(x => x.Id == edittrigger.Trigger.Id));
+            _triggermasterlist.Add(edittrigger.Trigger);
             WriteTriggers();
             WriteTriggerGroups();
         }
@@ -2168,7 +2196,7 @@ namespace EQAudioTriggers
 
         private void ContextMenuTriggerAdd_Click(object sender, RoutedEventArgs e)
         {
-            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(_characters, _selectedtheme);
+            EQTrigger newtrigger = ((TriggerManager)treeview.SelectedItem).AddTrigger(Characters, Categories, _selectedtheme);
             if (newtrigger != null)
             {
                 _triggermasterlist.Add(newtrigger);
@@ -2179,7 +2207,10 @@ namespace EQAudioTriggers
 
         private void ContextMenuTriggerEdit_Click(object sender, RoutedEventArgs e)
         {
-            ((TriggerManager)treeview.SelectedItem).EditTrigger(_characters, _selectedtheme);
+            TriggerManager edittrigger = ((TriggerManager)treeview.SelectedItem);
+            edittrigger.EditTrigger(Characters, Categories, _selectedtheme);
+            _triggermasterlist.Remove(_triggermasterlist.FirstOrDefault(x => x.Id == edittrigger.Trigger.Id));
+            _triggermasterlist.Add(edittrigger.Trigger);
             WriteTriggers();
             WriteTriggerGroups();
         }
@@ -2224,7 +2255,7 @@ namespace EQAudioTriggers
             //Add the trigger to the parent node
             EQTrigger newtrigger = new EQTrigger(selecteditem.Trigger);
             newtrigger.Name += "-Copy";
-            Boolean added = parentnode.AddTrigger(_characters, newtrigger, _selectedtheme);
+            Boolean added = parentnode.AddTrigger(Characters, newtrigger, Categories, _selectedtheme);
             if (added)
             {
                 _triggermasterlist.Add(newtrigger);
@@ -2388,12 +2419,6 @@ namespace EQAudioTriggers
             {
                 file.Write(JsonConvert.SerializeObject(_overlaytext, Newtonsoft.Json.Formatting.Indented));
             }
-            //Update the categories
-            foreach (Category category in _categories)
-            {
-                category.AvailableTextOverlays = _overlaytext;
-                category.AvailableTimerOverlays = _overlaytimer;
-            }
             WriteCategories();
         }
         private void SaveOverlayTimer()
@@ -2401,12 +2426,6 @@ namespace EQAudioTriggers
             using (StreamWriter file = File.CreateText($"{GlobalVariables.workingdirectory}\\overlaytimer.json"))
             {
                 file.Write(JsonConvert.SerializeObject(_overlaytimer, Newtonsoft.Json.Formatting.Indented));
-            }
-            //Update the categories
-            foreach (Category category in _categories)
-            {
-                category.AvailableTextOverlays = _overlaytext;
-                category.AvailableTimerOverlays = _overlaytimer;
             }
             WriteCategories();
         }
@@ -2521,25 +2540,6 @@ namespace EQAudioTriggers
         }
         #endregion
 
-        private void triggerdockmanager_ActiveWindowChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            switch (((DockingManager)d).ActiveWindow.Name)
-            {
-                case "dockCategory":
-                    _dockchanger = true;
-                    ribbonTabCategory.IsChecked = true;
-                    break;
-                case "dockTriggers":
-                    _dockchanger = true;
-                    ribbonTabHome.IsChecked = true;
-                    break;
-                case "dockActivated":
-                    _dockchanger = true;
-                    ribbonTabHome.IsChecked = true;
-                    break;
-                default:
-                    break;
-            }
-        }
+
     }
 }

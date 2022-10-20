@@ -83,7 +83,9 @@
     <Compile Include="Models\GINAGroup.cs" />
     <Compile Include="Models\GINATrigger.cs" />
     <Compile Include="Models\OverlayText.cs" />
+    <Compile Include="Models\OverlayTextItem.cs" />
     <Compile Include="Models\OverlayTimer.cs" />
+    <Compile Include="Models\OverlayTimerItem.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Models\TreeViewModel.cs" />
     <Compile Include="Models\TriggerGroupProperty.cs" />

@@ -387,7 +387,6 @@
                             </Grid>
                         </StackPanel>
                     </syncfusion:BackstageTabItem>
-                    <!--<syncfusion:BackstageTabItem Header="Categories"></syncfusion:BackstageTabItem>-->
                     <syncfusion:BackstageTabItem Header="About">
                         <StackPanel Margin="30">
                             <Grid>

@@ -5,6 +5,7 @@ using Syncfusion.Windows.Shared;
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Media;
 using System.Windows;
 using System.Windows.Controls;
@@ -56,21 +57,24 @@ namespace EQAudioTriggers.Views
             triggereditor.DataContext = _eqtrigger;
         }
 
-        public TriggerEdit(ObservableCollection<CharacterCollection> characters)
+        public TriggerEdit(ObservableCollection<CharacterCollection> characters, ObservableCollection<Category> categories)
         {
             InitializeComponent();
             _eqtrigger = new EQTrigger();
+            Category defaultcategory = categories.Where(x => x.DefaultCategory == true).FirstOrDefault();
+            _eqtrigger.Category = defaultcategory.CategoryName;
             triggereditor.DataContext = _eqtrigger;
             comboEndedTest.ItemsSource = comboEndingTest.ItemsSource = comboBasicTest.ItemsSource = characters;
-            string stop = "";
+            comboCategory.ItemsSource = categories;
         }
 
-        public TriggerEdit(EQTrigger oldtrigger, ObservableCollection<CharacterCollection> characters)
+        public TriggerEdit(EQTrigger oldtrigger, ObservableCollection<CharacterCollection> characters, ObservableCollection<Category> categories)
         {
             InitializeComponent();
             _eqtrigger = oldtrigger;
             triggereditor.DataContext = _eqtrigger;
             comboEndedTest.ItemsSource = comboEndingTest.ItemsSource = comboBasicTest.ItemsSource = characters;
+            comboCategory.ItemsSource = categories;
         }
 
         public EQTrigger ReturnTrigger { get; set; }
@@ -83,6 +87,8 @@ namespace EQAudioTriggers.Views
         private void buttonTimerSave_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
+            _eqtrigger.Category = ((Category)comboCategory.SelectedItem).CategoryName;
+            _eqtrigger.TimerTriggered = comboTriggered.Text;
             ReturnTrigger = _eqtrigger;
             this.Close();
         }
