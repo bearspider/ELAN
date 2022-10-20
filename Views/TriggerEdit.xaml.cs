@@ -1,6 +1,7 @@
 ﻿using EQAudioTriggers.Models;
 using Microsoft.Win32;
 using Syncfusion.SfSkinManager;
+using Syncfusion.UI.Xaml.Diagram;
 using Syncfusion.Windows.Shared;
 using System;
 using System.Collections.ObjectModel;
@@ -10,6 +11,7 @@ using System.Media;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using ToolTip = Syncfusion.UI.Xaml.Diagram.ToolTip;
 
 namespace EQAudioTriggers.Views
 {
@@ -60,6 +62,9 @@ namespace EQAudioTriggers.Views
             InitializeComponent();
             _eqtrigger = oldtrigger;
             DataContext = this;
+            ToolTip tt = new ToolTip();
+            tt.Text = "tooltip";
+            checkboxFast.ToolTip = tt;
         }
 
         public TriggerEdit(ObservableCollection<CharacterCollection> characters, ObservableCollection<Category> categories)
@@ -70,6 +75,9 @@ namespace EQAudioTriggers.Views
             _eqtrigger.Category = defaultcategory.CategoryName;
             DataContext = this;
             comboEndedTest.ItemsSource = comboEndingTest.ItemsSource = comboBasicTest.ItemsSource = characters;
+            ToolTip tt = new ToolTip();
+            tt.Text = "tooltip";
+            checkboxFast.ToolTip = tt;
         }
 
         public TriggerEdit(EQTrigger oldtrigger, ObservableCollection<CharacterCollection> characters, ObservableCollection<Category> categories)
@@ -79,6 +87,9 @@ namespace EQAudioTriggers.Views
             _categories = categories;
             _characters = characters;
             DataContext = this;
+            ToolTip tt = new ToolTip();
+            tt.Text = "tooltip";
+            checkboxFast.ToolTip = tt;
         }
 
         public EQTrigger ReturnTrigger { get; set; }
