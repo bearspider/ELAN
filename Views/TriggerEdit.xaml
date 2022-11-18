@@ -46,7 +46,7 @@
                         <TextBox Grid.Row="2" Grid.Column="1" Name="textboxSearch" HorizontalAlignment="Center" MinWidth="280" Text="{Binding EQTrigger.SearchText}"/>
                         <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1">
                             <CheckBox Grid.Row="4" Grid.Column="0" Name="checkboxRegex" Content="Use Regular Expressions" IsChecked="{Binding EQTrigger.UseRegex}"/>
-                            <CheckBox Margin="10,0,0,0" Grid.Row="6" Name="checkboxFast" Content="Use Fast Check" IsEnabled="{Binding EQTrigger.UseRegex}" IsChecked="{Binding EQTrigger.FastCheck}"/>
+                            <CheckBox Margin="10,0,0,0" Grid.Row="6" Name="checkboxFast" Content="Use Fast Check" IsEnabled="{Binding EQTrigger.UseRegex}" IsChecked="{Binding EQTrigger.FastCheck}" ToolTipOpening="checkboxFast_ToolTipOpening"/>
                         </StackPanel>
                         <Label Grid.Row="8" Grid.Column="0" Name="labelCategory" Content="Category" HorizontalAlignment="Left"/>
                         <ComboBox Grid.Row="8" Grid.Column="1" Name="comboCategory" ItemsSource="{Binding Categories}" SelectedValue="{Binding EQTrigger.Category, Mode=TwoWay}" SelectedValuePath="CategoryName">
@@ -59,7 +59,7 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                         <Label Grid.Row="10" Grid.Column="0" Name="labelComments" Content="Comments" HorizontalAlignment="Left"/>
-                        <TextBox Grid.Row="10" Grid.Column="1" Name="textboxComments" TextWrapping="Wrap" Height="110" Text="{Binding EQTrigger.Comments}"/>
+                        <TextBox Grid.Row="10" Grid.Column="1" Name="textboxComments" TextWrapping="Wrap" Height="110" Text="{Binding EQTrigger.Comments}" />
                         <GroupBox Margin="5" Header="Trigger Activation" Grid.RowSpan="10" Grid.Column="2">
                             <StackPanel Margin="5">
                                 <CheckBox x:Name="checkboxGlobal" Content="Global" IsChecked="{Binding EQTrigger.Global}" HorizontalAlignment="Left"/>
@@ -92,7 +92,7 @@
                                     <CheckBox Grid.Row="0" Grid.Column="0" Name="checkboxBasicDisplay"  Content="Display Text" IsChecked="{Binding EQTrigger.UseBasicText}" HorizontalAlignment="Left"/>
                                     <TextBox Grid.Row="0" Grid.Column="1" Name="textboxBasicDisplay" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding EQTrigger.UseBasicText}" Text="{Binding EQTrigger.BasicText}"/>
                                     <CheckBox Grid.Row="2" Grid.Column="0" Name="checkboxBasicClipboard" Content="Clipboard Text" IsChecked="{Binding EQTrigger.UseClipboardText}" HorizontalAlignment="Left"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" Name="textboxBasicClipboard" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding EQTrigger.UseClipboardText}" Text="{Binding EQTrigger.ClipboardText}"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Name="textboxBasicClipboard" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding EQTrigger.UseClipboardText}" Text="{Binding EQTrigger.BasicClipboardText}"/>
                                 </Grid>
                             </StackPanel>
                         </GroupBox>
@@ -161,7 +161,7 @@
                 </TabItem>
                 <TabItem Name="tabTimer" Header="Timer">
                     <StackPanel>
-                        <StackPanel Margin="5">
+                        <StackPanel>
                             <Grid Margin="0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition />
@@ -171,7 +171,7 @@
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Row="0" Grid.Column="0" Name="labelTimerType" Content="Timer Type:" HorizontalAlignment="Left"/>
-                                <ComboBox Grid.Row="0" Grid.Column="1" Name="comboTimerType" Width="160" HorizontalAlignment="Left" Text="{Binding EQTrigger.TimerType, Mode=TwoWay}" SelectionChanged="comboTimerType_SelectionChanged" >
+                                <ComboBox Grid.Row="0" Grid.Column="1" Name="comboTimerType" HorizontalAlignment="Left" Text="{Binding EQTrigger.TimerType, Mode=TwoWay}" SelectionChanged="comboTimerType_SelectionChanged" >
                                     <ComboBoxItem Name="NoTimer" Content="No Timer" IsSelected="True"/>
                                     <ComboBoxItem Name="Timer" Content="Timer(Count Down)"/>
                                     <ComboBoxItem Name="Stopwatch" Content="Stopwatch(Count Up)"/>
@@ -214,9 +214,16 @@
                             <TextBox Grid.Row="0" Grid.Column="5" Name="textboxTimerSeconds" VerticalAlignment="Center" Text="{Binding EQTrigger.TimerSeconds}" Width="30" IsEnabled="False"/>
                             <Label Grid.Row="0" Grid.Column="6" Name="labelTimerSeconds" Content="Seconds" IsEnabled="False"/>
                         </Grid>
-                        <Grid Margin="0,30,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
                             <Label Grid.Row="0" Grid.Column="0" Name="labelTimerTriggered" Content="If timer is already running when triggered again:" IsEnabled="False"/>
-                            <ComboBox Grid.Row="0" Grid.Column="1" Name="comboTriggered" Width="120" SelectedItem="{Binding EQTrigger.TimerTriggered}">
+                            <ComboBox Grid.Row="0" Grid.Column="1" Name="comboTriggered" Text="{Binding EQTrigger.TimerTriggered, Mode=TwoWay}">
                                 <ComboBoxItem Name="newtimer" Content="Start a new timer"/>
                                 <ComboBoxItem Name="restarttimer" Content="Restart Current Timer"/>
                                 <ComboBoxItem Name="nothing" Content="Do nothing" IsSelected="True"/>
@@ -270,7 +277,7 @@
                                     <CheckBox Grid.Row="0" Grid.Column="0" Name="checkboxEndingDisplay" Content="Display Text" IsChecked="{Binding EQTrigger.UseEndingText}" HorizontalAlignment="Left"  IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
                                     <TextBox Margin="5,0,0,0" Grid.Row="0" Grid.Column="1" Name="textboxEndingDisplay" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding ElementName=checkboxEndingDisplay,Path=IsChecked}" Text="{Binding EQTrigger.EndingText}"/>
                                     <CheckBox Grid.Row="2" Grid.Column="0" Name="checkboxEndingClipboard" Content="Clipboard Text" IsChecked="{Binding EQTrigger.UseEndingClipboard}" HorizontalAlignment="Left" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}"/>
-                                    <TextBox Margin="5,0,0,0" Grid.Row="2" Grid.Column="1" Name="textboxEndingClipboard" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding ElementName=checkboxEndingClipboard,Path=IsChecked}"/>
+                                    <TextBox Margin="5,0,0,0" Grid.Row="2" Grid.Column="1" Name="textboxEndingClipboard" HorizontalAlignment="Center" Width="400" IsEnabled="{Binding ElementName=checkboxEndingClipboard,Path=IsChecked}" Text="{Binding EQTrigger.EndingClipboard}"/>
                                 </Grid>
                             </StackPanel>
                         </GroupBox>
@@ -354,9 +361,9 @@
                         </GroupBox>
                         <GroupBox Name="groupEndedAudioSettings" Header="Audio Settings" Margin="0,5,0,0">
                             <StackPanel Margin="5">
-                                <RadioButton Name="radioEndedNoSound" Content="No Sound" IsChecked="True" IsEnabled="{Binding EQTrigger.EndedNotify}" GroupName="EndedAudio"/>
+                                <RadioButton Name="radioEndedNoSound" Content="No Sound" IsChecked="{Binding EQTrigger.RadioEndedNoSound}" IsEnabled="{Binding ElementName=checkboxEndingNotify,Path=IsChecked}" GroupName="EndedAudio"/>
                                 <StackPanel>
-                                    <RadioButton Margin="0,5,0,0" Name="radioEndedTTS" Content="Use Text To Speech" IsChecked="False" IsEnabled="{Binding ElementName=checkboxEndedNotify, Path=IsChecked}" GroupName="EndedAudio"/>
+                                    <RadioButton Margin="0,5,0,0" Name="radioEndedTTS" Content="Use Text To Speech" IsChecked="{Binding EQTrigger.RadioEndedTTS}" IsEnabled="{Binding ElementName=checkboxEndedNotify, Path=IsChecked}" GroupName="EndedAudio"/>
                                     <Grid Margin="20,5,0,0">
                                         <Grid.RowDefinitions>
                                             <RowDefinition/>
@@ -373,7 +380,7 @@
                                     </Grid>
                                 </StackPanel>
                                 <StackPanel>
-                                    <RadioButton Margin="0,5,0,0" Name="radioEndedPlay" IsChecked="False" Content="Play Sound File" IsEnabled="{Binding ElementName=checkboxEndedNotify, Path=IsChecked}" GroupName="EndedAudio"/>
+                                    <RadioButton Margin="0,5,0,0" Name="radioEndedPlay" IsChecked="{Binding EQTrigger.RadioEndedSound}" Content="Play Sound File" IsEnabled="{Binding ElementName=checkboxEndedNotify, Path=IsChecked}" GroupName="EndedAudio"/>
                                     <Grid Margin="20,5,0,0">
                                         <Grid.RowDefinitions>
                                             <RowDefinition/>

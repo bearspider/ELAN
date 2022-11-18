@@ -1574,11 +1574,14 @@ namespace EQAudioTriggers
         private void editTrigger_Click(object sender, RoutedEventArgs e)
         {
             TriggerManager edittrigger = ((TriggerManager)treeview.SelectedItem);
-            edittrigger.EditTrigger(Characters, Categories, _selectedtheme);
-            _triggermasterlist.Remove(_triggermasterlist.FirstOrDefault(x => x.Id == edittrigger.Trigger.Id));
-            _triggermasterlist.Add(edittrigger.Trigger);
-            WriteTriggers();
-            WriteTriggerGroups();
+            Boolean rval = edittrigger.EditTrigger(Characters, Categories, _selectedtheme);
+            if (rval)
+            {
+                _triggermasterlist.Remove(_triggermasterlist.FirstOrDefault(x => x.Id == edittrigger.Trigger.Id));
+                _triggermasterlist.Add(edittrigger.Trigger);
+                WriteTriggers();
+                WriteTriggerGroups();
+            }
         }
         private void removeTrigger_Click(object sender, RoutedEventArgs e)
         {
@@ -2208,11 +2211,14 @@ namespace EQAudioTriggers
         private void ContextMenuTriggerEdit_Click(object sender, RoutedEventArgs e)
         {
             TriggerManager edittrigger = ((TriggerManager)treeview.SelectedItem);
-            edittrigger.EditTrigger(Characters, Categories, _selectedtheme);
-            _triggermasterlist.Remove(_triggermasterlist.FirstOrDefault(x => x.Id == edittrigger.Trigger.Id));
-            _triggermasterlist.Add(edittrigger.Trigger);
-            WriteTriggers();
-            WriteTriggerGroups();
+            Boolean rval = edittrigger.EditTrigger(Characters, Categories, _selectedtheme);
+            if (rval)
+            {
+                _triggermasterlist.Remove(_triggermasterlist.FirstOrDefault(x => x.Id == edittrigger.Trigger.Id));
+                _triggermasterlist.Add(edittrigger.Trigger);
+                WriteTriggers();
+                WriteTriggerGroups();
+            }
         }
 
         private void ContextMenuTriggerRemove_Click(object sender, RoutedEventArgs e)

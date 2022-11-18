@@ -334,9 +334,9 @@ namespace EQAudioTriggers.Models
             ParentNode.SubGroups.Remove(this);
 
         }
-        public void EditTrigger(ObservableCollection<CharacterCollection> charcollection, ObservableCollection<Category> categories, string theme)
+        public bool EditTrigger(ObservableCollection<CharacterCollection> charcollection, ObservableCollection<Category> categories, string theme)
         {
-            //Do a deep copy to edit from, so if we cancel then just garbage collect it
+            //Do a deep copy to edit from, so if we cancel then just garbage collect it          
             EQTrigger triggercopy = this.Trigger.DeepCopy();
             TriggerEdit te = new TriggerEdit(triggercopy, charcollection, categories);
             te.SetTheme(theme);
@@ -350,6 +350,7 @@ namespace EQAudioTriggers.Models
                     Name = te.ReturnTrigger.Name;
                 }
             }
+            return rval;
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void RaisedOnPropertyChanged(string _PropertyName)

@@ -3,11 +3,13 @@ using Microsoft.Win32;
 using Syncfusion.SfSkinManager;
 using Syncfusion.UI.Xaml.Diagram;
 using Syncfusion.Windows.Shared;
+using Syncfusion.Windows.Tools.Controls;
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Media;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -47,6 +49,8 @@ namespace EQAudioTriggers.Views
         public ObservableCollection<CharacterCollection > Characters { get { return _characters; } set { _characters = value; } }
         public ObservableCollection<Category> Categories { get { return _categories; } set { _categories = value; } }
         public EQTrigger EQTrigger { get { return _eqtrigger; } set { _eqtrigger = value; } }
+        private Regex digestregex = new Regex(@"(?<digest>\w\s?\w?\s?\w?\s?\w?\s?\w?\s?\w?\s?\w?\s?)", RegexOptions.Compiled);
+        private ScreenTip sc = new ScreenTip();
         public void SetTheme(string theme)
         {
             SfSkinManager.SetTheme(this, new Theme(theme));
@@ -62,9 +66,9 @@ namespace EQAudioTriggers.Views
             InitializeComponent();
             _eqtrigger = oldtrigger;
             DataContext = this;
-            ToolTip tt = new ToolTip();
-            tt.Text = "tooltip";
-            checkboxFast.ToolTip = tt;
+            sc.Description = "Fast Check Digest";
+            sc.HelpText = "Does a simple string check first before applying a regex.";
+            checkboxFast.ToolTip = sc;
         }
 
         public TriggerEdit(ObservableCollection<CharacterCollection> characters, ObservableCollection<Category> categories)
@@ -75,9 +79,9 @@ namespace EQAudioTriggers.Views
             _eqtrigger.Category = defaultcategory.CategoryName;
             DataContext = this;
             comboEndedTest.ItemsSource = comboEndingTest.ItemsSource = comboBasicTest.ItemsSource = characters;
-            ToolTip tt = new ToolTip();
-            tt.Text = "tooltip";
-            checkboxFast.ToolTip = tt;
+            sc.Description = "Fast Check Digest";
+            sc.HelpText = "Does a simple string check first before applying a regex.";
+            checkboxFast.ToolTip = sc;
         }
 
         public TriggerEdit(EQTrigger oldtrigger, ObservableCollection<CharacterCollection> characters, ObservableCollection<Category> categories)
@@ -87,22 +91,22 @@ namespace EQAudioTriggers.Views
             _categories = categories;
             _characters = characters;
             DataContext = this;
-            ToolTip tt = new ToolTip();
-            tt.Text = "tooltip";
-            checkboxFast.ToolTip = tt;
+            sc.Description = "Fast Check Digest";
+            sc.HelpText = "Does a simple string check first before applying a regex.";
+            checkboxFast.ToolTip = sc;
         }
 
         public EQTrigger ReturnTrigger { get; set; }
 
         private void buttonTimerCancel_Click(object sender, RoutedEventArgs e)
         {
+            this.DialogResult = false;
             this.Close();
         }
 
         private void buttonTimerSave_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
-            _eqtrigger.TimerTriggered = comboTriggered.Text;
             ReturnTrigger = _eqtrigger;
             this.Close();
         }
@@ -309,6 +313,12 @@ namespace EQAudioTriggers.Views
                         break;
                 }
             }
+        }
+
+        private void checkboxFast_ToolTipOpening(object sender, ToolTipEventArgs e)
+        {
+            string preview = digestregex.Match(textboxSearch.Text).Groups["digest"].Value;
+            sc.Content = preview;
         }
     }
 }
